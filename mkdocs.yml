@@ -1,0 +1,12 @@
+site_name: Tushare Pro Integration
+
+
+theme:
+  name: material
+
+nav:
+  - index.md
+  - install.md
+  - usage.md
+  - settings.md
+  - develop.md

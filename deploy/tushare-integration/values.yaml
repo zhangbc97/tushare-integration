@@ -1,0 +1,60 @@
+# Default values for tushare-integration.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: zhangbc/tushare-integration
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.0.1"
+
+cronjob:
+  - name: daily_morning
+    cron_expr: '0 8 * * 1-5'
+    spiders:
+      - name: "stock/basic/stock_basic"
+      - name: "stock/basic/stock_company"
+  - name: adj_factor
+    cron_expr: '45 9 * * 1-5'
+    spiders:
+      - name: "stock/basic/adj_factor"
+  - name: daily
+    cron_expr: '0 16,17 * * 1-5'
+    spiders:
+      - name: stock/quotes/daily
+      - name: stock/quotes/suspend_d
+      - name: stock/quotes/stk_limit
+  - name: daily_evening
+    cron_expr: '0 19 * * 1-5'
+    spiders:
+      - name: stock/quotes/hsgt_top10
+      - name: stock/quotes/moneyflow
+      - name: stock/quotes/moneyflow_hsgt
+  - name: nightly
+    cron_expr: '0 21 * * *'
+    spiders: [ ]
+  - name: monthly
+    cron_expr: '0 0 1 * *'
+    spiders:
+      - name: stock/basic/trade_cal
+  - name: weekly
+    cron_expr: '0 8 * * 1'
+    spiders:
+      - name: stock/financial/*
+
+token: ''
+db_uri: ''
+db_name: 'tushare'
+sql_template: 'databend'
+
+env:
+  - name: 'FEISHU_WEBHOOK'
+    value: ''
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }

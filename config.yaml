@@ -1,0 +1,40 @@
+# TUSHARE相关配置
+tushare_url: https://api.tushare.pro
+tushare_point: 2000
+tushare_token: ''
+
+# 数据库配置
+db_uri: ''
+db_name: ''
+sql_template: ''
+
+reporters:
+  - "tushare_integration.reporters.FeishuWebHookReporter"
+
+# 飞书Webhook配置
+feishu_webhook: ""
+
+# Scrapy配置
+bot_name: tushare_integration
+concurrent_requests: 10
+concurrent_items: 100
+
+downloader_middlewares:
+  scrapy.downloadermiddlewares.retry.RetryMiddleware: null
+  tushare_integration.middlewares.TushareRetryDownloaderMiddleware: 543
+
+item_pipelines:
+  tushare_integration.pipelines.TushareIntegrationFillNAPipeline: 298
+  tushare_integration.pipelines.TransformDTypePipeline: 299
+  tushare_integration.pipelines.TushareIntegrationDataPipeline: 300
+  tushare_integration.pipelines.RecordLogPipeline: 301
+
+
+# 重试配置
+# Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
+retry_enabled: true
+retry_delay: 10
+retry_times: 6
+
+spider_modules:
+  - "tushare_integration.spiders"

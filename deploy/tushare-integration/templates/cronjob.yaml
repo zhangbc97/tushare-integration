@@ -1,0 +1,53 @@
+{{- range .Values.cronjob}}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .name }}
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  schedule: {{ .cron_expr }}
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          {{- with $.Values.affinity }}
+          affinity:
+                {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $.Values.nodeSelector }}
+          nodeSelector:
+                {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with $.Values.tolerations}}
+          tolerations:
+                {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+          containers:
+            - name: {{ .name }}
+              image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+              args:
+                - -c
+                - "python main.py run job {{ .name }}"
+              env:
+                - name: 'TS_TOKEN'
+                  value: '{{ $.Values.token }}'
+                - name: 'DB_URI'
+                  value: '{{ $.Values.db_uri }}'
+                - name: 'DB_NAME'
+                  value: '{{ $.Values.db_name }}'
+                - name: 'SQL_TEMPLATE'
+                  value: '{{ $.Values.sql_template | default "databend" }}'
+              {{- range $.Values.env }}
+                - name: '{{ .name }}'
+                  value: '{{ .value }}'
+              {{- end }}
+          restartPolicy: OnFailure
+{{- end}}

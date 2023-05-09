@@ -1,0 +1,12 @@
+typer
+PyYAML
+Scrapy
+setuptools
+SQLAlchemy
+pandas
+Jinja2
+itemadapter
+rich
+pymysql
+requests
+pydantic

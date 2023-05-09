@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "tushare-integration"
+version = "0.1.0"
+description = ""
+authors = ["zhangbingchen <1731259685@qq.com>"]
+readme = "README.md"
+packages = [{ include = "tushare_integration" }]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+scrapy = ">=2.8.0"
+pyyaml = ">=6.0"
+typer = ">=0.7.0"
+rich = ">=13.3.3"
+pandas = ">=2.0.0"
+sqlalchemy = ">=2.0.9"
+jinja2 = ">=3.1.2"
+pydantic = "^1.10.7"
+
+
+[[tool.poetry.source]]
+name = "mirrors"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+default = true
+secondary = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

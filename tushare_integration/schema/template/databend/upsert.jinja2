@@ -1,0 +1,11 @@
+REPLACE INTO {{ db_name }}.{{ table_name }} (
+    {%- for column in columns  %}
+    {{ column }}{%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+)
+ON ({{ duplicate_keys }})
+VALUES (
+    {%- for column in columns  %}
+    :{{ column }}{%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+)

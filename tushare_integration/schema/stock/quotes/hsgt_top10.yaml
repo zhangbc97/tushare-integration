@@ -1,0 +1,89 @@
+id: 14
+name: hsgt_top10
+title: 沪深股通十大成交股
+inputs:
+  - name: ts_code
+    data_type: str
+    must: "N"
+    desc: 股票代码
+  - name: trade_date
+    data_type: str
+    must: "N"
+    desc: 交易日期
+  - name: start_date
+    data_type: str
+    must: "N"
+    desc: 开始日期
+  - name: end_date
+    data_type: str
+    must: "N"
+    desc: 结束日期
+  - name: market_type
+    data_type: str
+    must: "N"
+    desc: 市场类型（1：沪市 3：深市）
+  - name: limit
+    data_type: int
+    must: "N"
+    desc: 单次返回数据长度
+  - name: offset
+    data_type: int
+    must: "N"
+    desc: 请求数据的开始位移量
+validations: []
+outputs:
+  - name: trade_date
+    column: TRADE_DATE
+    data_type: date
+    must: "Y"
+    desc: 交易日期
+  - name: ts_code
+    column: CODE
+    data_type: str
+    must: "Y"
+    desc: 股票代码
+  - name: name
+    column: NAME
+    data_type: str
+    must: "Y"
+    desc: 股票名称
+  - name: close
+    column: CLOSE
+    data_type: float
+    must: "Y"
+    desc: 收盘价
+  - name: change
+    column: CHANGE
+    data_type: float
+    must: "Y"
+    desc: 涨跌幅
+  - name: rank
+    column: RANK
+    data_type: int
+    must: "Y"
+    desc: 资金排名
+  - name: market_type
+    column: MARKETTYPE
+    data_type: str
+    must: "Y"
+    desc: 市场类型（1：沪市 3：深市）
+  - name: amount
+    column: CJJE
+    data_type: float
+    must: "Y"
+    desc: 成交金额
+  - name: net_amount
+    column: JME
+    data_type: float
+    must: "Y"
+    desc: 净成交金额
+  - name: buy
+    column: MRJE
+    data_type: float
+    must: "Y"
+    desc: 买入金额
+  - name: sell
+    column: MCJE
+    data_type: float
+    must: "Y"
+    desc: 卖出金额

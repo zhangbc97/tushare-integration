@@ -1,8 +1,4 @@
-## Tushare-Integration
-
-> TusharePro接口数据集成工具
-
-**目前项目还未达到可用级别，请耐心等待**
+# 项目介绍
 
 ## 项目背景
 
