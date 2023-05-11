@@ -103,7 +103,8 @@ class TransformDTypePipeline(BasePipeline):
                 case "number":
                     data[column["name"]] = data[column["name"]].astype(float)
                 case "date":
-                    data[column["name"]] = pd.to_datetime(data[column["name"]], format='mixed').dt.date
+                    data[column["name"]] = pd.to_datetime(data[column["name"]], format='mixed', errors='coerce').dt.date
+                    data[column["name"]] = data[column["name"]].replace({pd.NaT: pd.to_datetime('1970-01-01').date()})
                 case "datetime":
                     data[column["name"]] = pd.to_datetime(data[column["name"]])
                 case _:

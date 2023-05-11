@@ -30,7 +30,7 @@
     {{ type_(column) }} NOT NULL DEFAULT {{ default_value(column) }}
 {%- endmacro -%}
 
-CREATE TRANSIENT TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
+CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
 (
 {%- for column in outputs %}
     `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.desc }}'{{ ',' if not loop.last }}

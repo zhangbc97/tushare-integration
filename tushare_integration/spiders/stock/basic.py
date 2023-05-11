@@ -97,4 +97,4 @@ class StockBakBasicSpider(DailySpider):
     name = "stock/basic/bak_basic"
     description = '备用列表'
     api_name = "bak_basic"
-    custom_settings = {"MIN_CAL_DATE": "2015-12-01"}
+    custom_settings = {"MIN_CAL_DATE": "2016-08-01"}

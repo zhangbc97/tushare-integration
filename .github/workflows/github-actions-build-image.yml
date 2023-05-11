@@ -1,0 +1,19 @@
+name: kaniko-build
+on:
+  push:
+    tags:
+      - *
+jobs:
+  # 构建并上传 Docker镜像
+  build:
+    runs-on: ubuntu-latest # 依赖的环境
+    steps:
+      - uses: actions/checkout@master
+      - name: Build Image
+        uses: aevea/action-kaniko@master
+        with:
+          image: zhangbc/tushare-integration
+          username: ${{secret.DOCKER_USERNAME}}
+          password: ${{secret.DOCKER_PASSWORD}}
+          tag: ${{ github.ref_name }}
+          tag_with_latest: true
