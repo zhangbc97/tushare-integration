@@ -2,7 +2,7 @@ name: kaniko-build
 on:
   push:
     tags:
-      - *
+      - '*'
 jobs:
   # 构建并上传 Docker镜像
   build:

@@ -1,6 +1,7 @@
 id: 2
 name: stock_basic
 title: 基础信息
+primary_key: ts_code
 inputs:
   - name: ts_code
     data_type: str
@@ -114,4 +115,3 @@ outputs:
     data_type: str
     must: N
     desc: 是否沪
-primary_key: ts_code

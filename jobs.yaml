@@ -7,27 +7,27 @@ cronjob:
   - name: daily_open
     cron_expr: '40 9 * * 1-5'
     spiders:
-      - name: stock/quotes/adj_factor
-      - name: stock/quotes/stk_limit
+      - name: "stock/quotes/adj_factor"
+      - name: "stock/quotes/stk_limit"
   - name: daily
     cron_expr: '0 16,17 * * 1-5'
     spiders:
-      - name: stock/quotes/daily
-      - name: stock/quotes/suspend_d
+      - name: "stock/quotes/daily"
+      - name: "stock/quotes/suspend_d"
   - name: daily_evening
     cron_expr: '0 19 * * 1-5'
     spiders:
-      - name: stock/quotes/hsgt_top10
-      - name: stock/quotes/moneyflow
-      - name: stock/quotes/moneyflow_hsgt
+      - name: "stock/quotes/hsgt_top10"
+      - name: "stock/quotes/moneyflow"
+      - name: "stock/quotes/moneyflow_hsgt"
   - name: nightly
     cron_expr: '0 21 * * *'
     spiders: [ ]
   - name: monthly
     cron_expr: '0 0 1 * *'
     spiders:
-      - name: stock/basic/trade_cal
+      - name: "stock/basic/trade_cal"
   - name: weekly
     cron_expr: '0 8 * * 1'
     spiders:
-      - name: stock/financial/*
+      - name: "stock/financial/*"

@@ -122,9 +122,9 @@ class TSCodeSpider(TushareSpider):
         ts_codes = [
             row[0]
             for row in conn.execute(
-                f"""
+                text(f"""
                 SELECT ts_code FROM {db_name}.{table_name}
-                """
+                """)
             ).fetchall()
         ]
 

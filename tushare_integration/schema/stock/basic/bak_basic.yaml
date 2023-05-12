@@ -1,6 +1,7 @@
 id: 176
 name: bak_basic
 title: 备用列表
+primary_key: ts_code,trade_date
 inputs:
   - name: trade_date
     data_type: str

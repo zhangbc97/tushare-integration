@@ -1,6 +1,7 @@
 id: 48
 name: hs_const
 title: 沪深股通成份股
+primary_key: ts_code,hs_type,in_date
 inputs:
   - name: hs_type
     data_type: str

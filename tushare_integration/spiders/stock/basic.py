@@ -1,6 +1,6 @@
 import datetime
 
-from tushare_integration.spiders.tushare import TushareSpider, DailySpider
+from tushare_integration.spiders.tushare import TushareSpider, DailySpider, TSCodeSpider
 
 
 class StockBasicSpider(TushareSpider):
@@ -78,6 +78,18 @@ class StockCompanySpider(TushareSpider):
         for exchange in ["SSE", "SZSE"]:
             params = {"exchange": exchange}
             yield self.get_scrapy_request(params)
+
+
+class StockManagers(TSCodeSpider):
+    name = "stock/basic/stk_managers"
+    description = '上市公司管理层'
+    api_name = "stk_managers"
+
+
+class StockRewards(TSCodeSpider):
+    name = "stock/basic/stk_rewards"
+    description = '管理层薪酬和持股'
+    api_name = "stk_rewards"
 
 
 class StockNewShareSpider(TushareSpider):

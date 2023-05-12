@@ -1,6 +1,7 @@
 id: 56
 name: stock_company
 title: 上市公司基本信息
+primary_key: ts_code
 inputs:
   - name: ts_code
     data_type: str

@@ -1,6 +1,7 @@
 id: 66
 name: new_share
 title: IPO新股列表
+primary_key: ts_code,sub_code
 inputs:
   - name: start_date
     data_type: str
