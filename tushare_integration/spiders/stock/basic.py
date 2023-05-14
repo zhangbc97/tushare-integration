@@ -98,7 +98,6 @@ class StockNewShareSpider(TushareSpider):
     api_name = "new_share"
 
     def start_requests(self):
-        # 有些数据库不支持upsert，每次触发都会清空数据库表，每次都全量同步数据
         # 用start_date和end_date筛选，每次拉取一年的数据
         for year in range(1990, datetime.datetime.now().year + 1):
             params = {"start_date": str(year) + "0101", "end_date": str(year) + "1231"}

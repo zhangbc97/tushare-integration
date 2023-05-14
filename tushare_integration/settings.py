@@ -99,3 +99,10 @@ class TushareIntegrationSettings(BaseSettings):
         @classmethod
         def customise_sources(cls, init_settings, env_settings, file_secret_settings):
             return env_settings, init_settings, file_secret_settings
+
+
+# 保持scrapy兼容
+for key, value in TushareIntegrationSettings.parse_file(
+        'config.yaml'
+).get_settings().items():
+    locals()[key] = value
