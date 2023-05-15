@@ -8,11 +8,37 @@ import yaml
 from sqlalchemy import create_engine, text
 
 from tushare_integration.items import TushareIntegrationItem
+from tushare_integration.schema.sql_template import SQLTemplate
 
 
 class TushareSpider(scrapy.Spider):
     name = None
     api_name: str = None
+    schema = None
+
+    def __init__(self, name=None, **kwargs):
+        super().__init__(name, **kwargs)
+        self.schema = self.get_schema()
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super().from_crawler(crawler, *args, **kwargs)
+        spider.create_table()
+        return spider
+
+    def create_table(self):
+        logging.info(f"create table {self.get_table_name()}")
+        self.get_db_conn().execute(text(
+            SQLTemplate(db_type=self.settings.get('SQL_TEMPLATE')).create_table(
+                db_name=self.settings.get('DB_NAME'),
+                table_name=self.get_table_name(),
+                schema=self.get_schema())))
+
+    def get_schema(self):
+        with open(
+                f"tushare_integration/schema/{self.get_schema_name()}.yaml", "r", encoding="utf-8"
+        ) as f:
+            return yaml.safe_load(f.read())
 
     def start_requests(self):
         yield self.get_scrapy_request()
@@ -58,11 +84,7 @@ class TushareSpider(scrapy.Spider):
         )
 
     def load_fields(self):
-        with open(
-                f"tushare_integration/schema/{self.get_schema_name()}.yaml", "r", encoding="utf-8"
-        ) as f:
-            schema = yaml.safe_load(f.read())
-            return ",".join([column["name"] for column in schema["outputs"]])
+        return ",".join([column["name"] for column in self.schema["outputs"]])
 
     def get_schema_name(self):
         return self.name

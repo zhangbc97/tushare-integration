@@ -1,7 +1,7 @@
 id: 3
 name: trade_cal
 title: 交易日历
-primary_key: ts_code,cal_date
+primary_key: cal_date,exchange
 inputs:
   - name: exchange
     data_type: str

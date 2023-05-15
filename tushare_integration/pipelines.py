@@ -4,13 +4,13 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import datetime
 import logging
-import os
 
-import jinja2
 import pandas as pd
 import yaml
 # useful for handling different item types with a single interface
 from sqlalchemy import create_engine, text
+
+from tushare_integration.schema.sql_template import SQLTemplate
 
 
 class BasePipeline(object):
@@ -26,33 +26,6 @@ class BasePipeline(object):
 
     def open_spider(self, spider):
         self.schema = self.get_schema(spider.get_schema_name())
-
-
-class SQLTemplate(object):
-    def __init__(self, db_type: str = 'databend'):
-        self.db_type = db_type
-
-    def render(self, db_name: str, table_name: str, template_file: str, **kwargs):
-        if not os.path.exists(f"tushare_integration/schema/template/{self.db_type}/{template_file}"):
-            raise FileNotFoundError(f"tushare_integration/schema/template/{self.db_type}/{template_file}")
-
-        with open(f"tushare_integration/schema/template/{self.db_type}/{template_file}", "r", encoding="utf-8") as f:
-            template = jinja2.Template(f.read())
-            sql = template.render(
-                db_name=db_name,
-                table_name=table_name,
-                **kwargs
-            )
-            return sql
-
-    def create_table(self, db_name: str, table_name: str, schema: dict):
-        return self.render(db_name, table_name, "table.jinja2", **schema)
-
-    def insert_data(self, db_name: str, table_name: str, columns: list):
-        return self.render(db_name, table_name, "insert.jinja2", columns=columns)
-
-    def upsert_data(self, db_name: str, table_name: str, columns: list, duplicate_keys: str):
-        return self.render(db_name, table_name, "upsert.jinja2", columns=columns, duplicate_keys=duplicate_keys)
 
 
 class TushareIntegrationFillNAPipeline(BasePipeline):
@@ -127,13 +100,9 @@ class TushareIntegrationDataPipeline(BasePipeline):
     def open_spider(self, spider):
         super().open_spider(spider)
         self.table_name = spider.get_table_name()
-        self.create_table(self.table_name, self.schema)
 
     def close_spider(self, spider):
         self.conn.close()
-
-    def create_table(self, table_name: str, schema: dict):
-        self.conn.execute(text(self.template.create_table(self.db_name, table_name, schema=schema)))
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
@@ -142,6 +111,7 @@ class TushareIntegrationDataPipeline(BasePipeline):
             return item
 
         if (primary_key := self.schema.get("primary_key", None)) is not None:
+            data = data.drop_duplicates(subset=primary_key.split(","), keep="last")
             self.conn.execute(
                 text(
                     self.template.upsert_data(self.db_name, self.table_name, data.columns.tolist(), primary_key)

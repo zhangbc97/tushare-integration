@@ -1,7 +1,7 @@
 id: 131
 name: stk_rewards
 title: 管理层薪酬和持股
-primary_key: ts_code,ann_date,name
+primary_key: ts_code,ann_date,name,title
 inputs:
   - name: ts_code
     data_type: str
