@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest # 依赖的环境
     steps:
       - uses: actions/checkout@master
+        with:
+          ref: ${{ github.ref_name }}
       - name: Build Image
         uses: aevea/action-kaniko@master
         with:
