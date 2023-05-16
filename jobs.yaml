@@ -14,6 +14,7 @@ cronjob:
     spiders:
       - name: "stock/quotes/daily"
       - name: "stock/quotes/suspend_d"
+      - name: "stock/basic/namechange"
   - name: daily_evening
     cron_expr: '0 19 * * 1-5'
     spiders:
