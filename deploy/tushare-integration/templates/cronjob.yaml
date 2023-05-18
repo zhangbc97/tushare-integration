@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ .name }}
+  name: tusahre-integration-{{ .name }}
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -37,7 +37,7 @@ spec:
                 - -c
                 - "python main.py run job {{ .name }}"
               env:
-                - name: 'TS_TOKEN'
+                - name: 'TUSHARE_TOKEN'
                   value: '{{ $.Values.token }}'
                 - name: 'DB_URI'
                   value: '{{ $.Values.db_uri }}'

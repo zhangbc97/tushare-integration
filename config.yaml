@@ -8,8 +8,8 @@ db_uri: ''
 db_name: ''
 sql_template: ''
 
-reporters: []
-#  - "tushare_integration.reporters.FeishuWebHookReporter"
+reporters:
+  - "tushare_integration.reporters.FeishuWebHookReporter"
 
 # 飞书Webhook配置
 feishu_webhook: ""
