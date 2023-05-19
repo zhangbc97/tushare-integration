@@ -68,6 +68,9 @@ class CrawlManager(object):
             self.process.crawl(spider)
 
         self.process.start()
+        self.report()
+        # 如果有异常就抛出
+        self.raise_for_signal()
 
     def run_spider(self, spider: str):
         for spider in self.list_spiders(spider):
@@ -76,6 +79,12 @@ class CrawlManager(object):
 
         self.process.start()
         self.report()
+        # 如果有异常就抛出
+        self.raise_for_signal()
+
+    def raise_for_signal(self):
+        if self.signals:
+            raise Exception(f"Signals: {self.signals}")
 
     def get_report_content(self):
         content = f"批次ID：{self.batch_id}\n"
