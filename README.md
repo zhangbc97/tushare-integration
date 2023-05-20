@@ -2,7 +2,7 @@
 
 > TusharePro接口数据集成工具
 
-**目前项目还未达到可用级别，请耐心等待**
+完整文档地址：[https://zhangbc97.github.io/tushare-integration/](https://zhangbc97.github.io/tushare-integration/)
 
 ## 项目背景
 
@@ -13,6 +13,13 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
 
 - 实现同步 Tushare Pro 接口数据到本地数据库，并支持全量同步与增量更新
 - 支持将数据写入到多种数据库
+
+## 目前支持的接口
+
+- 沪深股票
+    - 基础数据
+    - 行情数据(不包含通用行情)
+    - 财务数据
 
 ## 目前支持的数据库
 

@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: tusahre-integration-{{ .name }}
+  name: tushare-integration-{{ .name }}
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
