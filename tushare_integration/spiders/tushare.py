@@ -169,7 +169,7 @@ class FinancialReportSpider(TushareSpider):
     def get_all_period():
         # 获取所有的period
         periods = []
-        for year in range(2022, datetime.datetime.now().year):
+        for year in range(1990, datetime.datetime.now().year):
             for end_date in [f"{year}0331", f"{year}0630", f"{year}0930", f"{year}1231"]:
                 periods.append(end_date)
         return periods

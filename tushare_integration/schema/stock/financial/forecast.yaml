@@ -117,4 +117,4 @@ outputs:
     data_type: str
     must: 'Y'
     desc: 更新标志
-primary_key: ts_code,ann_date,f_ann_date,end_date
+primary_key: ts_code,ann_date,end_date
