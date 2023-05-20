@@ -15,7 +15,11 @@ class FeishuWebHookReporter(Reporter):
         super(FeishuWebHookReporter, self).__init__(*args, **kwargs)
 
     def send_report(self, subject: str, content: str, *args, **kwargs):
-        # 将content按照\n分割
+        if not self.webhook:
+            logging.info('No feishu webhook, skip send report')
+            return
+
+            # 将content按照\n分割
         body = {
             "msg_type": "post",
             "content": {"post": {"zh_cn": {"title": subject,
