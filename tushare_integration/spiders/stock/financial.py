@@ -39,3 +39,43 @@ class ForeCastSpider(FinancialReportSpider):
     custom_settings = {
         "TABLE_NAME": "forecast",
     }
+
+
+# class DividendSpider(FinancialReportSpider):
+#     name = "stock/financial/dividend"
+#     api_name = "dividend"
+#     custom_settings = {
+#         "TABLE_NAME": "dividend",
+#     }
+
+
+class FinaIndicatorSpider(FinancialReportSpider):
+    name = "stock/financial/fina_indicator"
+    api_name = "fina_indicator"
+    custom_settings = {
+        "TABLE_NAME": "fina_indicator",
+    }
+
+
+# class FinaAuditSpider(FinancialReportSpider):
+#     name = "stock/financial/fina_audit"
+#     api_name = "fina_audit"
+#     custom_settings = {
+#         "TABLE_NAME": "fina_audit",
+#     }
+
+
+class FinaMainBZSpider(FinancialReportSpider):
+    name = "stock/financial/fina_mainbz"
+    api_name = "fina_mainbz"
+    custom_settings = {
+        "TABLE_NAME": "fina_mainbz",
+    }
+
+
+# class DisclosureDateSpider(FinancialReportSpider):
+#     name = "stock/financial/disclosure_date"
+#     api_name = "disclosure_date"
+#     custom_settings = {
+#         "TABLE_NAME": "disclosure_date",
+#     }
