@@ -57,17 +57,13 @@ class FinaIndicatorSpider(FinancialReportSpider):
     }
 
 
-class FinaAuditSpider(FinancialReportSpider):
+class FinaAuditSpider(TSCodeSpider):
     name = "stock/financial/fina_audit"
     api_name = "fina_audit"
     custom_settings = {
         "TABLE_NAME": "fina_audit",
     }
 
-    def start_requests(self):
-        periods = self.get_all_period()
-        for period in periods:
-            yield self.get_scrapy_request(params={"period": period})
 
 
 class FinaMainBZSpider(FinancialReportSpider):

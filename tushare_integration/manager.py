@@ -40,7 +40,7 @@ class CrawlManager(object):
             spiders = [s for s in spiders if re.match(spider, s)]
         return spiders
 
-    def append_signal(self, signal, sender, item, response, spider):
+    def append_signal(self, signal, sender=None, item=None, response=None, spider=None):
         if not any([s['signal'] == signal and s['spider'] == spider for s in self.signals]):
             self.signals.append(
                 {'signal': signal, 'sender': sender, 'item': item, 'response': response, 'spider': spider}

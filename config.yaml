@@ -16,7 +16,7 @@ feishu_webhook: ""
 
 # Scrapy配置
 bot_name: tushare_integration
-concurrent_requests: 10
+concurrent_requests: 1
 concurrent_items: 100
 
 downloader_middlewares:
@@ -38,3 +38,5 @@ retry_times: 6
 
 spider_modules:
   - "tushare_integration.spiders"
+
+closespider_errorcount: 1

@@ -76,6 +76,8 @@ class TushareIntegrationSettings(BaseSettings):
     reactor_threadpool_maxsize: int = Field(default=1, description='reactor线程池最大数量')
     feed_export_encoding: str = Field(default='utf-8', description='导出编码')
 
+    closespider_errorcount: int = Field(default=1, description='错误数量')
+
     def get_frequency(self):
         frequency = 0
         for freq in point_frequency:

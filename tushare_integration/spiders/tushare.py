@@ -4,6 +4,7 @@ import logging
 
 import pandas as pd
 import scrapy
+from scrapy.exceptions import CloseSpider
 import yaml
 from sqlalchemy import create_engine, text
 
@@ -50,7 +51,8 @@ class TushareSpider(scrapy.Spider):
         resp = json.loads(response.text)
 
         if resp["code"] != 0:
-            raise ValueError(resp["msg"])
+            logging.error(f"Request {self.get_api_name()} failed: {resp['msg']}")
+            raise RuntimeError(resp['msg'])
 
         return TushareIntegrationItem(
             data=pd.DataFrame(
@@ -81,6 +83,9 @@ class TushareSpider(scrapy.Spider):
             headers={
                 "Content-Type": "application/json",
             },
+            meta={
+                'api_name': self.get_api_name()
+            }
         )
 
     def load_fields(self):
