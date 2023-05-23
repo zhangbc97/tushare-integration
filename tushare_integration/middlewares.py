@@ -119,8 +119,9 @@ class TushareRetryDownloaderMiddleware(RetryMiddleware):
             return self._retry(request, reason, spider) or response
 
         if json.loads(response.text)["code"] != 0:
-            time.sleep(self.retry_delay)
-            reason = "code not 0"
-            return self._retry(request, reason, spider) or response
+            if json.loads(response.text)["code"] == 40201:
+                time.sleep(self.retry_delay)
+                reason = "rate limit"
+                return self._retry(request, reason, spider) or response
 
         return response

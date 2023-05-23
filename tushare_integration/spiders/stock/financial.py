@@ -1,4 +1,4 @@
-from tushare_integration.spiders.tushare import FinancialReportSpider
+from tushare_integration.spiders.tushare import FinancialReportSpider, TSCodeSpider
 
 
 class BalanceSheetSpider(FinancialReportSpider):
@@ -41,12 +41,12 @@ class ForeCastSpider(FinancialReportSpider):
     }
 
 
-# class DividendSpider(FinancialReportSpider):
-#     name = "stock/financial/dividend"
-#     api_name = "dividend"
-#     custom_settings = {
-#         "TABLE_NAME": "dividend",
-#     }
+class DividendSpider(TSCodeSpider):
+    name = "stock/financial/dividend"
+    api_name = "dividend"
+    custom_settings = {
+        "TABLE_NAME": "dividend",
+    }
 
 
 class FinaIndicatorSpider(FinancialReportSpider):
@@ -57,12 +57,17 @@ class FinaIndicatorSpider(FinancialReportSpider):
     }
 
 
-# class FinaAuditSpider(FinancialReportSpider):
-#     name = "stock/financial/fina_audit"
-#     api_name = "fina_audit"
-#     custom_settings = {
-#         "TABLE_NAME": "fina_audit",
-#     }
+class FinaAuditSpider(FinancialReportSpider):
+    name = "stock/financial/fina_audit"
+    api_name = "fina_audit"
+    custom_settings = {
+        "TABLE_NAME": "fina_audit",
+    }
+
+    def start_requests(self):
+        periods = self.get_all_period()
+        for period in periods:
+            yield self.get_scrapy_request(params={"period": period})
 
 
 class FinaMainBZSpider(FinancialReportSpider):
@@ -73,9 +78,14 @@ class FinaMainBZSpider(FinancialReportSpider):
     }
 
 
-# class DisclosureDateSpider(FinancialReportSpider):
-#     name = "stock/financial/disclosure_date"
-#     api_name = "disclosure_date"
-#     custom_settings = {
-#         "TABLE_NAME": "disclosure_date",
-#     }
+class DisclosureDateSpider(FinancialReportSpider):
+    name = "stock/financial/disclosure_date"
+    api_name = "disclosure_date"
+    custom_settings = {
+        "TABLE_NAME": "disclosure_date",
+    }
+
+    def start_requests(self):
+        periods = self.get_all_period()
+        for period in periods:
+            yield self.get_scrapy_request(params={"end_date": period})
