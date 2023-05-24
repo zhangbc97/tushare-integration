@@ -65,7 +65,6 @@ class FinaAuditSpider(TSCodeSpider):
     }
 
 
-
 class FinaMainBZSpider(FinancialReportSpider):
     name = "stock/financial/fina_mainbz"
     api_name = "fina_mainbz"

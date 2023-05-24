@@ -1,4 +1,7 @@
+import logging
+
 import pandas as pd
+import sqlalchemy
 from sqlalchemy import text
 
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
@@ -152,4 +155,60 @@ class BakDailySpider(DailySpider):
     name = "stock/quotes/bak_daily"
     custom_settings = {"TABLE_NAME": "bak_daily"}
 
+
 # 港股通每月成交统计数据只更新到2020年底，在这里不开发策略
+
+# noinspection SqlNoDataSourceInspection
+class StockMin(TushareSpider):
+    name = "stock/quotes/stk_mins"
+    custom_settings = {
+        "TABLE_NAME": "stk_mins",
+        "BASIC_TABLE": "stock_basic",
+        "DAILY_TABLE": "daily",
+        "MIN_CAL_DATE": "2009-01-01"
+    }
+
+    # noinspection SqlDialectInspection
+    def start_requests(self):
+        # 取所有的ts_code,按日筛分钟线
+        for ts_code in self.get_db_conn().execute(
+                sqlalchemy.text(
+                    f""" SELECT ts_code FROM {self.settings.get("DB_NAME")}.{self.custom_settings.get("BASIC_TABLE")}"""
+                )).fetchall():
+            # 不同的数据库查询语句不同，这里可能需要特殊定制，目前只适配databend
+            exists_date = self.get_db_conn().execute(
+                sqlalchemy.text(
+                    f"""
+                    SELECT DISTINCT to_date(trade_time) 
+                    FROM {self.settings.get("DB_NAME")}.{self.get_table_name()}
+                    WHERE ts_code = '{ts_code[0]}'"""
+                )).fetchall()
+
+            trade_dates = self.get_db_conn().execute(
+                sqlalchemy.text(
+                    f"""
+                    SELECT DISTINCT trade_date 
+                    FROM {self.settings.get("DB_NAME")}.{self.custom_settings.get("DAILY_TABLE")}
+                    WHERE ts_code = '{ts_code[0]}'"""
+                )).fetchall()
+
+            # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
+
+            for trade_date in trade_dates:
+                if trade_date[0] not in [date[0] for date in exists_date]:
+                    continue
+                yield self.get_scrapy_request(
+                    params={
+                        "ts_code": ts_code[0],
+                        "start_date": trade_date[0].strftime("%Y-%m-%d") + " 09:00:00",
+                        "end_date": trade_date[0].strftime("%Y-%m-%d") + " 16:00:00",
+                        "freq": "1min"
+                    }
+                )
+
+    def parse(self, response, **kwargs):
+        item = self.parse_response(response)
+        if len(item.data) != 241:
+            logging.error(f"length of data is not 241, {item.data}")
+            return
+        return item

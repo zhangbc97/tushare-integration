@@ -1,0 +1,69 @@
+name: stk_mins
+title: 分钟线行情
+inputs:
+  - name: ts_code
+    data_type: str
+    must: "N"
+    desc: 股票代码
+  - name: trade_date
+    data_type: str
+    must: "N"
+    desc: 交易日期
+  - name: start_date
+    data_type: str
+    must: "N"
+    desc: 开始日期
+  - name: end_date
+    data_type: str
+    must: "N"
+    desc: 结束日期
+  - name: offset
+    data_type: str
+    must: "N"
+    desc: 开始行数
+  - name: limit
+    data_type: str
+    must: "N"
+    desc: 最大行数
+validations: [ ]
+outputs:
+  - name: ts_code
+    column: TS_CODE
+    data_type: str
+    must: "Y"
+    desc: 股票代码
+  - name: trade_time
+    column: TRADE_TIME
+    data_type: datetime
+    must: "Y"
+    desc: 交易时间
+  - name: open
+    column: OPEN
+    must: "Y"
+    data_type: float
+    desc: 开盘价
+  - name: high
+    column: HIGH
+    must: "Y"
+    data_type: float
+    desc: 最高价
+  - name: low
+    column: LOW
+    must: "Y"
+    data_type: float
+    desc: 最低价
+  - name: close
+    column: CLOSE
+    must: "Y"
+    data_type: float
+    desc: 收盘价
+  - name: vol
+    column: VOL
+    must: "Y"
+    data_type: float
+    desc: 成交量
+  - name: amount
+    column: AMOUNT
+    must: "Y"
+    data_type: float
+    desc: 成交额
