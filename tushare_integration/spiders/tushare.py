@@ -4,7 +4,6 @@ import logging
 
 import pandas as pd
 import scrapy
-from scrapy.exceptions import CloseSpider
 import yaml
 from sqlalchemy import create_engine, text
 
@@ -84,7 +83,8 @@ class TushareSpider(scrapy.Spider):
                 "Content-Type": "application/json",
             },
             meta={
-                'api_name': self.get_api_name()
+                'api_name': self.get_api_name(),
+                'params': params,
             }
         )
 

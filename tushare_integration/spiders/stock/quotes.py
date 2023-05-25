@@ -189,13 +189,14 @@ class StockMin(TushareSpider):
                     f"""
                     SELECT DISTINCT trade_date 
                     FROM {self.settings.get("DB_NAME")}.{self.custom_settings.get("DAILY_TABLE")}
-                    WHERE ts_code = '{ts_code[0]}'"""
+                    WHERE ts_code = '{ts_code[0]}' AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
+                    ORDER BY trade_date"""
                 )).fetchall()
 
             # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
 
             for trade_date in trade_dates:
-                if trade_date[0] not in [date[0] for date in exists_date]:
+                if trade_date[0] in [date[0] for date in exists_date]:
                     continue
                 yield self.get_scrapy_request(
                     params={
@@ -208,7 +209,8 @@ class StockMin(TushareSpider):
 
     def parse(self, response, **kwargs):
         item = self.parse_response(response)
-        if len(item.data) != 241:
-            logging.error(f"length of data is not 241, {item.data}")
+
+        if len(item['data']) != 241:
+            logging.error(f"length of data is not 241, params: {response.meta['params']}")
             return
         return item

@@ -4,6 +4,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: tushare-integration-{{ .name }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -26,7 +27,13 @@ spec:
           tolerations:
                 {{- toYaml . | nindent 12 }}
           {{- end }}
-
+          volumes:
+            - name: config
+              configMap:
+                name: tushare-integration-cronjob
+                items:
+                  - key: cronjob.yaml
+                    path: jobs.yaml
           containers:
             - name: {{ .name }}
               image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
@@ -49,5 +56,9 @@ spec:
                 - name: '{{ .name }}'
                   value: '{{ .value }}'
               {{- end }}
+              volumeMounts:
+                - name: config
+                  mountPath: /code/app/jobs.yaml
+                  subPath: jobs.yaml
           restartPolicy: OnFailure
 {{- end}}

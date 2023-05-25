@@ -1,0 +1,10 @@
+# 将values.yaml中的cronjob写入configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tushare-integration-cronjob
+  namespace: {{ .Release.Namespace }}
+data:
+  cronjob.yaml: |-
+    cronjob:
+{{ .Values.cronjob  | toYaml | indent 4}}
