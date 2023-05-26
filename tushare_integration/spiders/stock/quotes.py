@@ -1,9 +1,11 @@
+import datetime
 import logging
 
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import text
 
+from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
@@ -192,25 +194,42 @@ class StockMin(TushareSpider):
                     WHERE ts_code = '{ts_code[0]}' AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
                     ORDER BY trade_date"""
                 )).fetchall()
-
             # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
 
+            # 当我们看到一个交易日的时候，直接拉取这个交易日和后面40天的数据
+            # 表配备了主键，使用REPLACE INTO解决重复问题
+            # 这个方式比较粗暴，但是考虑到缺失某天的数据的情况比较少，如果后续需要的话再进行优化
+            last_end_date = None
             for trade_date in trade_dates:
+                # 如果这个交易日已经存在，那么就不需要再拉取了
                 if trade_date[0] in [date[0] for date in exists_date]:
                     continue
+                # 如果有last_end_date，那么就是在上一次请求的基础上继续拉取
+                # 如果trade_date[0]在last_end_date之前，那么就不需要再拉取了
+                if last_end_date and trade_date[0] <= last_end_date:
+                    continue
+
+                # 符合条件直接拉取接下来40天的数据
                 yield self.get_scrapy_request(
                     params={
                         "ts_code": ts_code[0],
                         "start_date": trade_date[0].strftime("%Y-%m-%d") + " 09:00:00",
-                        "end_date": trade_date[0].strftime("%Y-%m-%d") + " 16:00:00",
+                        "end_date": (trade_date[0] + datetime.timedelta(days=40)).strftime("%Y-%m-%d") + " 16:00:00",
                         "freq": "1min"
                     }
                 )
+                # 把last_end_date更新为当前trade_date[0] + 40天
+                last_end_date = trade_date[0] + datetime.timedelta(days=40)
 
     def parse(self, response, **kwargs):
         item = self.parse_response(response)
-
-        if len(item['data']) != 241:
-            logging.error(f"length of data is not 241, params: {response.meta['params']}")
-            return
-        return item
+        # 一次采集多天的数据，需要逐天判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
+        data: pd.DataFrame = item['data']
+        data['trade_time'] = pd.to_datetime(data['trade_time'])
+        for trade_date, values in data.groupby(data['trade_time'].dt.date):
+            if len(values) != 241:
+                logging.error(f"length of data is not 241, params: {response.meta['params']}")
+                continue
+            yield TushareIntegrationItem(
+                data=data[data['trade_time'].dt.date == trade_date].copy()
+            )

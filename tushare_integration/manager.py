@@ -105,11 +105,11 @@ class CrawlManager(object):
 
         if self.signals:
             content += "警告信息：\n"
-            for signal in self.signals:
-                if signal['signal'] == scrapy.signals.item_error:
-                    content += f"爬虫名称:{signal['spider'].name} 警告信息:item error\n"
-                elif signal['signal'] == scrapy.signals.spider_error:
-                    content += f"爬虫名称:{signal['spider'].name} 警告信息:spider error\n"
+            for scrapy_signal in self.signals:
+                if scrapy_signal['signal'] == scrapy.signals.item_error:
+                    content += f"爬虫名称:{scrapy_signal['spider'].name} 警告信息:item error\n"
+                elif scrapy_signal['signal'] == scrapy.signals.spider_error:
+                    content += f"爬虫名称:{scrapy_signal['spider'].name} 警告信息:spider error\n"
         return content
 
     def report(self):
@@ -121,5 +121,6 @@ class CrawlManager(object):
                 content=self.get_report_content()
             )
 
-    def stop(self, *args, **kwargs):
+    def stop(self, signum, frame):
+        logging.info("caught stop signal, stopping...")
         self.process.stop()
