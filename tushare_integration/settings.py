@@ -45,8 +45,8 @@ class TushareIntegrationSettings(BaseSettings):
 
     robotstxt_obey: bool = Field(default=False, description='是否遵守robots.txt')
 
-    concurrent_requests: int = Field(default=1, description='并发请求数')
-    concurrent_items: int = Field(default=100, description='并发item数')
+    concurrent_requests: int = Field(default=1, env="CONCURRENT_REQUESTS", description='并发请求数')
+    concurrent_items: int = Field(default=100, env="CONCURRENT_ITEMS", description='并发item数')
 
     download_delay: float = Field(default=0, description='下载延迟')
 

@@ -3,6 +3,8 @@ import logging
 import re
 import uuid
 
+import signal
+
 import scrapy.crawler
 import scrapy.signals
 import yaml
@@ -22,6 +24,9 @@ class CrawlManager(object):
         ).get_settings()
 
         self.process = scrapy.crawler.CrawlerProcess(self.get_settings())
+
+        signal.signal(signal.SIGINT, self.stop)
+        signal.signal(signal.SIGTERM, self.stop)
 
         self.signals = []
         dispatcher.connect(self.append_signal, signal=scrapy.signals.item_error)
@@ -115,3 +120,6 @@ class CrawlManager(object):
                 subject='数据更新通知',
                 content=self.get_report_content()
             )
+
+    def stop(self, *args, **kwargs):
+        self.process.stop()

@@ -4,6 +4,7 @@ import logging
 
 import pandas as pd
 import scrapy
+import sqlalchemy
 import yaml
 from sqlalchemy import create_engine, text
 
@@ -198,9 +199,9 @@ class FinancialReportSpider(TushareSpider):
         # 按ts_code取数据，每次取一个股票的全量，几千次请求
         conn = self.get_db_conn()
         db_name = self.settings.get("DB_NAME")
-        ts_codes = [row[0] for row in conn.execute(f'''
+        ts_codes = [row[0] for row in conn.execute(sqlalchemy.text(f'''
             SELECT ts_code FROM {db_name}.stock_basic
-        ''').fetchall()]
+        ''')).fetchall()]
 
         for ts_code in ts_codes:
             params = {"ts_code": ts_code, "limit": 2000}
