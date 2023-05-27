@@ -230,6 +230,9 @@ class StockMin(TushareSpider):
         # start_requests中已经保证单个任务中不会重复采集，判断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
         data: pd.DataFrame = item['data']
         data['trade_time'] = pd.to_datetime(data['trade_time'])
+
+        pipe_item = pd.DataFrame()
+
         for trade_date, values in data.groupby(data['trade_time'].dt.date):
             # 在exists_date中的交易日不需要再次写入，说明在本地采集开始前就已经有数据了
             # 单个采集任务中不会重复采集，所以不需要判断是否在本次采集中重复采集
@@ -239,6 +242,9 @@ class StockMin(TushareSpider):
             if len(values) != 241:
                 logging.error(f"length of data is not 241, params: {response.meta['params']}")
                 continue
-            yield TushareIntegrationItem(
-                data=data[data['trade_time'].dt.date == trade_date].copy()
-            )
+
+            pipe_item = pd.concat([pipe_item, values])
+        # 减少写入次数
+        yield TushareIntegrationItem(
+            data=pipe_item
+        )
