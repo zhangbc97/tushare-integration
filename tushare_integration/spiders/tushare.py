@@ -63,9 +63,12 @@ class TushareSpider(scrapy.Spider):
     def get_db_conn(self):
         return create_engine(self.settings.get("DB_URI")).connect()
 
-    def get_scrapy_request(self, params: dict = None):
+    def get_scrapy_request(self, params: dict = None, meta: dict = None):
         if not params:
             params = {}
+
+        if not meta:
+            meta = {}
 
         logging.info(f"Requesting {self.get_api_name()} with params: {params}")
 
@@ -84,9 +87,9 @@ class TushareSpider(scrapy.Spider):
                 "Content-Type": "application/json",
             },
             meta={
-                'api_name': self.get_api_name(),
-                'params': params,
-            }
+                     'api_name': self.get_api_name(),
+                     'params': params,
+                 } | meta
         )
 
     def load_fields(self):

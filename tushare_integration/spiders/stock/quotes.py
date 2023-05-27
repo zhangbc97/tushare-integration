@@ -178,13 +178,13 @@ class StockMin(TushareSpider):
                     f""" SELECT ts_code FROM {self.settings.get("DB_NAME")}.{self.custom_settings.get("BASIC_TABLE")}"""
                 )).fetchall():
             # 不同的数据库查询语句不同，这里可能需要特殊定制，目前只适配databend
-            exists_date = self.get_db_conn().execute(
+            exists_date = [date[0] for date in self.get_db_conn().execute(
                 sqlalchemy.text(
                     f"""
                     SELECT DISTINCT to_date(trade_time) 
                     FROM {self.settings.get("DB_NAME")}.{self.get_table_name()}
                     WHERE ts_code = '{ts_code[0]}'"""
-                )).fetchall()
+                )).fetchall()]
 
             trade_dates = self.get_db_conn().execute(
                 sqlalchemy.text(
@@ -197,12 +197,11 @@ class StockMin(TushareSpider):
             # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
 
             # 当我们看到一个交易日的时候，直接拉取这个交易日和后面40天的数据
-            # 表配备了主键，使用REPLACE INTO解决重复问题
-            # 这个方式比较粗暴，但是考虑到缺失某天的数据的情况比较少，如果后续需要的话再进行优化
+            # 大表的REPLACE INTO性能极差，不能使用REPLACE INTO的方案
             last_end_date = None
             for trade_date in trade_dates:
                 # 如果这个交易日已经存在，那么就不需要再拉取了
-                if trade_date[0] in [date[0] for date in exists_date]:
+                if trade_date[0] in exists_date:
                     continue
                 # 如果有last_end_date，那么就是在上一次请求的基础上继续拉取
                 # 如果trade_date[0]在last_end_date之前，那么就不需要再拉取了
@@ -216,17 +215,27 @@ class StockMin(TushareSpider):
                         "start_date": trade_date[0].strftime("%Y-%m-%d") + " 09:00:00",
                         "end_date": (trade_date[0] + datetime.timedelta(days=40)).strftime("%Y-%m-%d") + " 16:00:00",
                         "freq": "1min"
+                    },
+                    meta={
+                        'exists_date': exists_date,
                     }
                 )
                 # 把last_end_date更新为当前trade_date[0] + 40天
                 last_end_date = trade_date[0] + datetime.timedelta(days=40)
 
     def parse(self, response, **kwargs):
+        exists_date = response.meta['exists_date']
         item = self.parse_response(response)
         # 一次采集多天的数据，需要逐天判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
+        # start_requests中已经保证单个任务中不会重复采集，判断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
         data: pd.DataFrame = item['data']
         data['trade_time'] = pd.to_datetime(data['trade_time'])
         for trade_date, values in data.groupby(data['trade_time'].dt.date):
+            # 在exists_date中的交易日不需要再次写入，说明在本地采集开始前就已经有数据了
+            # 单个采集任务中不会重复采集，所以不需要判断是否在本次采集中重复采集
+            if trade_date in exists_date:
+                continue
+            # 如果不在exists_date中，那么就需要判断长度是否是241，如果不是241，那么就报错并且丢弃
             if len(values) != 241:
                 logging.error(f"length of data is not 241, params: {response.meta['params']}")
                 continue
