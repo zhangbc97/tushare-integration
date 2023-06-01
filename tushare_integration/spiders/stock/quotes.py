@@ -229,6 +229,10 @@ class StockMin(TushareSpider):
         # 一次采集多天的数据，需要逐天判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
         # start_requests中已经保证单个任务中不会重复采集，判断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
         data: pd.DataFrame = item['data']
+
+        if len(data) == 0:
+            return
+
         data['trade_time'] = pd.to_datetime(data['trade_time'])
 
         pipe_item = pd.DataFrame()

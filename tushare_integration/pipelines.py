@@ -53,6 +53,10 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
+
+        if not data or len(data) == 0:
+            return
+
         for column in self.schema["outputs"]:
             if column.get("default", None) is None:
                 column["default"] = self.get_default_by_data_type(column["data_type"])

@@ -45,7 +45,11 @@ class TushareSpider(scrapy.Spider):
         yield self.get_scrapy_request()
 
     def parse(self, response, **kwargs):
-        return self.parse_response(response, **kwargs)
+        item = self.parse_response(response, **kwargs)
+
+        if not item['data'] or len(item['data']) == 0:
+            return
+        return item
 
     def parse_response(self, response, **kwargs):
         resp = json.loads(response.text)
