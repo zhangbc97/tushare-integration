@@ -1,6 +1,7 @@
 id: 76
 name: fut_settle
 title: 结算参数
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

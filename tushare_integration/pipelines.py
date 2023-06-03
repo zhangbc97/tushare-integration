@@ -11,10 +11,14 @@ import yaml
 from sqlalchemy import create_engine, text
 
 from tushare_integration.schema.sql_template import SQLTemplate
+from tushare_integration.settings import TushareIntegrationSettings
 
 
 class BasePipeline(object):
     schema = None
+
+    def __init__(self, settings: TushareIntegrationSettings, *args, **kwargs):
+        self.settings: TushareIntegrationSettings = settings
 
     def get_schema(self, schema: str):
         with open(
@@ -91,14 +95,15 @@ class TransformDTypePipeline(BasePipeline):
 
 class TushareIntegrationDataPipeline(BasePipeline):
 
-    def __init__(self, db_url: str, db_name: str, template: str = 'databend'):
-        self.template = SQLTemplate(template)
-        self.db_url: str = db_url
-        self.db_name: str = db_name
+    def __init__(self,settings, *args, **kwargs) -> None:
+        super().__init__(settings, *args, **kwargs)
+        self.template = SQLTemplate(self.settings)
+        self.db_uri: str = self.settings.db_uri
+        self.db_name: str = self.settings.db_name
         self.table_name: str = ""
         self.truncate: bool = False
 
-        self.engine = create_engine(self.db_url)
+        self.engine = create_engine(self.db_uri)
         self.conn = self.engine.connect()
 
     def open_spider(self, spider):
@@ -136,22 +141,19 @@ class TushareIntegrationDataPipeline(BasePipeline):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(
-            db_url=crawler.settings.get("DB_URI"),
-            db_name=crawler.settings.get("DB_NAME"),
-            template=crawler.settings.get("SQL_TEMPLATE", "databend"),
-        )
+        return cls(settings=crawler.settings)
 
 
 class RecordLogPipeline(BasePipeline):
-    def __init__(self, db_url: str, db_name: str, template: str) -> None:
-        self.template = SQLTemplate(template)
-        self.db_url: str = db_url
-        self.db_name: str = db_name
+    def __init__(self, settings, *args, **kwargs) -> None:
+        super().__init__(settings, *args, **kwargs)
+        self.template = SQLTemplate(self.settings)
+        self.db_uri: str = self.settings.db_uri
+        self.db_name: str = self.settings.db_name
         self.table_name: str = "tushare_integration_log"
 
         self.count: int = 0
-        self.engine = create_engine(self.db_url)
+        self.engine = create_engine(self.db_uri)
         self.conn = self.engine.connect()
         self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.create_log_table()
@@ -222,8 +224,4 @@ class RecordLogPipeline(BasePipeline):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(
-            db_url=crawler.settings.get("DB_URI"),
-            db_name=crawler.settings.get("DB_NAME"),
-            template=crawler.settings.get("SQL_TEMPLATE", "databend"),
-        )
+        return cls(settings=crawler.settings)

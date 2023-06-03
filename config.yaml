@@ -7,6 +7,8 @@ tushare_token: ''
 db_uri: ''
 db_name: ''
 sql_template: ''
+template_params:
+  storage_policy: 'oss'
 
 reporters:
   - "tushare_integration.reporters.FeishuWebHookReporter"

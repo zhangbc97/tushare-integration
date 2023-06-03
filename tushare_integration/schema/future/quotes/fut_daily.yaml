@@ -1,6 +1,7 @@
 id: 73
 name: fut_daily
 title: 期货日线行情
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

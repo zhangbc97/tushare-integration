@@ -1,6 +1,7 @@
 id: 14
 name: hsgt_top10
 title: 沪深股通十大成交股
+index_key: ts_code, trade_date
 inputs:
   - name: ts_code
     data_type: str

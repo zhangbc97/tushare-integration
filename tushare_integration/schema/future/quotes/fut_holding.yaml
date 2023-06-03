@@ -1,6 +1,7 @@
 id: 74
 name: fut_holding
 title: 每日成交持仓排名
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

@@ -1,6 +1,7 @@
 id: 133
 name: ggt_daily
 title: 港股通每日成交统计
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

@@ -32,7 +32,8 @@ class TushareIntegrationSettings(BaseSettings):
     # 数据库相关配置
     db_uri: str = Field(..., env='DB_URI', description='数据库连接字符串')
     db_name: str = Field(..., env='DB_NAME', description='数据库名称')
-    sql_template: Literal["mysql", "databend"] = Field(..., env="SQL_TEMPLATE", description='SQL模板')
+    db_type: Literal["clickhouse", "mysql", "databend"] = Field(..., env="DB_TYPE", description='SQL模板')
+    template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
 
     reporters: list[str] = Field([], description='报告模块')
     feishu_webhook: str = Field(..., env='FEISHU_WEBHOOK', description='飞书webhook')

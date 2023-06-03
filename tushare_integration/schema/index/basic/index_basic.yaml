@@ -1,6 +1,7 @@
 id: 39
 name: index_basic
 title: 指数基本信息
+primary_key: ts_code
 inputs:
   - name: ts_code
     data_type: str

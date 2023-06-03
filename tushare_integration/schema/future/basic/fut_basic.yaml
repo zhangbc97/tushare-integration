@@ -1,6 +1,7 @@
 id: 72
 name: fut_basic
 title: 期货合约信息表
+primary_key: ts_code
 inputs:
   - name: exchange
     data_type: str

@@ -1,6 +1,7 @@
 id: 19
 name: margin
 title: 融资融券交易汇总
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

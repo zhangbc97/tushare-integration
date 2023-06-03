@@ -1,6 +1,7 @@
 id: 126
 name: fut_mapping
 title: 期货主力与连续合约
+index_key: ts_code, trade_date
 inputs:
   - name: ts_code
     data_type: str

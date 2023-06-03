@@ -1,6 +1,7 @@
 id: 75
 name: fut_wsr
 title: 仓单日报
+index_key: ts_code, trade_date
 inputs:
   - name: trade_date
     data_type: str

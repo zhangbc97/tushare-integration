@@ -10,12 +10,14 @@ from sqlalchemy import create_engine, text
 
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.schema.sql_template import SQLTemplate
+from tushare_integration.settings import TushareIntegrationSettings
 
 
 class TushareSpider(scrapy.Spider):
     name = None
     api_name: str = None
     schema = None
+    spider_settings: TushareIntegrationSettings = None   # 不能直接叫settings，会覆盖掉scrapy的settings
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name, **kwargs)
@@ -24,16 +26,17 @@ class TushareSpider(scrapy.Spider):
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
+        spider.spider_settings = crawler.settings
         spider.create_table()
         return spider
 
     def create_table(self):
         logging.info(f"create table {self.get_table_name()}")
         self.get_db_conn().execute(text(
-            SQLTemplate(db_type=self.settings.get('SQL_TEMPLATE')).create_table(
-                db_name=self.settings.get('DB_NAME'),
+            SQLTemplate(self.spider_settings).create_table(
                 table_name=self.get_table_name(),
-                schema=self.get_schema())))
+                schema=self.get_schema()
+            )))
 
     def get_schema(self):
         with open(

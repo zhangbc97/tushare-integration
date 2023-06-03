@@ -1,6 +1,7 @@
 id: 4
 name: adj_factor
 title: 复权因子
+index_key: ts_code, trade_date
 inputs:
   - name: ts_code
     data_type: str

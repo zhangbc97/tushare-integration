@@ -1,6 +1,7 @@
 id: 149
 name: suspend_d
 title: 每日停复牌信息
+index_key: ts_code, trade_date
 inputs:
   - name: ts_code
     data_type: str

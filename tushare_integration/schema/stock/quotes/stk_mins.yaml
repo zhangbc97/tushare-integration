@@ -1,5 +1,6 @@
 name: stk_mins
 title: 分钟线行情
+index_key: ts_code, trade_time
 inputs:
   - name: ts_code
     data_type: str
