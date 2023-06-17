@@ -31,6 +31,10 @@ class BasePipeline(object):
     def open_spider(self, spider):
         self.schema = self.get_schema(spider.get_schema_name())
 
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(settings=TushareIntegrationSettings.parse_file('config.yaml'))
+
 
 class TushareIntegrationFillNAPipeline(BasePipeline):
 
@@ -58,7 +62,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
 
-        if not data or len(data) == 0:
+        if data is None or len(data) == 0:
             return
 
         for column in self.schema["outputs"]:
@@ -95,7 +99,7 @@ class TransformDTypePipeline(BasePipeline):
 
 class TushareIntegrationDataPipeline(BasePipeline):
 
-    def __init__(self,settings, *args, **kwargs) -> None:
+    def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
         self.template = SQLTemplate(self.settings)
         self.db_uri: str = self.settings.db_uri
@@ -123,7 +127,7 @@ class TushareIntegrationDataPipeline(BasePipeline):
             data = data.drop_duplicates(subset=primary_key.split(","), keep="last")
             self.conn.execute(
                 text(
-                    self.template.upsert_data(self.db_name, self.table_name, data.columns.tolist(), primary_key)
+                    self.template.upsert_data(self.table_name, data.columns.tolist(), primary_key)
                 ),
                 data.to_dict("records")
             )
@@ -132,16 +136,12 @@ class TushareIntegrationDataPipeline(BasePipeline):
             logging.debug(f"Insert data into {self.table_name}, data count: {len(data)}")
             self.conn.execute(
                 text(
-                    self.template.insert_data(self.db_name, self.table_name, data.columns.tolist())
+                    self.template.insert_data(self.table_name, data.columns.tolist())
                 ),
                 data.to_dict("records")
             )
 
         return item
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(settings=crawler.settings)
 
 
 class RecordLogPipeline(BasePipeline):
@@ -160,6 +160,7 @@ class RecordLogPipeline(BasePipeline):
 
     def create_log_table(self):
         schema = {
+            'index_key': 'batch_id',
             'outputs': [
                 {
                     'name': 'batch_id',
@@ -195,7 +196,7 @@ class RecordLogPipeline(BasePipeline):
             ]
         }
 
-        self.conn.execute(text(self.template.create_table(self.db_name, self.table_name, schema=schema)))
+        self.conn.execute(text(self.template.create_table(self.table_name, schema=schema)))
 
     def open_spider(self, spider):
         super().open_spider(spider)
@@ -204,7 +205,6 @@ class RecordLogPipeline(BasePipeline):
     def close_spider(self, spider):
         # 将总数写入数据库
         self.conn.execute(text(self.template.insert_data(
-            self.db_name,
             self.table_name,
             ["batch_id", "spider_name", "description", "count", "start_time", "end_time"])
         ),
@@ -221,7 +221,3 @@ class RecordLogPipeline(BasePipeline):
     def process_item(self, item, spider):
         self.count += len(item["data"])
         return item
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(settings=crawler.settings)

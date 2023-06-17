@@ -10,3 +10,4 @@ rich
 pymysql
 requests
 pydantic
+clickhouse-connect

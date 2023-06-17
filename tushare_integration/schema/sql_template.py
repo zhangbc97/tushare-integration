@@ -1,7 +1,6 @@
 import os
 
 import jinja2
-import yaml
 
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -11,8 +10,7 @@ class SQLTemplate(object):
         self.settings = settings
         self.db_type = self.settings.db_type
 
-    def render(self, table_name: str, template_file: str,  **kwargs):
-        print(kwargs)
+    def render(self, table_name: str, template_file: str, **kwargs):
         if not os.path.exists(f"tushare_integration/schema/template/{self.db_type}/{template_file}"):
             raise FileNotFoundError(f"tushare_integration/schema/template/{self.db_type}/{template_file}")
 

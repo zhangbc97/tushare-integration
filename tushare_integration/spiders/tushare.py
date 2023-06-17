@@ -17,7 +17,7 @@ class TushareSpider(scrapy.Spider):
     name = None
     api_name: str = None
     schema = None
-    spider_settings: TushareIntegrationSettings = None   # 不能直接叫settings，会覆盖掉scrapy的settings
+    spider_settings: TushareIntegrationSettings = None  # 不能直接叫settings，会覆盖掉scrapy的settings
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name, **kwargs)
@@ -26,7 +26,7 @@ class TushareSpider(scrapy.Spider):
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
-        spider.spider_settings = crawler.settings
+        spider.spider_settings = TushareIntegrationSettings.parse_file('config.yaml')
         spider.create_table()
         return spider
 
@@ -50,7 +50,7 @@ class TushareSpider(scrapy.Spider):
     def parse(self, response, **kwargs):
         item = self.parse_response(response, **kwargs)
 
-        if not item['data'] or len(item['data']) == 0:
+        if item['data'] is None or len(item['data']) == 0:
             return
         return item
 
