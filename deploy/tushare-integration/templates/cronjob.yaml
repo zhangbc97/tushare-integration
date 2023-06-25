@@ -50,8 +50,8 @@ spec:
                   value: '{{ $.Values.db_uri }}'
                 - name: 'DB_NAME'
                   value: '{{ $.Values.db_name }}'
-                - name: 'SQL_TEMPLATE'
-                  value: '{{ $.Values.sql_template | default "databend" }}'
+                - name: 'DB_TYPE'
+                  value: '{{ $.Values.db_type | default "clickhouse" }}'
               {{- range $.Values.env }}
                 - name: '{{ .name }}'
                   value: '{{ .value }}'

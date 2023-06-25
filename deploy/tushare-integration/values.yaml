@@ -46,10 +46,12 @@ cronjob:
     spiders:
       - name: "stock/financial/*"
 
+configOverrides: { }
+
 token: ''
 db_uri: ''
 db_name: 'tushare'
-sql_template: 'databend'
+db_type: 'clickhouse'
 
 env:
   - name: 'FEISHU_WEBHOOK'

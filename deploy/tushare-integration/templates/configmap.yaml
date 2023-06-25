@@ -8,3 +8,7 @@ data:
   cronjob.yaml: |-
     cronjob:
 {{ .Values.cronjob  | toYaml | indent 4}}
+
+  config.yaml: |-
+    config:
+{{ .Values.config  | toYaml | indent 4}}
