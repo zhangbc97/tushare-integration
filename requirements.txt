@@ -9,5 +9,5 @@ itemadapter
 rich
 pymysql
 requests
-pydantic
+pydantic==1.10.11
 clickhouse-connect
