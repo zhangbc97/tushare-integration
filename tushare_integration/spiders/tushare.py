@@ -8,8 +8,8 @@ import sqlalchemy
 import yaml
 from sqlalchemy import create_engine, text
 
+from tushare_integration.db_engine import DatabaseEngineFactory, DBEngine
 from tushare_integration.items import TushareIntegrationItem
-from tushare_integration.schema.sql_template import SQLTemplate
 from tushare_integration.settings import TushareIntegrationSettings
 
 
@@ -18,6 +18,7 @@ class TushareSpider(scrapy.Spider):
     api_name: str = None
     schema = None
     spider_settings: TushareIntegrationSettings = None  # 不能直接叫settings，会覆盖掉scrapy的settings
+    db_engine: DBEngine = None
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name, **kwargs)
@@ -32,11 +33,9 @@ class TushareSpider(scrapy.Spider):
 
     def create_table(self):
         logging.info(f"create table {self.get_table_name()}")
-        self.get_db_conn().execute(text(
-            SQLTemplate(self.spider_settings).create_table(
-                table_name=self.get_table_name(),
-                schema=self.get_schema()
-            )))
+
+        self.db_engine = DatabaseEngineFactory.create(self.spider_settings)
+        self.db_engine.create_table(self.get_table_name(), self.schema)
 
     def get_schema(self):
         with open(

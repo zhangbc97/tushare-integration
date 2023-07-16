@@ -20,6 +20,32 @@ point_frequency = [
 ]
 
 
+class DatabaseConfig(BaseSettings):
+    # 数据库相关配置
+    db_type: Literal["clickhouse", "mysql", "databend"] = Field(..., env="DB_TYPE", description='SQL模板')
+
+    host: str = Field(..., env='DB_HOST', description='数据库主机')
+    port: int = Field(..., env='DB_PORT', description='数据库端口')
+    user: str = Field(..., env='DB_USER', description='数据库用户名')
+    password: str = Field('', env='DB_PASSWORD', description='数据库密码')
+
+    db_name: str = Field(..., env='DB_NAME', description='数据库名称')
+    template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
+
+    class Config:
+        extra = Extra.allow
+
+    def get_uri(self):
+        if self.db_type == 'clickhouse':
+            return f"clickhouse://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+        elif self.db_type == 'mysql':
+            return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+        elif self.db_type == 'databend':
+            return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+        else:
+            raise ValueError(f"Unsupported db_type: {self.db_type}")
+
+
 # 使用pydantic定义数据模型
 class TushareIntegrationSettings(BaseSettings):
     # Tushare相关的配置项
@@ -29,11 +55,7 @@ class TushareIntegrationSettings(BaseSettings):
     tushare_max_concurrent_requests: int | None = Field(None,
                                                         description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算')
 
-    # 数据库相关配置
-    db_uri: str = Field(..., env='DB_URI', description='数据库连接字符串')
-    db_name: str = Field(..., env='DB_NAME', description='数据库名称')
-    db_type: Literal["clickhouse", "mysql", "databend"] = Field(..., env="DB_TYPE", description='SQL模板')
-    template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
+    database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
     feishu_webhook: str = Field(..., env='FEISHU_WEBHOOK', description='飞书webhook')

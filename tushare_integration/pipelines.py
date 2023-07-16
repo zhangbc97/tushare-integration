@@ -7,10 +7,8 @@ import logging
 
 import pandas as pd
 import yaml
-# useful for handling different item types with a single interface
-from sqlalchemy import create_engine, text
 
-from tushare_integration.schema.sql_template import SQLTemplate
+from tushare_integration.db_engine import DatabaseEngineFactory
 from tushare_integration.settings import TushareIntegrationSettings
 
 
@@ -101,21 +99,15 @@ class TushareIntegrationDataPipeline(BasePipeline):
 
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-        self.template = SQLTemplate(self.settings)
-        self.db_uri: str = self.settings.db_uri
-        self.db_name: str = self.settings.db_name
+
+        self.db_engine = DatabaseEngineFactory.create(self.settings)
+
         self.table_name: str = ""
         self.truncate: bool = False
-
-        self.engine = create_engine(self.db_uri)
-        self.conn = self.engine.connect()
 
     def open_spider(self, spider):
         super().open_spider(spider)
         self.table_name = spider.get_table_name()
-
-    def close_spider(self, spider):
-        self.conn.close()
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
@@ -125,21 +117,11 @@ class TushareIntegrationDataPipeline(BasePipeline):
 
         if (primary_key := self.schema.get("primary_key", None)) is not None:
             data = data.drop_duplicates(subset=primary_key.split(","), keep="last")
-            self.conn.execute(
-                text(
-                    self.template.upsert_data(self.table_name, data.columns.tolist(), primary_key)
-                ),
-                data.to_dict("records")
-            )
+            self.db_engine.upsert(self.table_name, data.columns.tolist(), data)
 
         else:
             logging.debug(f"Insert data into {self.table_name}, data count: {len(data)}")
-            self.conn.execute(
-                text(
-                    self.template.insert_data(self.table_name, data.columns.tolist())
-                ),
-                data.to_dict("records")
-            )
+            self.db_engine.insert(self.table_name, data.columns.tolist(), data)
 
         return item
 
@@ -147,14 +129,12 @@ class TushareIntegrationDataPipeline(BasePipeline):
 class RecordLogPipeline(BasePipeline):
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-        self.template = SQLTemplate(self.settings)
-        self.db_uri: str = self.settings.db_uri
-        self.db_name: str = self.settings.db_name
+
+        self.db_engine = DatabaseEngineFactory.create(self.settings)
+
         self.table_name: str = "tushare_integration_log"
 
         self.count: int = 0
-        self.engine = create_engine(self.db_uri)
-        self.conn = self.engine.connect()
         self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.create_log_table()
 
@@ -196,27 +176,25 @@ class RecordLogPipeline(BasePipeline):
             ]
         }
 
-        self.conn.execute(text(self.template.create_table(self.table_name, schema=schema)))
+        self.db_engine.create_table(self.table_name, schema)
 
     def open_spider(self, spider):
         super().open_spider(spider)
         self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def close_spider(self, spider):
-        # 将总数写入数据库
-        self.conn.execute(text(self.template.insert_data(
-            self.table_name,
-            ["batch_id", "spider_name", "description", "count", "start_time", "end_time"])
-        ),
-            parameters={
-                "batch_id": spider.settings.get("BATCH_ID", ''),
-                "spider_name": spider.name,
-                "description": self.schema.get("title", ""),
-                "count": self.count,
-                "start_time": self.start_time,
-                "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            }
-        )
+        statistics_data = pd.DataFrame([{
+            "batch_id": spider.settings.get("BATCH_ID", ''),
+            "spider_name": spider.name,
+            "description": self.schema.get("title", ""),
+            "count": self.count,
+            "start_time": self.start_time,
+            "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }])
+
+        statistics_data[['start_time', 'end_time']] = statistics_data[['start_time', 'end_time']].apply(pd.to_datetime)
+
+        self.db_engine.insert(self.table_name, self.schema["outputs"], statistics_data)
 
     def process_item(self, item, spider):
         self.count += len(item["data"])

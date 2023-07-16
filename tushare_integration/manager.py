@@ -1,16 +1,15 @@
 import itertools
 import logging
 import re
-import uuid
-
 import signal
+import uuid
 
 import scrapy.crawler
 import scrapy.signals
 import yaml
 from scrapy.signalmanager import dispatcher
-from sqlalchemy import create_engine, text
 
+from tushare_integration.db_engine import DatabaseEngineFactory
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -21,7 +20,7 @@ class CrawlManager(object):
         self.batch_id = uuid.uuid1().hex
         self.settings = TushareIntegrationSettings.parse_file(
             'config.yaml'
-        ).get_settings()
+        )
 
         self.process = scrapy.crawler.CrawlerProcess(self.get_settings())
 
@@ -52,11 +51,10 @@ class CrawlManager(object):
             )
 
     def get_settings(self):
-        self.settings.update({
-            'LOG_LEVEL': 'INFO',
-            'BATCH_ID': self.batch_id,
-        })
-        return self.settings
+        settings = self.settings.get_settings()
+        settings['LOG_LEVEL'] = 'INFO'
+        settings['BATCH_ID'] = self.batch_id
+        return settings
 
     def get_spiders_by_job(self, job_name: str) -> list[str]:
         with open("jobs.yaml", 'r', encoding='utf8') as f:
@@ -93,15 +91,14 @@ class CrawlManager(object):
 
     def get_report_content(self):
         content = f"批次ID：{self.batch_id}\n"
-        engine = create_engine(self.settings.get('DB_URI'))
-        conn = engine.connect()
-        for row in conn.execute(
-                text(
-                    f'select description,count from {self.settings.get("DB_NAME")}.tushare_integration_log '
-                    f'where batch_id = :batch_id'
-                ),
-                parameters={'batch_id': self.batch_id}):
-            content += f"爬虫名称:{row[0]}  数据数量:{row[1]}\n"
+
+        db_engine = DatabaseEngineFactory.create(self.settings)
+
+        for index, row in db_engine.query(
+                f"select description,count from {self.settings.database.db_name}.tushare_integration_log "
+                f"where batch_id = '{self.batch_id}'"
+        ).iterrows():
+            content += f"爬虫名称:{row['description']}  数据数量:{row['count']}\n"
 
         if self.signals:
             content += "警告信息：\n"
@@ -113,7 +110,7 @@ class CrawlManager(object):
         return content
 
     def report(self):
-        reporter_loader = ReporterLoader(self.settings)
+        reporter_loader = ReporterLoader(self.get_settings())
 
         for reporter in reporter_loader.get_reporters():
             reporter.send_report(

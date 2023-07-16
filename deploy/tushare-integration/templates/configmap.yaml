@@ -11,4 +11,4 @@ data:
 
   config.yaml: |-
     config:
-{{ .Values.config  | toYaml | indent 4}}
+{{ .Values.configOverrides  | toYaml | indent 4}}

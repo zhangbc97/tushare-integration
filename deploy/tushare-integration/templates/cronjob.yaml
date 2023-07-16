@@ -43,22 +43,12 @@ spec:
               args:
                 - -c
                 - "python main.py run job {{ .name }}"
-              env:
-                - name: 'TUSHARE_TOKEN'
-                  value: '{{ $.Values.token }}'
-                - name: 'DB_URI'
-                  value: '{{ $.Values.db_uri }}'
-                - name: 'DB_NAME'
-                  value: '{{ $.Values.db_name }}'
-                - name: 'DB_TYPE'
-                  value: '{{ $.Values.db_type | default "clickhouse" }}'
-              {{- range $.Values.env }}
-                - name: '{{ .name }}'
-                  value: '{{ .value }}'
-              {{- end }}
               volumeMounts:
                 - name: config
                   mountPath: /code/app/jobs.yaml
                   subPath: jobs.yaml
+                - name: config
+                  mountPath: /code/app/config.yaml
+                  subPath: config.yaml
           restartPolicy: OnFailure
 {{- end}}
