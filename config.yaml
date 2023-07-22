@@ -6,7 +6,7 @@ tushare_token: ''
 database:
   # 数据库配置
   db_type: 'clickhouse'
-  host: 'clickhouse'
+  host: '127.0.0.1'
   port: '8123'
   user: 'default'
   password: ''

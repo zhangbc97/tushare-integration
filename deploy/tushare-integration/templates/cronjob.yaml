@@ -34,6 +34,8 @@ spec:
                 items:
                   - key: cronjob.yaml
                     path: jobs.yaml
+                  - key: config.yaml
+                    path: config.yaml
           containers:
             - name: {{ .name }}
               image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
@@ -50,5 +52,5 @@ spec:
                 - name: config
                   mountPath: /code/app/config.yaml
                   subPath: config.yaml
-          restartPolicy: OnFailure
+          restartPolicy: Never
 {{- end}}

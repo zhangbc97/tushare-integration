@@ -27,6 +27,9 @@ class DBEngine(object):
     def create_table(self, table_name: str, schema: dict) -> None:
         raise NotImplementedError
 
+    def query_df(self, sql: str) -> pd.DataFrame:
+        raise NotImplementedError
+
     def query(self, sql: str) -> pd.DataFrame:
         raise NotImplementedError
 
@@ -67,8 +70,11 @@ class SQLAlchemyEngine(DBEngine):
             )
         ))
 
-    def query(self, sql: str) -> pd.DataFrame:
+    def query_df(self, sql: str) -> pd.DataFrame:
         return pd.read_sql(sql, self.conn)
+
+    def query(self, sql: str) -> None:
+        self.conn.execute(statement=text(sql))
 
 
 class ClickhouseEngine(DBEngine):
@@ -100,8 +106,11 @@ class ClickhouseEngine(DBEngine):
             )
         )
 
-    def query(self, sql: str) -> pd.DataFrame:
+    def query_df(self, sql: str) -> pd.DataFrame:
         return self.client.query_df(sql)
+
+    def query(self, sql: str) -> None:
+        self.client.query(sql)
 
 
 class DatabaseEngineFactory(object):

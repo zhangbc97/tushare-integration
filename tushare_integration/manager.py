@@ -41,7 +41,7 @@ class CrawlManager(object):
         spiders = self.process.spider_loader.list()
         # 过滤
         if spider:
-            spiders = [s for s in spiders if re.match(spider, s)]
+            spiders = [s for s in spiders if re.fullmatch(spider, s)]
         return spiders
 
     def append_signal(self, signal, sender=None, item=None, response=None, spider=None):
@@ -94,7 +94,7 @@ class CrawlManager(object):
 
         db_engine = DatabaseEngineFactory.create(self.settings)
 
-        for index, row in db_engine.query(
+        for index, row in db_engine.query_df(
                 f"select description,count from {self.settings.database.db_name}.tushare_integration_log "
                 f"where batch_id = '{self.batch_id}'"
         ).iterrows():

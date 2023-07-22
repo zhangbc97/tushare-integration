@@ -4,9 +4,7 @@ import logging
 
 import pandas as pd
 import scrapy
-import sqlalchemy
 import yaml
-from sqlalchemy import create_engine, text
 
 from tushare_integration.db_engine import DatabaseEngineFactory, DBEngine
 from tushare_integration.items import TushareIntegrationItem
@@ -66,8 +64,8 @@ class TushareSpider(scrapy.Spider):
             )
         )
 
-    def get_db_conn(self):
-        return create_engine(self.settings.get("DB_URI")).connect()
+    def get_db_engine(self):
+        return self.db_engine
 
     def get_scrapy_request(self, params: dict = None, meta: dict = None):
         if not params:
@@ -79,12 +77,12 @@ class TushareSpider(scrapy.Spider):
         logging.info(f"Requesting {self.get_api_name()} with params: {params}")
 
         return scrapy.Request(
-            url=self.settings.get("TUSHARE_URL"),
+            url=self.spider_settings.tushare_url,
             method="POST",
             body=json.dumps(
                 {
                     "api_name": self.get_api_name(),
-                    "token": self.settings.get("TUSHARE_TOKEN"),
+                    "token": self.spider_settings.tushare_token,
                     "params": params,
                     "fields": self.load_fields(),
                 }
@@ -121,13 +119,13 @@ class DailySpider(TushareSpider):
 
     def start_requests(self):
         min_cal_date = self.custom_settings.get("MIN_CAL_DATE", '1970-01-01')
-        conn = self.get_db_conn()
-        db_name = self.settings.get("DB_NAME")
+        conn = self.get_db_engine()
+        db_name = self.spider_settings.database.db_name
 
         trade_dates = [
-            cal_date[0].strftime("%Y%m%d")
-            for cal_date in conn.execute(
-                text(f"""
+            cal_date.strftime("%Y%m%d")
+            for cal_date in conn.query_df(
+                f"""
                 SELECT DISTINCT cal_date
                 FROM {db_name}.trade_cal
                 WHERE cal_date NOT IN (SELECT `trade_date` FROM {db_name}.{self.get_table_name()})
@@ -136,8 +134,8 @@ class DailySpider(TushareSpider):
                   AND cal_date <= today()
                   AND exchange = 'SSE'
                 ORDER BY cal_date
-                """)  # 期货交易日历共享同一张表，所以这里过滤SSE
-            ).all()
+                """  # 期货交易日历共享同一张表，所以这里过滤SSE
+            )['cal_date']
         ]
 
         for trade_date in trade_dates:
@@ -153,17 +151,10 @@ class TSCodeSpider(TushareSpider):
 
     def start_requests(self):
         table_name = self.custom_settings.get('BASIC_TABLE')
-        conn = self.get_db_conn()
-        db_name = self.settings.get("DB_NAME")
+        conn = self.get_db_engine()
+        db_name = self.spider_settings.database.db_name
 
-        ts_codes = [
-            row[0]
-            for row in conn.execute(
-                text(f"""
-                SELECT ts_code FROM {db_name}.{table_name}
-                """)
-            ).fetchall()
-        ]
+        ts_codes = conn.query_df(f"SELECT ts_code FROM {db_name}.{table_name}")
 
         for ts_code in ts_codes:
             yield self.get_scrapy_request(params={"ts_code": ts_code})
@@ -175,7 +166,7 @@ class FinancialReportSpider(TushareSpider):
 
     def start_requests(self):
         # 如果积分大于5000，使用vip接口
-        if self.settings.get('TUSHARE_POINT', 2000) >= 5000:
+        if self.spider_settings.tushare_point >= 5000:
             return self.request_with_vip()
         else:
             return self.request_with_ts_code()
@@ -206,11 +197,9 @@ class FinancialReportSpider(TushareSpider):
 
     def request_with_ts_code(self):
         # 按ts_code取数据，每次取一个股票的全量，几千次请求
-        conn = self.get_db_conn()
-        db_name = self.settings.get("DB_NAME")
-        ts_codes = [row[0] for row in conn.execute(sqlalchemy.text(f'''
-            SELECT ts_code FROM {db_name}.stock_basic
-        ''')).fetchall()]
+        conn = self.get_db_engine()
+        db_name = self.spider_settings.database.db_name
+        ts_codes = conn.query_df(f' SELECT ts_code FROM {db_name}.stock_basic')['ts_code']
 
         for ts_code in ts_codes:
             params = {"ts_code": ts_code, "limit": 2000}

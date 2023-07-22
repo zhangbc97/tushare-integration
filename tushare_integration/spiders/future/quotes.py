@@ -17,8 +17,7 @@ class FutHoldingSpider(DailySpider):
     custom_settings = {"TABLE_NAME": "fut_holding"}
 
     def start_requests(self):
-        engine = create_engine(self.settings.get("DB_URL"))
-        conn = engine.connect()
+        conn = self.get_db_engine()
         # 写死每个交易所最早有数据的交易日
         min_cal_dates = {
             'CFFEX': '2010-04-16',
@@ -31,23 +30,19 @@ class FutHoldingSpider(DailySpider):
         for exchange in min_cal_dates.keys():
             # 按照trade_date和exchange作为联合主键，使用交易日历来获取没有采集的日期
             # 这会导致请求次数变多，但是可以保证数据的完整性，以及故障恢复的正确性
-
-            trade_dates = [
-                cal_date[0].strftime("%Y%m%d")
-                for cal_date in conn.execute(
-                    text(f"""
+            trade_dates = [d.strftime('%Y%m%d') for d in conn.query_df(
+                f"""
                     SELECT DISTINCT cal_date
                     FROM trade_cal
                     WHERE cal_date NOT IN 
                     (SELECT `trade_date` FROM {self.get_table_name()} WHERE exchange = '{exchange}')
-                      AND is_open = 1
-                      AND cal_date >= '{min_cal_dates[exchange]}'
-                      AND cal_date <= today()
-                      AND exchange = '{exchange}'
+                        AND is_open = 1
+                        AND cal_date >= '{min_cal_dates[exchange]}'
+                        AND cal_date <= today()
+                        AND exchange = '{exchange}'
                     ORDER BY cal_date
-                    """)  # 期货交易日历共享同一张表，所以这里过滤SSE
-                ).all()
-            ]
+                                """
+            )['cal_date']]
 
             for trade_date in trade_dates:
                 yield self.get_scrapy_request(
