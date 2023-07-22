@@ -2,6 +2,8 @@ id: 35
 name: fina_mainbz
 title: 主营业务构成
 primary_key: ts_code,end_date,update_flag
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

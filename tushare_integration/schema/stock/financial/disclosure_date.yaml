@@ -2,6 +2,8 @@ id: 93
 name: disclosure_date
 title: 财报披露计划
 primary_key: ts_code,end_date
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

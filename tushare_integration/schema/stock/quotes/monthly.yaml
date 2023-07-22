@@ -2,6 +2,9 @@ id: 79
 name: monthly
 title: 月线行情
 index_key: ts_code, trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
 inputs:
   - name: ts_code
     data_type: str

@@ -2,6 +2,9 @@ id: 176
 name: bak_basic
 title: 备用列表
 primary_key: ts_code,trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
 inputs:
   - name: trade_date
     data_type: str

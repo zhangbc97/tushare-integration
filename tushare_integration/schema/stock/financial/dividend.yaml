@@ -2,6 +2,8 @@ id: 47
 name: dividend
 title: 分红送股
 primary_key: ts_code,end_date,ann_date,div_proc,update_flag
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

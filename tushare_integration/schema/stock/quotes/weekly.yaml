@@ -2,6 +2,9 @@ id: 78
 name: weekly
 title: 周线行情
 index_key: ts_code, trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
 inputs:
   - name: ts_code
     data_type: str

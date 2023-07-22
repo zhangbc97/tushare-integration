@@ -2,6 +2,9 @@ id: 5
 name: daily
 title: 日线行情
 index_key: ts_code, trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
 inputs:
   - name: ts_code
     data_type: str
@@ -27,7 +30,7 @@ inputs:
     data_type: str
     must: "N"
     desc: 最大行数
-validations: []
+validations: [ ]
 outputs:
   - name: ts_code
     column: TS_CODE

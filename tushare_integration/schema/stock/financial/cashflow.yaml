@@ -1,6 +1,8 @@
 id: 10
 name: cashflow
 title: 现金流量表
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

@@ -2,6 +2,8 @@ id: 46
 name: namechange
 title: 股票曾用名
 primary_key: ts_code,name
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

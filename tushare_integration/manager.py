@@ -56,6 +56,15 @@ class CrawlManager(object):
         settings['BATCH_ID'] = self.batch_id
         return settings
 
+    @staticmethod
+    def get_dependencies(spiders: list[str]) -> list[str]:
+        dependencies = []
+        for spider in spiders:
+            with open(f"tushare_integration/schema/{spider}.yaml", 'r', encoding='utf8') as f:
+                schema = yaml.safe_load(f.read())
+            dependencies.extend(schema.get('dependencies', []))
+        return list(set(dependencies))
+
     def get_spiders_by_job(self, job_name: str) -> list[str]:
         with open("jobs.yaml", 'r', encoding='utf8') as f:
             jobs = yaml.safe_load(f.read())
@@ -65,25 +74,45 @@ class CrawlManager(object):
                     set(list(itertools.chain(*[self.list_spiders(spider['name']) for spider in job['spiders']]))))
         raise ValueError(f"Job {job_name} not found")
 
-    def run_job(self, job_name: str):
-        for spider in self.get_spiders_by_job(job_name):
-            logging.info(f"Add spider {spider}...")
-            self.process.crawl(spider)
+    def run_spiders_in_sequence(self, spiders: list[str]):
+        logging.error(spiders)
+        deferred = self.process.crawl(spiders[0])
+        if len(spiders) > 1:
+            deferred.addCallback(lambda _: self.run_spiders_in_sequence(spiders[1:]))
 
+    def run_job(self, job_name: str):
+        spiders = self.get_spiders_by_job(job_name)
+        all_spiders = self.get_all_spiders(spiders)
+
+        self.run_spiders_in_sequence(all_spiders)
         self.process.start()
+
         self.report()
         # 如果有异常就抛出
         self.raise_for_signal()
 
     def run_spider(self, spider: str):
-        for spider in self.list_spiders(spider):
-            logging.info(f"Add spider {spider}...")
-            self.process.crawl(spider)
+        spiders = self.list_spiders(spider)
+        all_spiders = self.get_all_spiders(spiders)
 
+        self.run_spiders_in_sequence(all_spiders)
         self.process.start()
+
         self.report()
         # 如果有异常就抛出
         self.raise_for_signal()
+
+    def get_all_spiders(self, spiders):
+        dependencies = [spiders]
+        while self.get_dependencies(dependencies[-1]):
+            dependencies.append(self.get_dependencies(dependencies[-1]))
+        all_spiders = []
+        # 从列表最后一个开始，因为最后一个是最底层的依赖
+        for dependency in reversed(dependencies):
+            for spider in dependency:
+                if spider not in all_spiders:
+                    all_spiders.append(spider)
+        return all_spiders
 
     def raise_for_signal(self):
         if self.signals:

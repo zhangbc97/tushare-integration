@@ -2,6 +2,9 @@ id: 7
 name: daily_basic
 title: 每日指标
 index_key: ts_code, trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/quotes/daily
 inputs:
   - name: ts_code
     data_type: str

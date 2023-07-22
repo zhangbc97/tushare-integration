@@ -1,6 +1,8 @@
 id: 12
 name: express
 title: 业绩快报
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

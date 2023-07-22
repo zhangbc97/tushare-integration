@@ -2,6 +2,8 @@ id: 33
 name: fina_indicator
 title: 财务指标数据
 primary_key: ts_code,ann_date,end_date,update_flag
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str

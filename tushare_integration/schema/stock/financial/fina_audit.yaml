@@ -2,6 +2,8 @@ id: 34
 name: fina_audit
 title: 财务审计意见
 primary_key: ts_code,end_date,ann_date
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str
