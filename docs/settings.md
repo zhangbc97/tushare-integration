@@ -20,11 +20,17 @@
 
 #### 数据库相关
 
-| 配置项            | 环境变量           | 类型    | 默认值 | 说明                             |
-|----------------|----------------|-------|-----|--------------------------------|
-| `db_uri`       | `DB_URI`       | `str` | ""  | SQLAlchemy连接串                  |
-| `db_name`      | `DB_NAME`      | `str` | ""  | 数据库名称                          |
-| `sql_template` | `SQL_TEMPLATE` | `str` | ""  | SQL模板，目前可选值 `mysql`,`databend` |
+数据库相关配置在 `databases` 下，目前支持的数据库有 `clickhouse`、`databend`、`mysql`，每个数据库的配置项不同，具体请参考下表。
+
+| 配置项               | 环境变量          | 类型     | 默认值 | 说明      |
+|-------------------|---------------|--------|-----|---------|
+| `db_type`         | `DB_TYPE`     | `str`  |     | 数据库类型   |
+| `host`            | `DB_HOST`     | `str`  |     | 数据库地址   |
+| `port`            | `DB_PORT`     | `int`  |     | 数据库端口   |
+| `user`            | `DB_USER`     | `str`  |     | 数据库用户名  |
+| `password`        | `DB_PASSWORD` | `str`  |     | 数据库密码   |
+| `db_name`         | `DB_NAME`     | `str`  |     | 数据库名称   |
+| `template_params` | ``            | `dict` | {}  | 数据库模板参数 |
 
 #### Reporters
 

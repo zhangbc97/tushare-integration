@@ -18,7 +18,7 @@
 `python main.py run spider [OPTIONS] SPIDER_NAME`
 
 该命令将运行对应的spider  
-spider_name基于正则匹配，例如stock/basic/*将运行所有stock/basic下的spider
+spider_name基于正则全文匹配，例如stock/basic/*将运行所有stock/basic下的spider
 
 #### job 运行任务
 

@@ -28,6 +28,7 @@
 新增一个数据库需要提供三个模板文件，放置于 `tushare_integration/schema/template/{database}` 目录下
 
 - `insert.jinja2` 用于生成插入语句
-- `create.jinja2` 用于生成建表语句，当Spider启动时会自动使用table.jinja2建表，建表语句请使用`CREATE TABLE IF NOT EXIST`，当表结构发生变化时，需要手动修改表结构
+- `create.jinja2` 用于生成建表语句，当Spider启动时会自动使用table.jinja2建表，建表语句请使用`CREATE TABLE IF NOT EXIST`
+  ，当表结构发生变化时，需要手动修改表结构
 - `upsert.jinja2` 用于生成更新或插入语句,数据库需要支持UPSERT能力，例如`REPLACE INTO`
 

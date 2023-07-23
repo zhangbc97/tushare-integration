@@ -3,7 +3,7 @@
 ## Kubernetes部署(Helm)
 
     cd deploy/tushare-integration
-    helm install tushare-integration ./ --set token="xxx" --set db_uri="xxx" --set db_name="xxx" --set sql_template="mysql"
+    helm install tushare-integration ./ -f values.yaml
 
 ### 基于CronJob的定时任务
 
