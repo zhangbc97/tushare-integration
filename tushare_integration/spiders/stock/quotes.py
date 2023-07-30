@@ -170,8 +170,9 @@ class StockMin(TushareSpider):
                     WHERE ts_code = '{ts_code[0]}'"""
             )
             if exists_date.empty:
-                return
-            exists_date = exists_date['trade_date']
+                exists_date = []
+            else:
+                exists_date = exists_date['trade_date']
             trade_dates = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT trade_date 
