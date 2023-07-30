@@ -8,7 +8,7 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.2.beta3"
+  tag: "0.0.2.beta4"
 
 cronjob:
   - name: daily-morning
