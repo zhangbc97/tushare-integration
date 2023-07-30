@@ -168,17 +168,22 @@ class StockMin(TushareSpider):
                     SELECT DISTINCT {self.get_db_engine().functions.get('to_date', 'to_date')}(trade_time) AS `trade_date`
                     FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
                     WHERE ts_code = '{ts_code[0]}'"""
-            )['trade_date']
-
+            )
+            if exists_date.empty:
+                return
+            exists_date = exists_date['trade_date']
             trade_dates = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT trade_date 
                     FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("DAILY_TABLE")}
                     WHERE ts_code = '{ts_code}' AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
                     ORDER BY trade_date"""
-            )['trade_date']
-            # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
+            )
 
+            if trade_dates.empty:
+                return
+            trade_dates = trade_dates['trade_date']
+            # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
             # 当我们看到一个交易日的时候，直接拉取这个交易日和后面40天的数据
             # 大表的REPLACE INTO性能极差，不能使用REPLACE INTO的方案
             last_end_date = None

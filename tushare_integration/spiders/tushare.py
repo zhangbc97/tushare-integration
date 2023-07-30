@@ -123,10 +123,8 @@ class DailySpider(TushareSpider):
         conn = self.get_db_engine()
         db_name = self.spider_settings.database.db_name
 
-        trade_dates = [
-            cal_date.strftime("%Y%m%d")
-            for cal_date in conn.query_df(
-                f"""
+        cal_dates = conn.query_df(
+            f"""
                 SELECT DISTINCT cal_date
                 FROM {db_name}.trade_cal
                 WHERE cal_date NOT IN (SELECT `{self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date')}` FROM {db_name}.{self.get_table_name()})
@@ -136,7 +134,13 @@ class DailySpider(TushareSpider):
                   AND exchange = 'SSE'
                 ORDER BY cal_date
                 """  # 期货交易日历共享同一张表，所以这里过滤SSE
-            )['cal_date']
+        )
+
+        if cal_dates.empty:
+            return
+
+        trade_dates = [
+            cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]
         ]
 
         for trade_date in trade_dates:
