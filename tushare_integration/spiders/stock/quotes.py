@@ -162,17 +162,18 @@ class StockMin(TushareSpider):
         for ts_code in self.get_db_engine().query_df(
                 f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
         )['ts_code']:
-            # 不同的数据库查询语句不同，这里可能需要特殊定制，目前只适配databend
-            exists_date = self.get_db_engine().query_df(
+            # 不同的数据库查询语句不同，这里可能需要特殊定制
+            # 主要差异在toDate函数上，支持了自定义函数，放到DBEngine中
+            exists_date_df = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT {self.get_db_engine().functions.get('to_date', 'to_date')}(trade_time) AS `trade_date`
                     FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
                     WHERE ts_code = '{ts_code[0]}'"""
             )
-            if exists_date.empty:
+            if exists_date_df.empty:
                 exists_date = []
             else:
-                exists_date = exists_date['trade_date']
+                exists_date = exists_date_df['trade_date']
             trade_dates = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT trade_date 
@@ -193,7 +194,7 @@ class StockMin(TushareSpider):
                 if trade_date in exists_date:
                     continue
                 # 如果有last_end_date，那么就是在上一次请求的基础上继续拉取
-                # 如果trade_date[0]在last_end_date之前，那么就不需要再拉取了
+                # 如果trade_date在last_end_date之前，那么就不需要再拉取了
                 if last_end_date and trade_date <= last_end_date:
                     continue
 
@@ -209,8 +210,8 @@ class StockMin(TushareSpider):
                         'exists_date': exists_date,
                     }
                 )
-                # 把last_end_date更新为当前trade_date[0] + 40天
-                last_end_date = trade_date[0] + datetime.timedelta(days=40)
+                # 把last_end_date更新为当前trade_date + 40天
+                last_end_date = trade_date + datetime.timedelta(days=40)
 
     def parse(self, response, **kwargs):
         exists_date = response.meta['exists_date']
