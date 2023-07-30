@@ -68,6 +68,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
                 column["default"] = self.get_default_by_data_type(column["data_type"])
             # 需要特殊处理NaT,Pandas的fillna方法不支持NaT
             data[column["name"]] = data[column["name"]].replace({pd.NaT: None}).fillna(column["default"])
+
         return item
 
 

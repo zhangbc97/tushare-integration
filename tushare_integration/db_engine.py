@@ -7,6 +7,7 @@ from tushare_integration.settings import TushareIntegrationSettings
 
 
 class DBEngine(object):
+
     def __init__(self, settings: TushareIntegrationSettings):
         self.settings = settings
         self.templates = {
@@ -16,6 +17,10 @@ class DBEngine(object):
                 f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/insert.jinja2').read()),
             'upsert': jinja2.Template(open(
                 f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/upsert.jinja2').read()),
+        }
+
+        self.functions = {
+            'to_date': 'to_date',
         }
 
     def insert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
@@ -77,6 +82,18 @@ class SQLAlchemyEngine(DBEngine):
         return self.conn.execute(statement=text(sql))
 
 
+class MySQLEngine(SQLAlchemyEngine):
+    def __init__(self, settings: TushareIntegrationSettings):
+        super().__init__(settings)
+        self.functions['to_date'] = 'Date'
+
+
+class DatabendEngine(SQLAlchemyEngine):
+    def __init__(self, settings: TushareIntegrationSettings):
+        super().__init__(settings)
+        self.functions['to_date'] = 'toDate'
+
+
 class ClickhouseEngine(DBEngine):
 
     def __init__(self, settings: TushareIntegrationSettings):
@@ -89,6 +106,8 @@ class ClickhouseEngine(DBEngine):
             password=settings.database.password,
             database=settings.database.db_name,
         )
+
+        self.functions['to_date'] = 'toDate'
 
     def insert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
         self.client.insert_df(table_name, data)
@@ -119,8 +138,8 @@ class DatabaseEngineFactory(object):
         if settings.database.db_type == 'clickhouse':
             return ClickhouseEngine(settings)
         elif settings.database.db_type == 'databend':
-            return SQLAlchemyEngine(settings)
+            return DatabendEngine(settings)
         elif settings.database.db_type == 'mysql':
-            return SQLAlchemyEngine(settings)
+            return MySQLEngine(settings)
         else:
             raise NotImplementedError

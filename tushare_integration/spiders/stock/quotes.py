@@ -2,8 +2,6 @@ import datetime
 import logging
 
 import pandas as pd
-import sqlalchemy
-from sqlalchemy import text
 
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
@@ -167,7 +165,7 @@ class StockMin(TushareSpider):
             # 不同的数据库查询语句不同，这里可能需要特殊定制，目前只适配databend
             exists_date = self.get_db_engine().query_df(
                 f"""
-                    SELECT DISTINCT to_date(trade_time) AS `trade_date`
+                    SELECT DISTINCT {self.get_db_engine().functions.get('to_date', 'to_date')}(trade_time) AS `trade_date`
                     FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
                     WHERE ts_code = '{ts_code[0]}'"""
             )['trade_date']

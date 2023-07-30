@@ -49,6 +49,7 @@ class TushareSpider(scrapy.Spider):
 
         if item['data'] is None or len(item['data']) == 0:
             return
+
         return item
 
     def parse_response(self, response, **kwargs):
@@ -115,7 +116,7 @@ class TushareSpider(scrapy.Spider):
 
 class DailySpider(TushareSpider):
     name = None
-    custom_settings = {"TABLE_NAME": "daily"}
+    custom_settings = {"TABLE_NAME": "daily", "TRADE_DATE_FIELD": "trade_date"}
 
     def start_requests(self):
         min_cal_date = self.custom_settings.get("MIN_CAL_DATE", '1970-01-01')
@@ -128,7 +129,7 @@ class DailySpider(TushareSpider):
                 f"""
                 SELECT DISTINCT cal_date
                 FROM {db_name}.trade_cal
-                WHERE cal_date NOT IN (SELECT `trade_date` FROM {db_name}.{self.get_table_name()})
+                WHERE cal_date NOT IN (SELECT `{self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date')}` FROM {db_name}.{self.get_table_name()})
                   AND is_open = 1
                   AND cal_date >= '{min_cal_date}'
                   AND cal_date <= today()
@@ -140,7 +141,7 @@ class DailySpider(TushareSpider):
 
         for trade_date in trade_dates:
             yield self.get_scrapy_request(
-                params={"trade_date": trade_date}
+                params={self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date'): trade_date}
             )
 
 
