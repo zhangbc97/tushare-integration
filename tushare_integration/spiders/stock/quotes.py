@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import Hashable
 
 import pandas as pd
 
@@ -168,12 +169,12 @@ class StockMin(TushareSpider):
                 f"""
                     SELECT DISTINCT {self.get_db_engine().functions.get('to_date', 'to_date')}(trade_time) AS `trade_date`
                     FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
-                    WHERE ts_code = '{ts_code[0]}'"""
+                    WHERE ts_code = '{ts_code}'"""
             )
             if exists_date_df.empty:
                 exists_date = []
             else:
-                exists_date = exists_date_df['trade_date']
+                exists_date = list(exists_date_df['trade_date'].dt.date)
             trade_dates = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT trade_date 
@@ -181,10 +182,9 @@ class StockMin(TushareSpider):
                     WHERE ts_code = '{ts_code}' AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
                     ORDER BY trade_date"""
             )
-
             if trade_dates.empty:
-                return
-            trade_dates = trade_dates['trade_date']
+                continue
+            trade_dates = list(trade_dates['trade_date'].dt.date)
             # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
             # 当我们看到一个交易日的时候，直接拉取这个交易日和后面40天的数据
             # 大表的REPLACE INTO性能极差，不能使用REPLACE INTO的方案
