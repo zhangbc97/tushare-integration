@@ -26,7 +26,7 @@ class Top10HoldersSpider(FinancialReportSpider):
 
 
 class Top10FloatHoldersSpider(FinancialReportSpider):
-    name = "stock/market/top10_float_holders"
+    name = "stock/market/top10_floatholders"
     api_name = "top10_floatholders"
     custom_settings = {"TABLE_NAME": "top10_floatholders"}
 

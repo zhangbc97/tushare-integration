@@ -76,6 +76,10 @@ class CrawlManager(object):
 
     def run_spiders_in_sequence(self, spiders: list[str]):
         logging.error(spiders)
+
+        if len(spiders) == 0:
+            return
+
         deferred = self.process.crawl(spiders[0])
         if len(spiders) > 1:
             deferred.addCallback(lambda _: self.run_spiders_in_sequence(spiders[1:]))
