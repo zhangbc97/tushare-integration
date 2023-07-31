@@ -1,6 +1,7 @@
 id: 68
 name: concept
 title: 概念股分类
+primary_key: code,src
 inputs:
   - name: src
     data_type: str
