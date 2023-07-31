@@ -31,13 +31,13 @@ class StkFactorSpider(DailySpider):
 class CCASSHoldSpider(DailySpider):
     name = "stock/special/ccass_hold"
     api_name = "ccass_hold"
-    custom_settings = {"TABLE_NAME": "ccass_hold"}
+    custom_settings = {"TABLE_NAME": "ccass_hold", "MIN_CAL_DATE": "2020-11-11"}
 
 
 class CCASSHoldDetailSpider(DailySpider):
     name = "stock/special/ccass_hold_detail"
     api_name = "ccass_hold_detail"
-    custom_settings = {"TABLE_NAME": "ccass_hold_detail"}
+    custom_settings = {"TABLE_NAME": "ccass_hold_detail", "MIN_CAL_DATE": "2016-12-05"}
 
 
 class HKHoldSpider(DailySpider):

@@ -2,8 +2,8 @@ id: 124
 name: hk_hold
 title: 沪深股通持股明细
 primary_key: ts_code,trade_date
-dependencies:
-  - stock/basic/trade_cal
+#dependencies:
+#  - stock/basic/trade_cal
 inputs:
   - name: code
     data_type: str
@@ -61,7 +61,7 @@ outputs:
     desc: 股票名称
   - column: VOL
     name: vol
-    data_type: null
+    data_type: int
     must: 'Y'
     desc: 持股数量
   - column: RATIO
@@ -73,4 +73,4 @@ outputs:
     name: exchange
     data_type: str
     must: 'Y'
-    desc: 类型：SH沪股通SZ深港通
+    desc: 类型:SH沪股通SZ深港通
