@@ -1,7 +1,7 @@
 id: 74
 name: fut_holding
 title: 每日成交持仓排名
-index_key: ts_code, trade_date
+index_key: trade_date
 inputs:
   - name: trade_date
     data_type: str
@@ -31,18 +31,6 @@ inputs:
     data_type: int
     must: 'N'
     desc: 请求数据的开始位移量
-validations:
-  - name: trade_date
-    validator: required
-    options: null
-    trigger:
-      link: and
-      exp:
-        - name: symbol
-          operator: "="
-          type: builtin
-          value: None
-    message: 'trade_date,symbol参数不能都为空'
 outputs:
   - column: TRADE_DATE
     name: trade_date

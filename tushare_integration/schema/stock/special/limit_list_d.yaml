@@ -1,7 +1,7 @@
 id: 226
 name: limit_list_d
 title: 涨跌停列表（新）
-primary_key: ts_code,trade_date,limit_type
+primary_key: ts_code,trade_date
 dependencies:
   - stock/basic/trade_cal
 inputs:

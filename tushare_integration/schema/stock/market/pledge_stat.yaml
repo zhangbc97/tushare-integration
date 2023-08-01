@@ -1,7 +1,7 @@
 id: 54
 name: pledge_stat
 title: 股权质押统计数据
-primary_key: ts_code,ann_date,update_flag
+primary_key: ts_code,end_date,update_flag
 dependencies:
   - stock/basic/stock_basic
 inputs:

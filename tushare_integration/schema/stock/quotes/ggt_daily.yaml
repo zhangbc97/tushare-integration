@@ -1,7 +1,7 @@
 id: 133
 name: ggt_daily
 title: 港股通每日成交统计
-index_key: ts_code, trade_date
+index_key: trade_date
 dependencies:
   - stock/quotes/daily
 inputs:

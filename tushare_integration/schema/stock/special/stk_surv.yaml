@@ -78,6 +78,6 @@ outputs:
     desc: 上市公司接待人员
   - column: CONTENT
     name: content
-    data_type: null
+    data_type: str
     must: 'N'
     desc: 调研内容
