@@ -3,7 +3,8 @@ name: cyq_chips
 title: 每日筹码分布
 primary_key: ts_code,trade_date
 dependencies:
-  - stock/basic/trade_cal
+  - stock/basic/stock_basic
+  - stock/quotes/daily
 inputs:
   - name: ts_code
     data_type: str

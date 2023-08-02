@@ -180,7 +180,7 @@ class FinancialReportSpider(TushareSpider):
     def get_all_period():
         # 获取所有的period
         periods = []
-        for year in range(1990, datetime.datetime.now().year):
+        for year in range(1990, datetime.datetime.now().year + 1):
             for end_date in [f"{year}0331", f"{year}0630", f"{year}0930", f"{year}1231"]:
                 periods.append(end_date)
         return periods
@@ -188,7 +188,9 @@ class FinancialReportSpider(TushareSpider):
     def request_with_vip(self):
         # 每次全量同步即可，30年的数据只有4*30*12=1440次请求
         # 尽管实测半个小时同步完，但是毕竟离线数据，慢点也无妨，后期如果需要再进行优化
-        self.api_name = self.api_name + "_vip"
+
+        if self.custom_settings.get('HAS_VIP', True):
+            self.api_name = self.api_name + "_vip"
         for period in self.get_all_period():
             # 三大报表需要按照report_type分别请求
             if self.api_name.startswith(("income", "balance", "cashflow")):

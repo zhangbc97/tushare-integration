@@ -8,7 +8,7 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.2.beta9"
+  tag: "0.0.2.beta11"
 
 cronjob:
   - name: daily-morning
@@ -16,6 +16,7 @@ cronjob:
     spiders:
       - name: "stock/basic/stock_basic"
       - name: "stock/basic/stock_company"
+        
   - name: daily-open
     cron_expr: '40 9 * * 1-5'
     spiders:
@@ -44,7 +45,7 @@ cronjob:
   - name: weekly
     cron_expr: '0 8 * * 1'
     spiders:
-      - name: "stock/financial/*"
+      - name: "stock/financial/.*"
 
 configOverrides:
   # TUSHARE相关配置

@@ -16,10 +16,34 @@ class CyqPerfSpider(DailySpider):
     custom_settings = {"TABLE_NAME": "cyq_perf"}
 
 
-class CyqChipsSpider(DailySpider):
+class CyqChipsSpider(TushareSpider):
     name = "stock/special/cyq_chips"
     api_name = "cyq_chips"
-    custom_settings = {"TABLE_NAME": "cyq_chips"}
+    custom_settings = {"TABLE_NAME": "cyq_chips", "BASIC_TABLE": "stock_basic"}
+
+    def start_requests(self):
+        conn = self.get_db_engine()
+        for ts_code in conn.query_df(
+                f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
+        )['ts_code']:
+            # 查询在daily中出现，但是在cyq_chips中没有的trade_date
+            trade_dates = conn.query_df(
+                f"""
+                    SELECT DISTINCT trade_date 
+                    FROM {self.spider_settings.database.db_name}.daily
+                    WHERE ts_code = '{ts_code}' AND trade_date NOT IN (
+                        SELECT DISTINCT trade_date FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
+                        WHERE ts_code = '{ts_code}'
+                    )"""
+            )
+
+            if trade_dates.empty:
+                continue
+
+            for trade_date in trade_dates['trade_date'].dt.date:
+                yield self.get_scrapy_request(
+                    {"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")}
+                )
 
 
 class StkFactorSpider(DailySpider):

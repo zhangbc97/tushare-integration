@@ -22,13 +22,13 @@ class MarginTargetSpider(TSCodeSpider):
 class Top10HoldersSpider(FinancialReportSpider):
     name = "stock/market/top10_holders"
     api_name = "top10_holders"
-    custom_settings = {"TABLE_NAME": "top10_holders"}
+    custom_settings = {"TABLE_NAME": "top10_holders", "HAS_VIP": False}
 
 
 class Top10FloatHoldersSpider(FinancialReportSpider):
     name = "stock/market/top10_floatholders"
     api_name = "top10_floatholders"
-    custom_settings = {"TABLE_NAME": "top10_floatholders"}
+    custom_settings = {"TABLE_NAME": "top10_floatholders", "HAS_VIP": False}
 
 
 class TopListSpider(DailySpider):
