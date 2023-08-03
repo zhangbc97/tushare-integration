@@ -7,6 +7,7 @@ import logging
 
 import pandas as pd
 import yaml
+from scrapy.exceptions import DropItem
 
 from tushare_integration.db_engine import DatabaseEngineFactory
 from tushare_integration.settings import TushareIntegrationSettings
@@ -61,7 +62,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
         data: pd.DataFrame = item["data"]
 
         if data is None or len(data) == 0:
-            return
+            raise DropItem()
 
         for column in self.schema["outputs"]:
             if column.get("default", None) is None:
