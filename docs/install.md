@@ -7,7 +7,7 @@
 
 ### 基于CronJob的定时任务
 
-values.yaml中包含cronjob字段用于配置定时任务，可根据自己需求进行修改
+values.yaml中包含cronjob字段用于配置定时任务，可根据自己需求进行修改，参考[配置文档](settings.md)
 
 ## 使用Docker
 
@@ -27,3 +27,7 @@ values.yaml中包含cronjob字段用于配置定时任务，可根据自己需�
 
     pip install poetry
     poetry install
+
+# 升级
+
+直接替换镜像即可
