@@ -10,7 +10,8 @@ import os
 from typing import Literal
 
 import yaml
-from pydantic import BaseSettings, Field, Extra
+from pydantic import Field, Extra
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -31,9 +32,6 @@ class DatabaseConfig(BaseSettings):
 
     db_name: str = Field(..., env='DB_NAME', description='数据库名称')
     template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
-
-    class Config:
-        extra = Extra.allow
 
     def get_uri(self):
         if self.db_type == 'clickhouse':
@@ -113,21 +111,20 @@ class TushareIntegrationSettings(BaseSettings):
         if not self.tushare_max_concurrent_requests:
             self.tushare_max_concurrent_requests = self.get_frequency()
         # 将所有key转为大写
-        settings = {k.upper(): v for k, v in self.dict().items()}
+        settings = {k.upper(): v for k, v in self.model_dump().items()}
         settings['DOWNLOAD_DELAY'] = 60 / settings["TUSHARE_MAX_CONCURRENT_REQUESTS"]
         return settings
 
-    class Config:
-        extra = Extra.ignore
-        json_loads = yaml.safe_load
-
-        @classmethod
-        def customise_sources(cls, init_settings, env_settings, file_secret_settings):
-            return env_settings, init_settings, file_secret_settings
+    @classmethod
+    def settings_customise_sources(cls, settings_cls: type[BaseSettings], init_settings: PydanticBaseSettingsSource,
+                                   env_settings: PydanticBaseSettingsSource,
+                                   dotenv_settings: PydanticBaseSettingsSource,
+                                   file_secret_settings: PydanticBaseSettingsSource):
+        return env_settings, init_settings, file_secret_settings
 
 
 # 保持scrapy兼容
-for key, value in TushareIntegrationSettings.parse_file(
-        'config.yaml'
+for key, value in TushareIntegrationSettings.model_validate(
+        yaml.safe_load(open('config.yaml', 'r', encoding='utf-8').read())
 ).get_settings().items():
     locals()[key] = value

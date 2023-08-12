@@ -18,8 +18,8 @@ class CrawlManager(object):
 
     def __init__(self):
         self.batch_id = uuid.uuid1().hex
-        self.settings = TushareIntegrationSettings.parse_file(
-            'config.yaml'
+        self.settings = TushareIntegrationSettings.model_validate(
+            yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
         )
 
         self.process = scrapy.crawler.CrawlerProcess(self.get_settings())

@@ -32,7 +32,9 @@ class BasePipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(settings=TushareIntegrationSettings.parse_file('config.yaml'))
+        return cls(settings=TushareIntegrationSettings.model_validate(
+            yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
+        ))
 
 
 class TushareIntegrationFillNAPipeline(BasePipeline):

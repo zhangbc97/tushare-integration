@@ -107,7 +107,7 @@ class SuspendDSpider(DailySpider):
 
 class HSGTTop10Spider(DailySpider):
     name = "stock/quotes/hsgt_top10"
-    custom_settings = {"TABLE_NAME": "hsgt_top10"}
+    custom_settings = {"TABLE_NAME": "hsgt_top10", "MIN_CAL_DATE": "2014-11-17"}
 
 
 class MoneyFlowSpider(DailySpider):
@@ -117,7 +117,7 @@ class MoneyFlowSpider(DailySpider):
 
 class MoneyFlowHSGTSpider(DailySpider):
     name = "stock/quotes/moneyflow_hsgt"
-    custom_settings = {"TABLE_NAME": "moneyflow_hsgt"}
+    custom_settings = {"TABLE_NAME": "moneyflow_hsgt", "MIN_CAL_DATE": "2014-11-17"}
 
 
 class StkLimitSpider(DailySpider):
@@ -132,12 +132,12 @@ class DailyBasicSpider(DailySpider):
 
 class GGTTop10Spider(DailySpider):
     name = "stock/quotes/ggt_top10"
-    custom_settings = {"TABLE_NAME": "ggt_top10"}
+    custom_settings = {"TABLE_NAME": "ggt_top10", "MIN_CAL_DATE": "2014-11-17"}
 
 
 class GGTDailySpider(DailySpider):
     name = "stock/quotes/ggt_daily"
-    custom_settings = {"TABLE_NAME": "ggt_daily"}
+    custom_settings = {"TABLE_NAME": "ggt_daily", "MIN_CAL_DATE": "2014-11-17"}
 
 
 class BakDailySpider(DailySpider):

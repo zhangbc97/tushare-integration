@@ -25,7 +25,9 @@ class TushareSpider(scrapy.Spider):
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
-        spider.spider_settings = TushareIntegrationSettings.parse_file('config.yaml')
+        spider.spider_settings = TushareIntegrationSettings.model_validate(
+            yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
+        )
         spider.create_table()
         return spider
 
