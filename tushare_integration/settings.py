@@ -10,7 +10,7 @@ import os
 from typing import Literal
 
 import yaml
-from pydantic import Field, Extra
+from pydantic import Field, Extra, ConfigDict
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 point_frequency = [
@@ -98,6 +98,8 @@ class TushareIntegrationSettings(BaseSettings):
     feed_export_encoding: str = Field(default='utf-8', description='导出编码')
 
     closespider_errorcount: int = Field(default=1, description='错误数量')
+
+    model_config = ConfigDict(extra=Extra.allow)
 
     def get_frequency(self):
         frequency = 0
