@@ -36,7 +36,7 @@ inputs:
     data_type: int
     must: N
     desc: 请求数据的开始位移量
-validations: []
+validations: [ ]
 outputs:
   - name: ts_code
     column: TS_CODE
@@ -115,3 +115,13 @@ outputs:
     data_type: str
     must: N
     desc: 是否沪
+  - column: ACT_NAME
+    name: act_name
+    data_type: str
+    must: 'N'
+    desc: 实控人名称
+  - column: ACT_ENT_TYPE
+    name: act_ent_type
+    data_type: str
+    must: 'N'
+    desc: 实控人企业性质
