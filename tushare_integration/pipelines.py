@@ -20,9 +20,7 @@ class BasePipeline(object):
         self.settings: TushareIntegrationSettings = settings
 
     def get_schema(self, schema: str):
-        with open(
-                f"tushare_integration/schema/{schema}.yaml", "r", encoding="utf-8"
-        ) as f:
+        with open(f"tushare_integration/schema/{schema}.yaml", "r", encoding="utf-8") as f:
             self.schema = yaml.safe_load(f.read())
 
         return self.schema
@@ -32,13 +30,14 @@ class BasePipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(settings=TushareIntegrationSettings.model_validate(
-            yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
-        ))
+        return cls(
+            settings=TushareIntegrationSettings.model_validate(
+                yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
+            )
+        )
 
 
 class TushareIntegrationFillNAPipeline(BasePipeline):
-
     @staticmethod
     def get_default_by_data_type(data_type: str):
         if data_type is None:
@@ -76,7 +75,6 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
 
 
 class TransformDTypePipeline(BasePipeline):
-
     def process_item(self, item, spider):
         data = item["data"]
         for column in self.schema["outputs"]:
@@ -100,7 +98,6 @@ class TransformDTypePipeline(BasePipeline):
 
 
 class TushareIntegrationDataPipeline(BasePipeline):
-
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
 
@@ -176,8 +173,7 @@ class RecordLogPipeline(BasePipeline):
                     'data_type': 'datetime',
                     'desc': '结束时间',
                 },
-
-            ]
+            ],
         }
 
         self.db_engine.create_table(self.table_name, schema)
@@ -187,14 +183,18 @@ class RecordLogPipeline(BasePipeline):
         self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def close_spider(self, spider):
-        statistics_data = pd.DataFrame([{
-            "batch_id": spider.settings.get("BATCH_ID", ''),
-            "spider_name": spider.name,
-            "description": self.schema.get("title", ""),
-            "count": self.count,
-            "start_time": self.start_time,
-            "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        }])
+        statistics_data = pd.DataFrame(
+            [
+                {
+                    "batch_id": spider.settings.get("BATCH_ID", ''),
+                    "spider_name": spider.name,
+                    "description": self.schema.get("title", ""),
+                    "count": self.count,
+                    "start_time": self.start_time,
+                    "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            ]
+        )
 
         statistics_data[['start_time', 'end_time']] = statistics_data[['start_time', 'end_time']].apply(pd.to_datetime)
 

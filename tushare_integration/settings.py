@@ -17,7 +17,7 @@ point_frequency = [
     {'point': 120, 'frequency': 50},
     {'point': 2000, 'frequency': 200},
     {'point': 5000, 'frequency': 500},
-    {'point': 10000, 'frequency': 1000}
+    {'point': 10000, 'frequency': 1000},
 ]
 
 
@@ -50,8 +50,7 @@ class TushareIntegrationSettings(BaseSettings):
     tushare_token: str = Field(..., env="TUSHARE_TOKEN", description='Tushare token')
     tushare_url: str = Field('https://api.tushare.pro', description='Tushare API URL')
     tushare_point: int = Field(2000, env='TUSHARE_POINT', description='Tushare积分')
-    tushare_max_concurrent_requests: int | None = Field(None,
-                                                        description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算')
+    tushare_max_concurrent_requests: int | None = Field(None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算')
 
     database: DatabaseConfig = Field(..., description='数据库配置')
 
@@ -71,29 +70,36 @@ class TushareIntegrationSettings(BaseSettings):
 
     download_delay: float = Field(default=0, description='下载延迟')
 
-    downloader_middlewares: dict[str, int | None] = Field(default={
-        "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-        "tushare_integration.middlewares.TushareRetryDownloaderMiddleware": 543,
-    }, description='下载中间件')
+    downloader_middlewares: dict[str, int | None] = Field(
+        default={
+            "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+            "tushare_integration.middlewares.TushareRetryDownloaderMiddleware": 543,
+        },
+        description='下载中间件',
+    )
 
     retry_enabled: bool = Field(default=True, description='是否开启重试')
     retry_times: int = Field(default=6, description='重试次数')
     retry_delay: int = Field(default=10, description='重试延迟')
 
-    templates_dir: str = Field(default=os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "spiders/templates"
-    ), description='模板目录')
+    templates_dir: str = Field(
+        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "spiders/templates"), description='模板目录'
+    )
 
-    item_pipelines: dict[str, int] = Field(default={
-        "tushare_integration.pipelines.TushareIntegrationFillNAPipeline": 298,
-        "tushare_integration.pipelines.TransformDTypePipeline": 299,
-        "tushare_integration.pipelines.TushareIntegrationDataPipeline": 300,
-        "tushare_integration.pipelines.RecordLogPipeline": 301,
-    }, description='item管道')
+    item_pipelines: dict[str, int] = Field(
+        default={
+            "tushare_integration.pipelines.TushareIntegrationFillNAPipeline": 298,
+            "tushare_integration.pipelines.TransformDTypePipeline": 299,
+            "tushare_integration.pipelines.TushareIntegrationDataPipeline": 300,
+            "tushare_integration.pipelines.RecordLogPipeline": 301,
+        },
+        description='item管道',
+    )
 
     request_fingerprinter_implementation: str = Field(default='2.7', description='请求指纹实现')
-    twisted_reactor: str = Field(default='twisted.internet.asyncioreactor.AsyncioSelectorReactor',
-                                 description='twisted反应堆')
+    twisted_reactor: str = Field(
+        default='twisted.internet.asyncioreactor.AsyncioSelectorReactor', description='twisted反应堆'
+    )
     reactor_threadpool_maxsize: int = Field(default=1, description='reactor线程池最大数量')
     feed_export_encoding: str = Field(default='utf-8', description='导出编码')
 
@@ -118,15 +124,21 @@ class TushareIntegrationSettings(BaseSettings):
         return settings
 
     @classmethod
-    def settings_customise_sources(cls, settings_cls: type[BaseSettings], init_settings: PydanticBaseSettingsSource,
-                                   env_settings: PydanticBaseSettingsSource,
-                                   dotenv_settings: PydanticBaseSettingsSource,
-                                   file_secret_settings: PydanticBaseSettingsSource):
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ):
         return env_settings, init_settings, file_secret_settings
 
 
 # 保持scrapy兼容
-for key, value in TushareIntegrationSettings.model_validate(
-        yaml.safe_load(open('config.yaml', 'r', encoding='utf-8').read())
-).get_settings().items():
+for key, value in (
+    TushareIntegrationSettings.model_validate(yaml.safe_load(open('config.yaml', 'r', encoding='utf-8').read()))
+    .get_settings()
+    .items()
+):
     locals()[key] = value

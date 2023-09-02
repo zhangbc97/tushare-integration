@@ -38,9 +38,7 @@ class TushareSpider(scrapy.Spider):
         self.db_engine.create_table(self.get_table_name(), self.schema)
 
     def get_schema(self):
-        with open(
-                f"tushare_integration/schema/{self.get_schema_name()}.yaml", "r", encoding="utf-8"
-        ) as f:
+        with open(f"tushare_integration/schema/{self.get_schema_name()}.yaml", "r", encoding="utf-8") as f:
             return yaml.safe_load(f.read())
 
     def start_requests(self):
@@ -61,11 +59,7 @@ class TushareSpider(scrapy.Spider):
             logging.error(f"Request {self.get_api_name()} failed: {resp['msg']}")
             raise RuntimeError(resp['msg'])
 
-        return TushareIntegrationItem(
-            data=pd.DataFrame(
-                data=resp["data"]["items"], columns=resp["data"]["fields"]
-            )
-        )
+        return TushareIntegrationItem(data=pd.DataFrame(data=resp["data"]["items"], columns=resp["data"]["fields"]))
 
     def get_db_engine(self):
         return self.db_engine
@@ -94,9 +88,10 @@ class TushareSpider(scrapy.Spider):
                 "Content-Type": "application/json",
             },
             meta={
-                     'api_name': self.get_api_name(),
-                     'params': params,
-                 } | meta
+                'api_name': self.get_api_name(),
+                'params': params,
+            }
+            | meta,
         )
 
     def load_fields(self):
@@ -141,9 +136,7 @@ class DailySpider(TushareSpider):
         if cal_dates.empty:
             return
 
-        trade_dates = [
-            cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]
-        ]
+        trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 
         for trade_date in trade_dates:
             yield self.get_scrapy_request(

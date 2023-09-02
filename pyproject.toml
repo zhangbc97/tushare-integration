@@ -8,18 +8,21 @@ packages = [{ include = "tushare_integration" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-scrapy = ">=2.8.0"
+scrapy = "^2.10.1"
 pyyaml = ">=6.0"
 typer = ">=0.7.0"
 rich = ">=13.3.3"
 pandas = ">=2.0.0"
 sqlalchemy = ">=2.0.9"
 jinja2 = ">=3.1.2"
-pydantic = "^2.2.1"
+pydantic = "^2.3.0"
 requests = "^2.31.0"
 clickhouse-connect = "^0.6.8"
-pydantic-settings = "^2.0.2"
+pydantic-settings = "^2.0.3"
 
+[tool.black]
+line-length = 120
+skip-string-normalization = true
 
 [[tool.poetry.source]]
 name = "mirrors"

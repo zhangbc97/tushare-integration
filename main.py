@@ -2,11 +2,7 @@ import typer
 
 from tushare_integration.commands import crawl_app, query_app
 
-app = typer.Typer(
-    name='CrawlManager',
-    help='CrawlManager help',
-    no_args_is_help=True
-)
+app = typer.Typer(name='CrawlManager', help='CrawlManager help', no_args_is_help=True)
 
 
 def main():

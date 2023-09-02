@@ -40,7 +40,8 @@ class StockNameChangeSpider(TushareSpider):
         yield parsed_data
         # 继续拉取下一页数据
         request = self.get_scrapy_request(
-            params={'offset': response.meta["offset"] + response.meta["limit"], 'limit': response.meta["limit"]})
+            params={'offset': response.meta["offset"] + response.meta["limit"], 'limit': response.meta["limit"]}
+        )
         request.meta["offset"] = response.meta["offset"] + response.meta["limit"]
         request.meta["limit"] = response.meta["limit"]
         yield request

@@ -1,4 +1,4 @@
-FROM python:3.10.11-slim-bullseye
+FROM python:3.11.5-slim-bullseye
 
 RUN pip install --no-cache-dir --upgrade pip
 

@@ -7,11 +7,7 @@ try:
 except ImportError:
     pass
 
-crawl_app = typer.Typer(
-    name='CrawlManager',
-    help='CrawlManager help',
-    no_args_is_help=True
-)
+crawl_app = typer.Typer(name='CrawlManager', help='CrawlManager help', no_args_is_help=True)
 
 query_app = typer.Typer(
     name='QueryManager',
@@ -33,6 +29,11 @@ def run_job(job_name: str = typer.Argument(..., help="Name of the job to run")):
 
 
 @crawl_app.command('spider', help="Run spiders", no_args_is_help=True)
-def run_spider(spider: str = typer.Argument(..., help="Wildcard of the spider to run", )):
+def run_spider(
+    spider: str = typer.Argument(
+        ...,
+        help="Wildcard of the spider to run",
+    )
+):
     manager = CrawlManager()
     manager.run_spider(spider)

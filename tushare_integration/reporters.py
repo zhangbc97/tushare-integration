@@ -22,9 +22,15 @@ class FeishuWebHookReporter(Reporter):
             # 将content按照\n分割
         body = {
             "msg_type": "post",
-            "content": {"post": {"zh_cn": {"title": subject,
-                                           "content": [
-                                               [{"text": f'{_}\n', "tag": "text"} for _ in content.split('\n')]]}}}}
+            "content": {
+                "post": {
+                    "zh_cn": {
+                        "title": subject,
+                        "content": [[{"text": f'{_}\n', "tag": "text"} for _ in content.split('\n')]],
+                    }
+                }
+            },
+        }
         resp = requests.post(self.webhook, json=body)
         logging.info(f'Send report to feishu webhook, status code: {resp.status_code}, response: {resp.text}')
 

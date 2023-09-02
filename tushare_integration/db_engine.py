@@ -7,16 +7,24 @@ from tushare_integration.settings import TushareIntegrationSettings
 
 
 class DBEngine(object):
-
     def __init__(self, settings: TushareIntegrationSettings):
         self.settings = settings
         self.templates = {
-            'create': jinja2.Template(open(
-                f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/table.jinja2').read()),
-            'insert': jinja2.Template(open(
-                f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/insert.jinja2').read()),
-            'upsert': jinja2.Template(open(
-                f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/upsert.jinja2').read()),
+            'create': jinja2.Template(
+                open(
+                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/table.jinja2'
+                ).read()
+            ),
+            'insert': jinja2.Template(
+                open(
+                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/insert.jinja2'
+                ).read()
+            ),
+            'upsert': jinja2.Template(
+                open(
+                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/upsert.jinja2'
+                ).read()
+            ),
         }
 
         self.functions = {
@@ -40,7 +48,6 @@ class DBEngine(object):
 
 
 class SQLAlchemyEngine(DBEngine):
-
     def __init__(self, settings: TushareIntegrationSettings):
         super().__init__(settings)
         self.conn = create_engine(self.settings.database.get_uri()).connect()
@@ -66,14 +73,16 @@ class SQLAlchemyEngine(DBEngine):
         self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))
 
     def create_table(self, table_name: str, schema: dict) -> None:
-        self.conn.execute(statement=text(
-            self.templates['create'].render(
-                db_name=self.settings.database.db_name,
-                table_name=table_name,
-                **schema,
-                template_params=self.settings.database.template_params,
+        self.conn.execute(
+            statement=text(
+                self.templates['create'].render(
+                    db_name=self.settings.database.db_name,
+                    table_name=table_name,
+                    **schema,
+                    template_params=self.settings.database.template_params,
+                )
             )
-        ))
+        )
 
     def query_df(self, sql: str) -> pd.DataFrame:
         return pd.read_sql(sql, self.conn)
@@ -95,7 +104,6 @@ class DatabendEngine(SQLAlchemyEngine):
 
 
 class ClickhouseEngine(DBEngine):
-
     def __init__(self, settings: TushareIntegrationSettings):
         super().__init__(settings)
 

@@ -34,8 +34,13 @@ class StockWeeklySpider(TushareSpider):
         )['cal_date']
 
         trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
-        trade_dates = trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]')).set_index(
-            'trade_date_index').resample('W').agg({'cal_date': 'last'}).reset_index(drop=True)
+        trade_dates = (
+            trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
+            .set_index('trade_date_index')
+            .resample('W')
+            .agg({'cal_date': 'last'})
+            .reset_index(drop=True)
+        )
         # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
         weekly_trade_dates = conn.query_df(
             f"""
@@ -49,9 +54,7 @@ class StockWeeklySpider(TushareSpider):
         trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
 
         for trade_date in trade_dates['cal_date']:
-            yield self.get_scrapy_request(
-                params={"trade_date": trade_date.strftime("%Y%m%d")}
-            )
+            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
 
 
 class StockMonthlySpider(TushareSpider):
@@ -75,8 +78,13 @@ class StockMonthlySpider(TushareSpider):
         )
 
         trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
-        trade_dates = trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]')).set_index(
-            'trade_date_index').resample('M').agg({'cal_date': 'last'}).reset_index(drop=True)
+        trade_dates = (
+            trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
+            .set_index('trade_date_index')
+            .resample('M')
+            .agg({'cal_date': 'last'})
+            .reset_index(drop=True)
+        )
         # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
         weekly_trade_dates = conn.query_df(
             f"""
@@ -90,9 +98,7 @@ class StockMonthlySpider(TushareSpider):
         trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
 
         for trade_date in trade_dates['cal_date']:
-            yield self.get_scrapy_request(
-                params={"trade_date": trade_date.strftime("%Y%m%d")}
-            )
+            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
 
 
 class AdjFactorSpider(DailySpider):
@@ -147,6 +153,7 @@ class BakDailySpider(DailySpider):
 
 # 港股通每月成交统计数据只更新到2020年底，在这里不开发策略
 
+
 # noinspection SqlNoDataSourceInspection
 class StockMin(TushareSpider):
     name = "stock/quotes/stk_mins"
@@ -154,14 +161,14 @@ class StockMin(TushareSpider):
         "TABLE_NAME": "stk_mins",
         "BASIC_TABLE": "stock_basic",
         "DAILY_TABLE": "daily",
-        "MIN_CAL_DATE": "2009-01-01"
+        "MIN_CAL_DATE": "2009-01-01",
     }
 
     # noinspection SqlDialectInspection
     def start_requests(self):
         # 取所有的ts_code,按日筛分钟线
         for ts_code in self.get_db_engine().query_df(
-                f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
+            f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
         )['ts_code']:
             # 不同的数据库查询语句不同，这里可能需要特殊定制
             # 主要差异在toDate函数上，支持了自定义函数，放到DBEngine中
@@ -204,11 +211,11 @@ class StockMin(TushareSpider):
                         "ts_code": ts_code,
                         "start_date": trade_date.strftime("%Y-%m-%d") + " 09:00:00",
                         "end_date": (trade_date + datetime.timedelta(days=40)).strftime("%Y-%m-%d") + " 16:00:00",
-                        "freq": "1min"
+                        "freq": "1min",
                     },
                     meta={
                         'exists_date': exists_date,
-                    }
+                    },
                 )
                 # 把last_end_date更新为当前trade_date + 40天
                 last_end_date = trade_date + datetime.timedelta(days=40)
@@ -239,6 +246,4 @@ class StockMin(TushareSpider):
 
             pipe_item = pd.concat([pipe_item, values])
         # 减少写入次数
-        yield TushareIntegrationItem(
-            data=pipe_item
-        )
+        yield TushareIntegrationItem(data=pipe_item)

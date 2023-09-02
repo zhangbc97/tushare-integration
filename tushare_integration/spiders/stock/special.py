@@ -24,7 +24,7 @@ class CyqChipsSpider(TushareSpider):
     def start_requests(self):
         conn = self.get_db_engine()
         for ts_code in conn.query_df(
-                f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
+            f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
         )['ts_code']:
             # 查询在daily中出现，但是在cyq_chips中没有的trade_date
             trade_dates = conn.query_df(
@@ -43,9 +43,7 @@ class CyqChipsSpider(TushareSpider):
                 continue
 
             for trade_date in trade_dates['trade_date'].dt.date:
-                yield self.get_scrapy_request(
-                    {"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")}
-                )
+                yield self.get_scrapy_request({"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")})
 
 
 class StkFactorSpider(DailySpider):

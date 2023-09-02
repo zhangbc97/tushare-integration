@@ -29,7 +29,7 @@ inputs:
     data_type: int
     must: "N"
     desc: 请求数据的开始位移量
-validations: []
+validations: [ ]
 outputs:
   - name: ts_code
     column: TS_CODE

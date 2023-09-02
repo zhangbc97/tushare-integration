@@ -15,7 +15,6 @@ from tushare_integration.settings import TushareIntegrationSettings
 
 
 class CrawlManager(object):
-
     def __init__(self):
         self.batch_id = uuid.uuid1().hex
         self.settings = TushareIntegrationSettings.model_validate(
@@ -71,7 +70,8 @@ class CrawlManager(object):
         for job in jobs['cronjob']:
             if job['name'] == job_name:
                 return list(
-                    set(list(itertools.chain(*[self.list_spiders(spider['name']) for spider in job['spiders']]))))
+                    set(list(itertools.chain(*[self.list_spiders(spider['name']) for spider in job['spiders']])))
+                )
         raise ValueError(f"Job {job_name} not found")
 
     def run_spiders_in_sequence(self, spiders: list[str]):
@@ -128,8 +128,8 @@ class CrawlManager(object):
         db_engine = DatabaseEngineFactory.create(self.settings)
 
         for index, row in db_engine.query_df(
-                f"select description,count from {self.settings.database.db_name}.tushare_integration_log "
-                f"where batch_id = '{self.batch_id}'"
+            f"select description,count from {self.settings.database.db_name}.tushare_integration_log "
+            f"where batch_id = '{self.batch_id}'"
         ).iterrows():
             content += f"爬虫名称:{row['description']}  数据数量:{row['count']}\n"
 
@@ -146,10 +146,7 @@ class CrawlManager(object):
         reporter_loader = ReporterLoader(self.get_settings())
 
         for reporter in reporter_loader.get_reporters():
-            reporter.send_report(
-                subject='数据更新通知',
-                content=self.get_report_content()
-            )
+            reporter.send_report(subject='数据更新通知', content=self.get_report_content())
 
     def stop(self, signum, frame):
         logging.info("caught stop signal, stopping...")

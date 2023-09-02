@@ -76,9 +76,7 @@ class ConceptDetailSpider(TSCodeSpider):
         conn = self.get_db_engine()
 
         for code in conn.query_df('SELECT code FROM concept')['code']:
-            yield self.get_scrapy_request(
-                params={'id': code}
-            )
+            yield self.get_scrapy_request(params={'id': code})
 
 
 class BlockTradeSpider(DailySpider):

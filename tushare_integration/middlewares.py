@@ -107,7 +107,6 @@ class TushareIntegrationDownloaderMiddleware:
 
 
 class TushareRetryDownloaderMiddleware(RetryMiddleware):
-
     def __init__(self, settings):
         super().__init__(settings)
         self.retry_delay = settings.getfloat("RETRY_DELAY")
