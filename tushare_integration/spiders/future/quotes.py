@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+import datetime
 
 from tushare_integration.spiders.tushare import DailySpider
 
@@ -65,3 +65,26 @@ class FutMappingSpider(DailySpider):
 class FutWSRSpider(DailySpider):
     name = "future/quotes/fut_wsr"
     custom_settings = {"TABLE_NAME": "fut_wsr"}
+
+
+class FutWeeklyDetail(DailySpider):
+    name = "future/quotes/fut_weekly_detail"
+    custom_settings = {"TABLE_NAME": "fut_weekly_detail"}
+
+    # 这个接口设计比较奇特，使用的是周编号，而不是日期，周编号格式是YYYYWW，比如202001
+    def start_requests(self):
+        # 取出来所有的周编号
+        df = self.get_db_engine().query_df(
+            f"""
+            SELECT DISTINCT `week`
+            FROM {self.get_table_name()}
+            ORDER BY `week` DESC
+            """
+        )
+        # 生成历史所有的周编号，从201010开始
+        weeks = [str(y) + str(w).zfill(2) for y in range(2010, datetime.datetime.now().year + 1) for w in range(1, 53)]
+        # 去掉已经采集的周编号
+        weeks = list(set(weeks) - set(df['week'].tolist()))
+        # 生成请求
+        for week in weeks:
+            yield self.get_scrapy_request(params={"week": week})

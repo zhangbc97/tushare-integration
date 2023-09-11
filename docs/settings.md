@@ -16,10 +16,10 @@
 
 ```yaml
 cronjob:
-  - name: daily_morning
+  - name: daily_morning  #Job名称
     cron_expr: '0 8 * * 1-5'   # 非K8S部署下该参数不生效
     spiders:
-      - name: "stock/basic/stock_basic"
+      - name: "stock/basic/stock_basic"  # Spider名称
       - name: "stock/basic/stock_company"
   - name: daily_open
     cron_expr: '40 9 * * 1-5'

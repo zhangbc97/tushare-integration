@@ -1,0 +1,54 @@
+id: 41
+name: index_weight
+title: 指数成分和权重
+primary_key: index_code, con_code, trade_date
+inputs:
+  - name: index_code
+    data_type: str
+    must: 'N'
+    desc: 指数代码
+  - name: trade_date
+    data_type: str
+    must: 'N'
+    desc: 交易日期
+  - name: start_date
+    data_type: str
+    must: 'N'
+    desc: 开始日期
+  - name: end_date
+    data_type: str
+    must: 'N'
+    desc: 结束日期
+  - name: ts_code
+    data_type: str
+    must: 'N'
+    desc: 股票成分代码
+  - name: limit
+    data_type: int
+    must: 'N'
+    desc: 单次返回数据长度
+  - name: offset
+    data_type: int
+    must: 'N'
+    desc: 请求数据的开始位移量
+outputs:
+  - name: index_code
+    column: INDEX_CODE
+    data_type: str
+    must: 'Y'
+    desc: 指数代码
+  - name: con_code
+    column: CON_CODE
+    data_type: str
+    must: 'Y'
+    desc: 成分代码
+  - name: trade_date
+    column: TRADE_DATE
+    data_type: str
+    must: 'Y'
+    desc: 交易日期
+  - name: weight
+    column: WEIGHT
+    data_type: float
+    must: 'Y'
+    desc: 权重

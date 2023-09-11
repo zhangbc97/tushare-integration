@@ -1,6 +1,5 @@
 import datetime
 import logging
-from typing import Hashable
 
 import pandas as pd
 
