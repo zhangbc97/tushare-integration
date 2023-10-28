@@ -1,7 +1,6 @@
 {%- macro type_(column) -%}
     {%- if column.data_type == 'str' -%}
-        {%- if column.name == 'ts_code' %}varchar(16){%- else %}varchar(
-            {{ column.length or 128 }}){%- endif %}
+        {%- if column.name == 'ts_code' %}varchar(16){%- else %}varchar({{ column.length or 128 }}){%- endif %}
     {%- elif column.data_type == 'int' -%}
         int
     {%- elif column.data_type == 'float' or column.data_type == 'number' -%}
@@ -10,6 +9,8 @@
         date
     {%- elif column.data_type == 'datetime' -%}
         datetime
+    {%- elif column.data_type == 'json' -%}
+        varchar(2048)
     {%- endif -%}
 {%- endmacro %}
 
@@ -24,6 +25,8 @@
         '1970-01-01'
     {%- elif column.data_type == 'datetime' -%}
         '1970-01-01 00:00:00'
+    {%- elif column.data_type == 'json' -%}
+        ''
     {%- endif -%}
 {%- endmacro %}
 
