@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }} {%- if cluster %}ON CL
 (
 {%- for column in outputs %}
     {%- if 'codec' in template_params %}
-    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.desc }}'{{ ',' if not loop.last }} CODEC({{ template_params['codec'] }})
+    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.desc }}' CODEC({{ template_params['codec'] }}) {{ ',' if not loop.last }} 
     {%- else %}
     `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.desc }}'{{ ',' if not loop.last }} 
     {%- endif %}
