@@ -49,9 +49,7 @@ CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }} {%- if cluster %}ON CL
 {%- elif index_key %}
     ORDER BY ({{ index_key }})
 {%- endif %}
-{%- if template_params %}
-    {%- if 'codec' not in template_params or len(template_params) > 1%}
-    SETTINGS {%- for key,value in template_params.items() if key != 'codec' %}  {{ key }} = '{{ value }}'
+{%- if template_params and 'settings' in template_params %}
+    SETTINGS {%- for key,value in template_params['settings'].items() %}  {{ key }} = '{{ value }}'
     {{ ',' if not loop.last }} {%- endfor %}
-    {%- endif %}
 {%- endif %}

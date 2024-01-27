@@ -7,12 +7,11 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 import os
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 import yaml
 from pydantic import BeforeValidator, Field
-from pydantic_settings import (BaseSettings, PydanticBaseSettingsSource,
-                               SettingsConfigDict)
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -50,7 +49,7 @@ class DatabaseConfig(BaseSettings):
     password: Annotated[str, env_variable('DB_PASSWORD')] = Field('', description='数据库密码')
 
     db_name: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
-    template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
+    template_params: dict[str, Any] = Field(default={}, description='SQL模板参数')
 
     def get_uri(self):
         if self.db_type == 'clickhouse':
@@ -76,9 +75,7 @@ class TushareIntegrationSettings(BaseSettings):
     database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
-    feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(
-        ...,  description='飞书webhook'
-    )
+    feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(..., description='飞书webhook')
 
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
