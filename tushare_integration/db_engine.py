@@ -60,7 +60,7 @@ class SQLAlchemyEngine(DBEngine):
             template_params=self.settings.database.template_params,
         )
 
-        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))
+        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))  # type: ignore
 
     def upsert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
         sql = self.templates['upsert'].render(
@@ -70,7 +70,7 @@ class SQLAlchemyEngine(DBEngine):
             duplicate_keys=schema['duplicate_keys'],
             template_params=self.settings.database.template_params,
         )
-        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))
+        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))  # type: ignore
 
     def create_table(self, table_name: str, schema: dict) -> None:
         self.conn.execute(
@@ -107,7 +107,7 @@ class ClickhouseEngine(DBEngine):
     def __init__(self, settings: TushareIntegrationSettings):
         super().__init__(settings)
 
-        self.client = clickhouse_connect.create_client(
+        self.client = clickhouse_connect.get_client(
             host=settings.database.host,
             port=settings.database.port,
             username=settings.database.user,

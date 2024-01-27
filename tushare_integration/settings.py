@@ -7,11 +7,12 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 import os
-from typing import Literal
+from typing import Annotated, Literal
 
 import yaml
-from pydantic import Field, Extra, ConfigDict
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+from pydantic import BeforeValidator, Field
+from pydantic_settings import (BaseSettings, PydanticBaseSettingsSource,
+                               SettingsConfigDict)
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -21,16 +22,34 @@ point_frequency = [
 ]
 
 
+def env_validator(key, case_sensitive=False):
+    env_vars = {k.lower(): v for k, v in os.environ.items()} if not case_sensitive else os.environ
+    key = key.lower() if not case_sensitive else key
+
+    def validator(v):
+        if key in env_vars:
+            return env_vars[key]
+        return v
+
+    return validator
+
+
+def env_variable(env_key, case_sensitive=False):
+    return BeforeValidator(env_validator(env_key, case_sensitive))
+
+
 class DatabaseConfig(BaseSettings):
     # 数据库相关配置
-    db_type: Literal["clickhouse", "mysql", "databend"] = Field(..., env="DB_TYPE", description='SQL模板')
+    db_type: Annotated[Literal["clickhouse", "mysql", "databend"], env_variable('DB_TYPE')] = Field(
+        ..., description='SQL模板'
+    )
 
-    host: str = Field(..., env='DB_HOST', description='数据库主机')
-    port: int = Field(..., env='DB_PORT', description='数据库端口')
-    user: str = Field(..., env='DB_USER', description='数据库用户名')
-    password: str = Field('', env='DB_PASSWORD', description='数据库密码')
+    host: Annotated[str, env_variable('DB_HOST')] = Field(..., description='数据库主机')
+    port: Annotated[int, env_variable('DB_HOST')] = Field(..., description='数据库端口')
+    user: Annotated[str, env_variable('DB_USER')] = Field(..., description='数据库用户名')
+    password: Annotated[str, env_variable('DB_PASSWORD')] = Field('', description='数据库密码')
 
-    db_name: str = Field(..., env='DB_NAME', description='数据库名称')
+    db_name: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
     template_params: dict[str, str] = Field(default={}, description='SQL模板参数')
 
     def get_uri(self):
@@ -43,21 +62,25 @@ class DatabaseConfig(BaseSettings):
         else:
             raise ValueError(f"Unsupported db_type: {self.db_type}")
 
+    model_config = SettingsConfigDict(extra='ignore')
+
 
 # 使用pydantic定义数据模型
 class TushareIntegrationSettings(BaseSettings):
     # Tushare相关的配置项
-    tushare_token: str = Field(..., env="TUSHARE_TOKEN", description='Tushare token')
+    tushare_token: Annotated[str, env_variable('TUSHARE_TOKEN')] = Field(..., description='Tushare token')
     tushare_url: str = Field('https://api.tushare.pro', description='Tushare API URL')
-    tushare_point: int = Field(2000, env='TUSHARE_POINT', description='Tushare积分')
+    tushare_point: Annotated[int, env_variable('TUSHARE_POINT')] = Field(2000, description='Tushare积分')
     tushare_max_concurrent_requests: int | None = Field(None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算')
 
     database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
-    feishu_webhook: str = Field(..., env='FEISHU_WEBHOOK', description='飞书webhook')
+    feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(
+        ...,  description='飞书webhook'
+    )
 
-    batch_id: str = Field('', env='BATCH_ID', description='批次ID')
+    batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
     bot_name: str = Field(default='tushare_integration', description='爬虫名称')
     spider_modules: list[str] = Field(default=['tushare_integration.spiders'], description='爬虫模块')
@@ -65,8 +88,8 @@ class TushareIntegrationSettings(BaseSettings):
 
     robotstxt_obey: bool = Field(default=False, description='是否遵守robots.txt')
 
-    concurrent_requests: int = Field(default=1, env="CONCURRENT_REQUESTS", description='并发请求数')
-    concurrent_items: int = Field(default=100, env="CONCURRENT_ITEMS", description='并发item数')
+    concurrent_requests: Annotated[int, env_variable('CONCURRENT_REQUESTS')] = Field(default=1, description='并发请求数')
+    concurrent_items: Annotated[int, env_variable('CONCURRENT_ITEMS')] = Field(default=100, description='并发item数')
 
     download_delay: float = Field(default=0, description='下载延迟')
 
@@ -105,7 +128,7 @@ class TushareIntegrationSettings(BaseSettings):
 
     closespider_errorcount: int = Field(default=1, description='错误数量')
 
-    model_config = ConfigDict(extra=Extra.allow)
+    model_config = SettingsConfigDict(extra='ignore')
 
     def get_frequency(self):
         frequency = 0

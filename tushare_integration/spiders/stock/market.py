@@ -1,4 +1,4 @@
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider, FinancialReportSpider, TSCodeSpider
+from tushare_integration.spiders.tushare import DailySpider, FinancialReportSpider, TSCodeSpider, TushareSpider
 
 
 class MarginSpider(DailySpider):
@@ -59,6 +59,12 @@ class RepurchaseSpider(TSCodeSpider):
     name = "stock/market/repurchase"
     api_name = "repurchase"
     custom_settings = {"TABLE_NAME": "repurchase", "BASIC_TABLE": "stock_basic"}
+
+
+class ShareFloatSpider(TSCodeSpider):
+    name = "stock/market/share_float"
+    api_name = "share_float"
+    custom_settings = {"TABLE_NAME": "share_float", "BASIC_TABLE": "stock_basic"}
 
 
 class ConceptSpider(TushareSpider):

@@ -14,10 +14,9 @@ from tushare_integration.settings import TushareIntegrationSettings
 
 
 class BasePipeline(object):
-    schema = None
-
     def __init__(self, settings: TushareIntegrationSettings, *args, **kwargs):
         self.settings: TushareIntegrationSettings = settings
+        self.schema: dict = {}
 
     def get_schema(self, schema: str):
         with open(f"tushare_integration/schema/{schema}.yaml", "r", encoding="utf-8") as f:
