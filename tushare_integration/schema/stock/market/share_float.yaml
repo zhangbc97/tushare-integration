@@ -1,6 +1,9 @@
 id: 91
 name: share_float
 title: 限售股解禁
+primary_key: ts_code,ann_date,float_date
+dependencies:
+  - stock/basic/stock_basic
 inputs:
   - name: ts_code
     data_type: str
@@ -30,30 +33,6 @@ inputs:
     data_type: int
     must: "N"
     desc: 请求数据的开始位移量
-validations:
-  - name: ts_code
-    validator: required
-    options: null
-    trigger:
-      link: and
-      exp:
-        - name: float_date
-          operator: =
-          type: builtin
-          value: None
-        - name: ann_date
-          operator: =
-          type: builtin
-          value: None
-        - name: start_date
-          operator: =
-          type: builtin
-          value: None
-        - name: end_date
-          operator: =
-          type: builtin
-          value: None
-    message: 至少输入一个参数
 outputs:
   - column: TS_CODE
     name: ts_code
