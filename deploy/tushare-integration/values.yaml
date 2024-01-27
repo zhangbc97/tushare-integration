@@ -8,42 +8,42 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.3.beta5"
+  tag: "0.0.4"
 
 cronjob:
   - name: daily-morning
-    cron_expr: '0 8 * * 1-5'
+    cron_expr: "0 8 * * 1-5"
     spiders:
       - name: "stock/basic/stock_basic"
       - name: "stock/basic/stock_company"
-        
+
   - name: daily-open
-    cron_expr: '40 9 * * 1-5'
+    cron_expr: "40 9 * * 1-5"
     spiders:
       - name: "stock/quotes/adj_factor"
       - name: "stock/quotes/stk_limit"
   - name: daily
-    cron_expr: '0 16,17 * * 1-5'
+    cron_expr: "0 16,17 * * 1-5"
     spiders:
       - name: "stock/quotes/daily"
       - name: "stock/quotes/suspend_d"
       - name: "stock/basic/namechange"
   - name: daily-evening
-    cron_expr: '0 19 * * 1-5'
+    cron_expr: "0 19 * * 1-5"
     spiders:
       - name: "stock/quotes/hsgt_top10"
       - name: "stock/quotes/moneyflow"
       - name: "stock/quotes/moneyflow_hsgt"
   - name: nightly
-    cron_expr: '0 21 * * *'
+    cron_expr: "0 21 * * *"
     spiders:
       - name: "stock/quotes/stk_mins"
   - name: monthly
-    cron_expr: '0 0 1 * *'
+    cron_expr: "0 0 1 * *"
     spiders:
       - name: "stock/basic/trade_cal"
   - name: weekly
-    cron_expr: '0 8 * * 1'
+    cron_expr: "0 8 * * 1"
     spiders:
       - name: "stock/financial/.*"
 
@@ -51,17 +51,17 @@ configOverrides:
   # TUSHARE相关配置
   tushare_url: https://api.tushare.pro
   tushare_point: 5000
-  tushare_token: ''
+  tushare_token: ""
 
   database:
     # 数据库配置
-    db_type: 'clickhouse'
-    host: 'clickhouse'
-    port: '8123'
-    user: 'default'
-    password: ''
-    db_name: 'default'
-    template_params: { }
+    db_type: "clickhouse"
+    host: "clickhouse"
+    port: "8123"
+    user: "default"
+    password: ""
+    db_name: "default"
+    template_params: {}
 
   reporters:
     - "tushare_integration.reporters.FeishuWebHookReporter"
@@ -84,7 +84,6 @@ configOverrides:
     tushare_integration.pipelines.TushareIntegrationDataPipeline: 300
     tushare_integration.pipelines.RecordLogPipeline: 301
 
-
   # 重试配置
   # Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
   retry_enabled: true
@@ -96,9 +95,8 @@ configOverrides:
 
   closespider_errorcount: 1
 
+nodeSelector: {}
 
-nodeSelector: { }
+tolerations: []
 
-tolerations: [ ]
-
-affinity: { }
+affinity: {}
