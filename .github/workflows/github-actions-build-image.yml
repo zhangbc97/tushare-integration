@@ -2,7 +2,7 @@ name: kaniko-build
 on:
   push:
     tags:
-      - '*'
+      - "*"
 jobs:
   # 构建并上传 Docker镜像
   build:
@@ -12,7 +12,7 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
       - name: Build Image
-        uses: aevea/action-kaniko@master
+        uses: aevea/action-kaniko@v0.10.0
         with:
           image: zhangbc/tushare-integration
           username: ${{ secrets.DOCKER_USERNAME }}
