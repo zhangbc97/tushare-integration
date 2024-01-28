@@ -30,7 +30,7 @@ class CrawlManager(object):
         dispatcher.connect(self.append_signal, signal=scrapy.signals.item_error)
         dispatcher.connect(self.append_signal, signal=scrapy.signals.spider_error)
 
-    def list_spiders(self, spider: str = None) -> list[str]:
+    def list_spiders(self, spider: str | None = None) -> list[str]:
         """
         列出所有spider
         :param spider: 通配符
@@ -108,8 +108,10 @@ class CrawlManager(object):
 
     def get_all_spiders(self, spiders):
         dependencies = [spiders]
-        while self.get_dependencies(dependencies[-1]):
-            dependencies.append(self.get_dependencies(dependencies[-1]))
+        # 采集服务不是并发安全的，开启依赖解析的情况下可能会导致数据出现重复等问题
+        if not self.settings.parallel_mode:
+            while self.get_dependencies(dependencies[-1]):
+                dependencies.append(self.get_dependencies(dependencies[-1]))
         all_spiders = []
         # 从列表最后一个开始，因为最后一个是最底层的依赖
         for dependency in reversed(dependencies):

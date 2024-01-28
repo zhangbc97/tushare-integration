@@ -32,26 +32,33 @@ cronjob:
 
 #### Tushare相关
 
-| 配置项                               | 环境变量            | 类型    | 默认值                     | 说明                            |
-|-----------------------------------|-----------------|-------|-------------------------|-------------------------------|
-| `tushare_url`                     | `TUSHARE_URL`   | `str` | https://api.tushare.pro | Tushare服务地址                   |
-| `tushare_point`                   | `TUSHARE_POINT` | `int` | 2000                    | Tushare服务积分                   |
-| `tushare_token`                   | `TUSHARE_TOKEN` | `str` | ""                      | Tushare账号Token                |
-| `tushare_max_concurrent_requests` | ``              | `int` | 基于积分计算                  | 基于积分自动计算最大每分钟并行请求数，如果指定则会跳过计算 |
+| 配置项                            | 环境变量        | 类型  | 默认值                  | 说明                                                       |
+| --------------------------------- | --------------- | ----- | ----------------------- | ---------------------------------------------------------- |
+| `tushare_url`                     | `TUSHARE_URL`   | `str` | https://api.tushare.pro | Tushare服务地址                                            |
+| `tushare_point`                   | `TUSHARE_POINT` | `int` | 2000                    | Tushare服务积分                                            |
+| `tushare_token`                   | `TUSHARE_TOKEN` | `str` | ""                      | Tushare账号Token                                           |
+| `tushare_max_concurrent_requests` | ``              | `int` | 基于积分计算            | 基于积分自动计算最大每分钟并行请求数，如果指定则会跳过计算 |
+
+#### 任务相关
+| 配置项          | 环境变量 | 类型   | 默认值 | 说明                                           |
+| --------------- | -------- | ------ | ------ | ---------------------------------------------- |
+| `batch_id`      | ``       | `str`  | ''     | 批次ID，用于写数据库和发送通知，不填则自动生成 |
+| `parallel_mode` | ``       | `bool` | False  | 并行模式，并行模式下将会关闭自动依赖处理       |
+
 
 #### 数据库相关
 
 数据库相关配置在 `databases` 下，目前支持的数据库有 `clickhouse`、`databend`、`mysql`，每个数据库的配置项不同，具体请参考下表。
 
-| 配置项               | 环境变量          | 类型     | 默认值 | 说明     |
-|-------------------|---------------|--------|-----|--------|
-| `db_type`         | `DB_TYPE`     | `str`  |     | 数据库类型  |
-| `host`            | `DB_HOST`     | `str`  |     | 数据库地址  |
-| `port`            | `DB_PORT`     | `int`  |     | 数据库端口  |
-| `user`            | `DB_USER`     | `str`  |     | 数据库用户名 |
-| `password`        | `DB_PASSWORD` | `str`  |     | 数据库密码  |
-| `db_name`         | `DB_NAME`     | `str`  |     | 数据库名称  |
-| `template_params` | ``            | `dict` | {}  | 模板参数   |
+| 配置项            | 环境变量      | 类型   | 默认值 | 说明         |
+| ----------------- | ------------- | ------ | ------ | ------------ |
+| `db_type`         | `DB_TYPE`     | `str`  |        | 数据库类型   |
+| `host`            | `DB_HOST`     | `str`  |        | 数据库地址   |
+| `port`            | `DB_PORT`     | `int`  |        | 数据库端口   |
+| `user`            | `DB_USER`     | `str`  |        | 数据库用户名 |
+| `password`        | `DB_PASSWORD` | `str`  |        | 数据库密码   |
+| `db_name`         | `DB_NAME`     | `str`  |        | 数据库名称   |
+| `template_params` | ``            | `dict` | {}     | 模板参数     |
 
 #### Reporters
 
@@ -59,19 +66,19 @@ reporters可选值
 
 - ` tushare_integration.reporters.FeishuWebHookReporter` 飞书WebHook
 
-| 配置项              | 环境变量             | 类型          | 默认值 | 说明          |
-|------------------|------------------|-------------|-----|-------------|
-| `reporters`      |                  | `list[str]` | []  | Reporter清单  |
-| `feishu_webhook` | `FEISHU_WEBHOOK` | `str`       | ""  | 飞书WebHook地址 |
+| 配置项           | 环境变量         | 类型        | 默认值 | 说明            |
+| ---------------- | ---------------- | ----------- | ------ | --------------- |
+| `reporters`      |                  | `list[str]` | []     | Reporter清单    |
+| `feishu_webhook` | `FEISHU_WEBHOOK` | `str`       | ""     | 飞书WebHook地址 |
 
 #### Scrapy配置
 
-| 配置项                   | 环境变量 | 类型     | 默认值                   | 说明              |
-|-----------------------|------|--------|-----------------------|-----------------|
-| `bot_name`            |      | `str`  | "tushare_integration" | Scrapy Bot Name |
-| `concurrent_requests` |      | `int`  | 10                    | 最大并发请求          |
-| `concurrent_items`    |      | `int`  | 100                   | Pipeline最大并行处理数 |
-| `retry_enabled`       |      | `bool` | true                  | 是否开启请求失败重试      |
-| `retry_delay`         |      | `int`  | 10                    | 重试延迟时间(秒)       |
-| `retry_times`         |      | `int`  | 6                     | 最大重试次数          |
+| 配置项                | 环境变量 | 类型   | 默认值                | 说明                   |
+| --------------------- | -------- | ------ | --------------------- | ---------------------- |
+| `bot_name`            |          | `str`  | "tushare_integration" | Scrapy Bot Name        |
+| `concurrent_requests` |          | `int`  | 10                    | 最大并发请求           |
+| `concurrent_items`    |          | `int`  | 100                   | Pipeline最大并行处理数 |
+| `retry_enabled`       |          | `bool` | true                  | 是否开启请求失败重试   |
+| `retry_delay`         |          | `int`  | 10                    | 重试延迟时间(秒)       |
+| `retry_times`         |          | `int`  | 6                     | 最大重试次数           |
 

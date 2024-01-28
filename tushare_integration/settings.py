@@ -77,6 +77,7 @@ class TushareIntegrationSettings(BaseSettings):
     reporters: list[str] = Field([], description='报告模块')
     feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(..., description='飞书webhook')
 
+    parallel_mode: bool = Field(default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任务依赖')
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
     bot_name: str = Field(default='tushare_integration', description='爬虫名称')

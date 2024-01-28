@@ -37,6 +37,7 @@ cronjob:
       - name: stock/market/pledge_stat
       - name: stock/market/pledge_detail
       - name: stock/market/repurchase
+      - name: stock/market/share_float
       - name: stock/market/concept
       - name: stock/market/concept_detail
       - name: stock/market/block_trade
