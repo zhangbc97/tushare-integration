@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import Any
 
 import pandas as pd
 
@@ -80,7 +81,7 @@ class StockMonthlySpider(TushareSpider):
         trade_dates = (
             trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
             .set_index('trade_date_index')
-            .resample('M')
+            .resample('ME')
             .agg({'cal_date': 'last'})
             .reset_index(drop=True)
         )
@@ -93,6 +94,8 @@ class StockMonthlySpider(TushareSpider):
                 """
         )
 
+        if weekly_trade_dates.empty:
+            weekly_trade_dates = pd.DataFrame(columns=['trade_date'])
         weekly_trade_dates['trade_date'] = pd.to_datetime(weekly_trade_dates['trade_date'])
         trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
 
@@ -156,7 +159,7 @@ class BakDailySpider(DailySpider):
 # noinspection SqlNoDataSourceInspection
 class StockMin(TushareSpider):
     name = "stock/quotes/stk_mins"
-    custom_settings = {
+    custom_settings: dict[str, Any] = {
         "TABLE_NAME": "stk_mins",
         "BASIC_TABLE": "stock_basic",
         "DAILY_TABLE": "daily",

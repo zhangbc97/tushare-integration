@@ -1,17 +1,17 @@
 # TUSHARE相关配置
 tushare_url: https://api.tushare.pro
 tushare_point: 2000
-tushare_token: ''
+tushare_token: ""
 
 database:
   # 数据库配置
-  db_type: 'clickhouse'
-  host: '127.0.0.1'
-  port: '8123'
-  user: 'default'
-  password: ''
-  db_name: 'default'
-  template_params: { }
+  db_type: "clickhouse"
+  host: "127.0.0.1"
+  port: "8123"
+  user: "default"
+  password: ""
+  db_name: "default"
+  template_params: {}
 
 reporters: []
 #  - "tushare_integration.reporters.FeishuWebHookReporter"
@@ -34,12 +34,11 @@ item_pipelines:
   tushare_integration.pipelines.TushareIntegrationDataPipeline: 300
   tushare_integration.pipelines.RecordLogPipeline: 301
 
-
 # 重试配置
 # Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
 retry_enabled: true
 retry_delay: 10
-retry_times: 6
+retry_times: 10
 
 spider_modules:
   - "tushare_integration.spiders"

@@ -100,7 +100,7 @@ class TushareIntegrationSettings(BaseSettings):
     )
 
     retry_enabled: bool = Field(default=True, description='是否开启重试')
-    retry_times: int = Field(default=6, description='重试次数')
+    retry_times: int = Field(default=10, description='重试次数')
     retry_delay: int = Field(default=10, description='重试延迟')
 
     templates_dir: str = Field(
