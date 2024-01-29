@@ -1,6 +1,6 @@
 import datetime
 
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider, TSCodeSpider
+from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
 
 
 class ReportRCSpider(TSCodeSpider):
@@ -93,3 +93,15 @@ class BrokerRecommend(TushareSpider):
         for year in range(2020, datetime.datetime.now().year + 1):
             for month in range(1, 13):
                 yield self.get_scrapy_request({"month": f"{year}{month:02d}"})
+
+
+class HMListSpider(TushareSpider):
+    name = "stock/special/hm_list"
+    api_name = "hm_list"
+    custom_settings = {"TABLE_NAME": "hm_list"}
+
+
+class HMDetailSpider(DailySpider):
+    name = "stock/special/hm_detail"
+    api_name = "hm_detail"
+    custom_settings = {"TABLE_NAME": "hm_detail", 'MIN_CAL_DATE': '2022-08-01'}
