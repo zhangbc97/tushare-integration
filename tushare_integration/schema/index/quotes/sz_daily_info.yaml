@@ -51,7 +51,7 @@ outputs:
     desc: 成交金额
   - column: VOL
     name: vol
-    data_type: null
+    data_type: float
     must: "Y"
     desc: 成交量
   - column: TOTAL_SHARE
