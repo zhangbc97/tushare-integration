@@ -67,7 +67,7 @@ class SQLAlchemyEngine(DBEngine):
             db_name=self.settings.database.db_name,
             table_name=table_name,
             columns=data.columns.tolist(),
-            duplicate_keys=schema['duplicate_keys'],
+            primary_key=schema.get('primary_key', []),
             template_params=self.settings.database.template_params,
         )
         self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))  # type: ignore
