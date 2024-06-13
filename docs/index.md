@@ -117,7 +117,6 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
 ## 目前支持的数据库
 
 - [Clickhouse](https://clickhouse.com)
-- [Databend](https://databend.rs/)
 - [MySQL](https://www.mysql.com/)(未完全测试)
 - 其他数据库欢迎提交PR
 

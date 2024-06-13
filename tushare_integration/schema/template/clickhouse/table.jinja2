@@ -1,6 +1,6 @@
 {%- macro type_(column) -%}
     {%- if column.data_type == 'str' -%}
-        {%- if column.name == 'ts_code' %}LowCardinality(String){%- else %}String{%- endif %}
+        String
     {%- elif column.data_type == 'int' -%}
         Int64
     {%- elif column.data_type == 'float' or column.data_type == 'number' -%}
@@ -34,9 +34,9 @@
     {{ type_(column) }} NOT NULL DEFAULT {{ default_value(column) }}
 {%- endmacro -%}
 
-CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }} {%- if cluster %}ON CLUSTER {{ cluster }} {%- endif %}
+CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}{%- if cluster %} ON CLUSTER {{ cluster }} {%- endif %}
 (
-{%- for column in outputs %}
+{%- for column in columns %}
     {%- if 'codec' in template_params %}
     `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.desc }}' CODEC({{ template_params['codec'] }}) {{ ',' if not loop.last }} 
     {%- else %}
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }} {%- if cluster %}ON CL
 {%- endfor %}
 ) ENGINE = {% if primary_key %}ReplacingMergeTree{% else %}MergeTree{% endif %}
 {%- if primary_key %}
-    ORDER BY ({{ primary_key }})
-{%- elif index_key %}
-    ORDER BY ({{ index_key }})
+    ORDER BY ({{  primary_key | join(', ') }})
+{%- elif indices %}
+    ORDER BY ({{ indices[0]['columns'] | join(', ') }})
 {%- endif %}
 {%- if template_params and 'settings' in template_params %}
     SETTINGS {%- for key,value in template_params['settings'].items() %}  {{ key }} = '{{ value }}'
