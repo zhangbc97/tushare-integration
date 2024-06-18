@@ -24,7 +24,14 @@ def get_type_default(data_type: str) -> str:
 
 
 def parse_schema(schema: dict):
-    v2_schema = {'name': schema['name'], 'comment': schema['title'], 'columns': []}
+    v2_schema = {
+        'id': schema['id'],
+        'api_name': schema['name'],
+        'name': schema['name'],
+        'comment': schema['title'],
+        'dependencies': schema.get('dependencies', []),
+        'columns': [],
+    }
     # 先把所有的output字段转换成新的格式
 
     if 'outputs' in schema:
@@ -39,7 +46,7 @@ def parse_schema(schema: dict):
                 }
             )
 
-    return schema
+    return v2_schema
 
 
 def main():
@@ -61,7 +68,7 @@ def main():
         )
         schema_v2_file.parent.mkdir(parents=True, exist_ok=True)
         with open(schema_v2_file, 'w', encoding='utf-8') as f:
-            f.write(yaml.safe_dump(schema))
+            f.write(yaml.safe_dump(schema, allow_unicode=True, default_flow_style=False, sort_keys=False))
 
 
 if __name__ == '__main__':

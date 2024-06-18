@@ -1,56 +1,112 @@
+{{- if  .Values.configOverrides.parallel_mode }}
+{{- range $key, $job := .Values.cronjob }}
+{{- range $spider := $job.spiders }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: tushare-integration-{{ (splitList  "/" $spider.name) | last }}
+    namespace: {{ $.Release.Namespace }}
+spec:
+    concurrencyPolicy: Forbid
+    failedJobsHistoryLimit: 1
+    successfulJobsHistoryLimit: 1
+    schedule: {{ .cron_expr }}
+    jobTemplate:
+      spec:
+        backoffLimit: 1
+        template:
+          spec:
+            {{- with $.Values.affinity }}
+            affinity:
+                  {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with $.Values.nodeSelector }}
+            nodeSelector:
+                  {{- toYaml . | nindent 12 }}
+              {{- end }}
+            {{- with $.Values.tolerations}}
+            tolerations:
+                  {{- toYaml . | nindent 12 }}
+            {{- end }}
+            volumes:
+              - name: config
+                configMap:
+                  name: tushare-integration-cronjob
+                  items:
+                    - key: config.yaml
+                      path: config.yaml
+            containers:
+              - name: {{ .name }}
+                image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+                imagePullPolicy: IfNotPresent
+                command:
+                  - /bin/sh
+                args:
+                  - -c
+                  - "python main.py run spider {{ $spider.name }}"
+                volumeMounts:
+                  - name: config
+                    mountPath: /code/app/config.yaml
+                    subPath: config.yaml
+            restartPolicy: Never
+{{ end }}
+{{ end }}
+{{ else }}
 {{- range .Values.cronjob}}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: tushare-integration-{{ .name }}
-  namespace: {{ $.Release.Namespace }}
+    name: tushare-integration-{{ .name }}
+    namespace: {{ $.Release.Namespace }}
 spec:
-  concurrencyPolicy: Forbid
-  failedJobsHistoryLimit: 1
-  successfulJobsHistoryLimit: 1
-  schedule: {{ .cron_expr }}
-  jobTemplate:
-    spec:
-      backoffLimit: 1
-      template:
-        spec:
-          {{- with $.Values.affinity }}
-          affinity:
-                {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with $.Values.nodeSelector }}
-          nodeSelector:
-                {{- toYaml . | nindent 12 }}
+    concurrencyPolicy: Forbid
+    failedJobsHistoryLimit: 1
+    successfulJobsHistoryLimit: 1
+    schedule: {{ .cron_expr }}
+    jobTemplate:
+      spec:
+        backoffLimit: 1
+        template:
+          spec:
+            {{- with $.Values.affinity }}
+            affinity:
+                  {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- with $.Values.tolerations}}
-          tolerations:
-                {{- toYaml . | nindent 12 }}
-          {{- end }}
-          volumes:
-            - name: config
-              configMap:
-                name: tushare-integration-cronjob
-                items:
-                  - key: cronjob.yaml
-                    path: jobs.yaml
-                  - key: config.yaml
-                    path: config.yaml
-          containers:
-            - name: {{ .name }}
-              image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
-              imagePullPolicy: IfNotPresent
-              command:
-                - /bin/sh
-              args:
-                - -c
-                - "python main.py run job {{ .name }}"
-              volumeMounts:
-                - name: config
-                  mountPath: /code/app/jobs.yaml
-                  subPath: jobs.yaml
-                - name: config
-                  mountPath: /code/app/config.yaml
-                  subPath: config.yaml
-          restartPolicy: Never
+            {{- with $.Values.nodeSelector }}
+            nodeSelector:
+                  {{- toYaml . | nindent 12 }}
+              {{- end }}
+            {{- with $.Values.tolerations}}
+            tolerations:
+                  {{- toYaml . | nindent 12 }}
+            {{- end }}
+            volumes:
+              - name: config
+                configMap:
+                  name: tushare-integration-cronjob
+                  items:
+                    - key: cronjob.yaml
+                      path: jobs.yaml
+                    - key: config.yaml
+                      path: config.yaml
+            containers:
+              - name: {{ .name }}
+                image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+                imagePullPolicy: IfNotPresent
+                command:
+                  - /bin/sh
+                args:
+                  - -c
+                  - "python main.py run job {{ .name }}"
+                volumeMounts:
+                  - name: config
+                    mountPath: /code/app/jobs.yaml
+                    subPath: jobs.yaml
+                  - name: config
+                    mountPath: /code/app/config.yaml
+                    subPath: config.yaml
+            restartPolicy: Never
 {{- end}}
+{{ end }}

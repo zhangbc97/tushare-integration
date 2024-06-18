@@ -8,7 +8,7 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.4"
+  tag: "0.1.0"
 
 cronjob:
   - name: daily-morning
@@ -69,6 +69,9 @@ configOverrides:
   # 飞书Webhook配置
   feishu_webhook: ""
 
+  # 并行模式，当开启并行模式时，每个任务将会独立的创建一个CronJob，使用并行模式可以更为简单的查看任务的执行情况
+  # 请注意，由于采集服务本身不是并行安全的，并行模式下需要人工处理好任务间的依赖问题，并且不支持使用正则表达式
+  parallel_mode: true
   # Scrapy配置
   bot_name: tushare_integration
   concurrent_requests: 1

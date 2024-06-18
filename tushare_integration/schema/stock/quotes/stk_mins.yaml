@@ -1,3 +1,4 @@
+id: -1
 name: stk_mins
 title: 分钟线行情
 index_key: ts_code, trade_time
@@ -30,7 +31,7 @@ inputs:
     data_type: str
     must: "N"
     desc: 最大行数
-validations: [ ]
+validations: []
 outputs:
   - name: ts_code
     column: TS_CODE
