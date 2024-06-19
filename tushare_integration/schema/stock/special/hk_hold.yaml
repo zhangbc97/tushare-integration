@@ -1,76 +1,45 @@
 id: 124
+api_name: hk_hold
 name: hk_hold
-title: 沪深股通持股明细
-primary_key: ts_code,trade_date
-#dependencies:
-#  - stock/basic/trade_cal
-inputs:
-  - name: code
-    data_type: str
-    must: 'N'
-    desc: 交易所代码
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS股票代码
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: exchange
-    data_type: str
-    must: 'N'
-    desc: SH沪股通SZ深股通
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: CODE
-    name: code
-    data_type: str
-    must: 'Y'
-    desc: 原始代码
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: VOL
-    name: vol
-    data_type: int
-    must: 'Y'
-    desc: 持股数量
-  - column: RATIO
-    name: ratio
-    data_type: float
-    must: 'Y'
-    desc: 持股占比
-  - column: NS_TYPE
-    name: exchange
-    data_type: str
-    must: 'Y'
-    desc: 类型:SH沪股通SZ深港通
+comment: 沪深股通持股明细
+dependencies: []
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: code
+  data_type: str
+  length: 255
+  default: ''
+  comment: 原始代码
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: vol
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 持股数量
+- name: ratio
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 持股占比
+- name: exchange
+  data_type: str
+  length: 255
+  default: ''
+  comment: 类型:SH沪股通SZ深港通

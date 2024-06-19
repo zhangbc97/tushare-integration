@@ -1,88 +1,68 @@
 id: 20
+api_name: margin_detail
 name: margin_detail
-title: 融资融券交易明细
-index_key: ts_code, trade_date
+comment: 融资融券交易明细
 dependencies:
-  - stock/basic/trade_cal
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS代码
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - name: trade_date
-    column: TRADE_DATE
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - name: ts_code
-    column: TS_CODE
-    must: 'Y'
-    data_type: str
-    desc: TS股票代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'N'
-    desc: 股票名称
-  - name: rzye
-    column: RZYE
-    must: 'Y'
-    data_type: float
-    desc: 融资余额(元)
-  - name: rqye
-    column: RQYE
-    must: 'Y'
-    data_type: float
-    desc: 融券余额(元)
-  - name: rzmre
-    column: RZMRE
-    must: 'Y'
-    data_type: float
-    desc: 融资买入额(元)
-  - name: rqyl
-    column: RQYL
-    must: 'Y'
-    data_type: float
-    desc: 融券余量（手）
-  - name: rzche
-    column: RZCHE
-    must: 'Y'
-    data_type: float
-    desc: 融资偿还额(元)
-  - name: rqchl
-    column: RQCHL
-    must: 'Y'
-    data_type: float
-    desc: 融券偿还量(手)
-  - name: rqmcl
-    column: RQMCL
-    must: 'Y'
-    data_type: float
-    desc: '融券卖出量(股,份,手)'
-  - name: rzrqye
-    column: RZRQYE
-    must: 'Y'
-    data_type: float
-    desc: 融资融券余额(元)
+- stock/basic/trade_cal
+primary_key: []
+indexes:
+- name: idx_default
+  columns:
+  - ts_code
+  - trade_date
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: rzye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资余额(元)
+- name: rqye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券余额(元)
+- name: rzmre
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资买入额(元)
+- name: rqyl
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券余量（手）
+- name: rzche
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资偿还额(元)
+- name: rqchl
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券偿还量(手)
+- name: rqmcl
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券卖出量(股,份,手)
+- name: rzrqye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资融券余额(元)

@@ -39,16 +39,16 @@
 CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
 (
 {%- for column in columns %}
-    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.comment }}'{{ ',' if not loop.last or primary_key or indices }}
+    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.comment }}'{{ ',' if not loop.last or primary_key or indexes }}
 {%- endfor %}
 
 {%- if primary_key %}
-    PRIMARY KEY (`{{  primary_key | join('`, `') }}`) {%- if indices %},{% endif %}
+    PRIMARY KEY (`{{  primary_key | join('`, `') }}`) {%- if indexes %},{% endif %}
 {%- endif %}
 
-{%- if indices %}
-    {%- for index in indices %}
+{%- if indexes %}
+    {%- for index in indexes %}
     KEY `{{ index.name }}` (`{{ index.columns | join('`, `') }}`) {{ ',' if not loop.last }}
     {%- endfor %}
 {%- endif %}
-) ENGINE={{ engine }} DEFAULT CHARSET={{ charset }} COMMENT='{{ comment }}';
+) ENGINE={{ engine or 'innoDB' }} DEFAULT CHARSET={{ charset or 'utf8mb4' }} COMMENT='{{ comment }}';

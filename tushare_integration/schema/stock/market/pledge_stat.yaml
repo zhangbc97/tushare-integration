@@ -1,65 +1,52 @@
 id: 54
+api_name: pledge_stat
 name: pledge_stat
-title: 股权质押统计数据
-primary_key: ts_code,end_date,update_flag
+comment: 股权质押统计数据
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 截止日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: END_DATE
-    name: end_date
-    data_type: date
-    must: 'Y'
-    desc: 截至日期
-  - column: PLEDGE_COUNT
-    name: pledge_count
-    data_type: int
-    must: 'Y'
-    desc: 质押次数
-  - column: UNREST_PLEDGE
-    name: unrest_pledge
-    data_type: float
-    must: 'Y'
-    desc: 无限售股质押数量（万）
-  - column: REST_PLEDGE
-    name: rest_pledge
-    data_type: float
-    must: 'Y'
-    desc: 限售股份质押数量（万）
-  - column: TOTAL_SHARE
-    name: total_share
-    data_type: float
-    must: 'Y'
-    desc: 总股本
-  - column: PLEDGE_RATIO
-    name: pledge_ratio
-    data_type: float
-    must: 'Y'
-    desc: 质押比例
-  - column: UPDATE_FLAG
-    name: update_flag
-    data_type: str
-    must: 'N'
-    desc: 更新标识
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- end_date
+- update_flag
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: end_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 截至日期
+- name: pledge_count
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 质押次数
+- name: unrest_pledge
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 无限售股质押数量（万）
+- name: rest_pledge
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 限售股份质押数量（万）
+- name: total_share
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 总股本
+- name: pledge_ratio
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 质押比例
+- name: update_flag
+  data_type: str
+  length: 255
+  default: ''
+  comment: 更新标识

@@ -1,0 +1,88 @@
+id: 79
+name: monthly
+title: 月线行情
+index_key: ts_code, trade_date
+dependencies:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
+inputs:
+  - name: ts_code
+    data_type: str
+    must: 'N'
+    desc: TS代码
+  - name: trade_date
+    data_type: str
+    must: 'N'
+    desc: 交易日期
+  - name: start_date
+    data_type: str
+    must: 'N'
+    desc: 开始日期
+  - name: end_date
+    data_type: str
+    must: 'N'
+    desc: 结束日期
+  - name: limit
+    data_type: int
+    must: 'N'
+    desc: 单次返回数据长度
+  - name: offset
+    data_type: int
+    must: 'N'
+    desc: 请求数据的开始位移量
+outputs:
+  - column: TS_CODE
+    name: ts_code
+    data_type: str
+    must: 'Y'
+    desc: ''
+  - column: TRADE_DATE
+    name: trade_date
+    data_type: date
+    must: 'Y'
+    desc: ''
+  - column: CLOSE
+    name: close
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: OPEN
+    name: open
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: HIGH
+    name: high
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: LOW
+    name: low
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: PRE_CLOSE
+    name: pre_close
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: CHANGE
+    name: change
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: PCT_CHANGE
+    name: pct_chg
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: VOL
+    name: vol
+    data_type: float
+    must: 'Y'
+    desc: ''
+  - column: AMOUNT
+    name: amount
+    data_type: float
+    must: 'Y'
+    desc: ''

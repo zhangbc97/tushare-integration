@@ -14,9 +14,9 @@ def get_type_default(data_type: str) -> str:
         case 'number':
             return '0.0'
         case 'datetime':
-            return '1971-01-01 00:00:00'
+            return '1970-01-01 00:00:00'
         case 'date':
-            return '1971-01-01'
+            return '1970-01-01'
         case 'json':
             return ''
         case _:
@@ -30,21 +30,42 @@ def parse_schema(schema: dict):
         'name': schema['name'],
         'comment': schema['title'],
         'dependencies': schema.get('dependencies', []),
+        'primary_key': (
+            [key.strip() for key in schema.get('primary_key', '').split(',')] if 'primary_key' in schema else []
+        ),
+        'indexes': [],
         'columns': [],
     }
     # 先把所有的output字段转换成新的格式
 
     if 'outputs' in schema:
         for output in schema['outputs']:
+            # 所有名字中包含_date的，设置成date类型
+            # 所有名字是ts_code的，长度设置为16
+            if '_date' in output['name']:
+                output['data_type'] = 'date'
+            if output['name'] == 'ts_code':
+                output['length'] = 16
+
             v2_schema['columns'].append(
                 {
                     'name': output['name'],
                     'data_type': output['data_type'],
-                    'length': 255 if output['data_type'] == 'str' else 0,
+                    'length': output.get('length', 255) if output['data_type'] == 'str' else 0,
                     'default': get_type_default(output['data_type']),
                     'comment': output['desc'],
                 }
             )
+
+    if 'index_key' in schema:
+        keys = [key.strip() for key in schema['index_key'].split(',')]
+
+        v2_schema['indexes'].append(
+            {
+                'name': 'idx_default',
+                'columns': keys,
+            }
+        )
 
     return v2_schema
 
@@ -59,16 +80,16 @@ def main():
 
     for schema_file in schema_dir.rglob('*.yaml'):
         with open(schema_file, 'r', encoding='utf-8') as f:
-            schema = yaml.safe_load(f)
+            schema = yaml.safe_load(f.read())
 
         schema = parse_schema(schema)
 
         schema_v2_file = (
-            pathlib.Path(__file__).parent / 'tushare_integration' / 'schema_v2' / schema_file.relative_to(schema_dir)
+            pathlib.Path(__file__).parent / 'tushare_integration' / 'schema' / schema_file.relative_to(schema_dir)
         )
         schema_v2_file.parent.mkdir(parents=True, exist_ok=True)
         with open(schema_v2_file, 'w', encoding='utf-8') as f:
-            f.write(yaml.safe_dump(schema, allow_unicode=True, default_flow_style=False, sort_keys=False))
+            yaml.dump(schema, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
 
 if __name__ == '__main__':

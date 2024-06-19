@@ -1,0 +1,46 @@
+id: 126
+name: fut_mapping
+title: 期货主力与连续合约
+index_key: ts_code, trade_date
+inputs:
+  - name: ts_code
+    data_type: str
+    must: 'N'
+    desc: 合约代码
+  - name: trade_date
+    data_type: str
+    must: 'N'
+    desc: 交易日期
+  - name: start_date
+    data_type: str
+    must: 'N'
+    desc: 开始日期
+  - name: end_date
+    data_type: str
+    must: 'N'
+    desc: 结束日期
+  - name: limit
+    data_type: int
+    must: 'N'
+    desc: 单次返回数据长度
+  - name: offset
+    data_type: int
+    must: 'N'
+    desc: 请求数据的开始位移量
+validations: [ ]
+outputs:
+  - column: TS_CODE
+    name: ts_code
+    data_type: str
+    must: 'Y'
+    desc: 连续合约代码
+  - column: TRADE_DATE
+    name: trade_date
+    data_type: date
+    must: 'Y'
+    desc: 起始日期
+  - column: MAPPING_TS_CODE
+    name: mapping_ts_code
+    data_type: str
+    must: 'Y'
+    desc: 期货合约代码

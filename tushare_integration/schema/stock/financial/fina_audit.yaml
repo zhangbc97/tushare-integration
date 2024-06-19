@@ -1,71 +1,47 @@
 id: 34
+api_name: fina_audit
 name: fina_audit
-title: 财务审计意见
-primary_key: ts_code,end_date,ann_date
+comment: 财务审计意见
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - name: ann_date
-    data_type: str
-    must: 'N'
-    desc: 公告日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 公告开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 公告结束日期
-  - name: period
-    data_type: str
-    must: 'N'
-    desc: 报告期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - name: ts_code
-    column: TS_CODE
-    data_type: str
-    must: 'Y'
-    desc: TS股票代码
-  - name: ann_date
-    column: ANN_DATE
-    data_type: date
-    must: 'Y'
-    desc: 公告日期
-  - name: end_date
-    column: END_DATE
-    data_type: date
-    must: 'Y'
-    desc: 报告期
-  - name: audit_result
-    column: AUDIT_RESULT
-    data_type: str
-    must: 'Y'
-    desc: 审计结果
-  - name: audit_fees
-    column: AUDIT_FEES
-    data_type: float
-    must: 'N'
-    desc: 审计总费用（元）
-  - name: audit_agency
-    column: AUDIT_AGENCY
-    data_type: str
-    must: 'Y'
-    desc: 会计事务所
-  - name: audit_sign
-    column: AUDIT_SIGN
-    data_type: str
-    must: 'Y'
-    desc: 签字会计师
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- end_date
+- ann_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS股票代码
+- name: ann_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 公告日期
+- name: end_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 报告期
+- name: audit_result
+  data_type: str
+  length: 255
+  default: ''
+  comment: 审计结果
+- name: audit_fees
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 审计总费用（元）
+- name: audit_agency
+  data_type: str
+  length: 255
+  default: ''
+  comment: 会计事务所
+- name: audit_sign
+  data_type: str
+  length: 255
+  default: ''
+  comment: 签字会计师

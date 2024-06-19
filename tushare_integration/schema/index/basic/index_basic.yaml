@@ -1,100 +1,74 @@
 id: 39
+api_name: index_basic
 name: index_basic
-title: 指数基本信息
-primary_key: ts_code
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 指数代码
-  - name: market
-    data_type: str
-    must: 'N'
-    desc: 交易所或服务商
-  - name: publisher
-    data_type: str
-    must: 'N'
-    desc: 发布商
-  - name: category
-    data_type: str
-    must: 'N'
-    desc: 指数类别
-  - name: name
-    data_type: str
-    must: 'N'
-    desc: 指数名称
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - name: ts_code
-    column: TS_CODE
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - name: name
-    column: NAME
-    data_type: str
-    must: 'Y'
-    desc: 简称
-  - name: fullname
-    column: FULLNAME
-    data_type: str
-    must: 'N'
-    desc: 指数全称
-  - name: market
-    column: MARKET
-    data_type: str
-    must: 'Y'
-    desc: 市场
-  - name: publisher
-    column: PUBLISHER
-    data_type: str
-    must: 'Y'
-    desc: 发布方
-  - name: index_type
-    column: INDEX_TYPE
-    data_type: str
-    must: 'N'
-    desc: 指数风格
-  - name: category
-    column: INDEX_CATEGORY
-    data_type: str
-    must: 'Y'
-    desc: 指数类别
-  - name: base_date
-    column: BASE_DATE
-    data_type: str
-    must: 'Y'
-    desc: 基期
-  - name: base_point
-    column: BASE_POINT
-    data_type: float
-    must: 'Y'
-    desc: 基点
-  - name: list_date
-    column: LIST_DATE
-    data_type: str
-    must: 'Y'
-    desc: 发布日期
-  - name: weight_rule
-    column: WEIGHT_RULE
-    data_type: str
-    must: 'N'
-    desc: 加权方式
-  - name: desc
-    column: DESC
-    data_type: str
-    must: 'N'
-    desc: 描述
-  - name: exp_date
-    column: EXP_DATE
-    data_type: str
-    must: 'N'
-    desc: 终止日期
+comment: 指数基本信息
+dependencies: []
+primary_key:
+- ts_code
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 简称
+- name: fullname
+  data_type: str
+  length: 255
+  default: ''
+  comment: 指数全称
+- name: market
+  data_type: str
+  length: 255
+  default: ''
+  comment: 市场
+- name: publisher
+  data_type: str
+  length: 255
+  default: ''
+  comment: 发布方
+- name: index_type
+  data_type: str
+  length: 255
+  default: ''
+  comment: 指数风格
+- name: category
+  data_type: str
+  length: 255
+  default: ''
+  comment: 指数类别
+- name: base_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 基期
+- name: base_point
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 基点
+- name: list_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 发布日期
+- name: weight_rule
+  data_type: str
+  length: 255
+  default: ''
+  comment: 加权方式
+- name: desc
+  data_type: str
+  length: 255
+  default: ''
+  comment: 描述
+- name: exp_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 终止日期

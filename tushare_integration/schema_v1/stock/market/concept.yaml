@@ -1,0 +1,35 @@
+id: 68
+name: concept
+title: 概念股分类
+primary_key: code,src
+inputs:
+  - name: src
+    data_type: str
+    must: 'N'
+    desc: 来源
+    default: ts
+  - name: limit
+    data_type: int
+    must: 'N'
+    desc: 单次返回数据长度
+  - name: offset
+    data_type: int
+    must: 'N'
+    desc: 请求数据的开始位移量
+validations: [ ]
+outputs:
+  - column: CODE
+    name: code
+    data_type: str
+    must: 'Y'
+    desc: 概念分类ID
+  - column: NAME
+    name: name
+    data_type: str
+    must: 'Y'
+    desc: 概念分类名称
+  - column: SRC
+    name: src
+    data_type: str
+    must: 'Y'
+    desc: 来源

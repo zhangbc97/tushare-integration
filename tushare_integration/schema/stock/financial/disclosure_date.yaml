@@ -1,63 +1,41 @@
 id: 93
+api_name: disclosure_date
 name: disclosure_date
-title: 财报披露计划
-primary_key: ts_code,end_date
+comment: 财报披露计划
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS股票代码
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 财报周期
-  - name: pre_date
-    data_type: str
-    must: 'N'
-    desc: 计划披露日期
-  - name: actual_date
-    data_type: str
-    must: 'N'
-    desc: 实际披露日期
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: ''
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: ''
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: ANN_DATE
-    name: ann_date
-    data_type: date
-    must: 'Y'
-    desc: 最新披露公告日
-  - column: END_DATE
-    name: end_date
-    data_type: date
-    must: 'Y'
-    desc: 报告期
-  - column: PRE_DATE
-    name: pre_date
-    data_type: str
-    must: 'Y'
-    desc: 预计披露日期
-  - column: ACTUAL_DATE
-    name: actual_date
-    data_type: date
-    must: 'Y'
-    desc: 实际披露日期
-  - column: MODIFY_DATE
-    name: modify_date
-    data_type: date
-    must: 'N'
-    desc: 披露日期修正记录
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- end_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: ann_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 最新披露公告日
+- name: end_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 报告期
+- name: pre_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 预计披露日期
+- name: actual_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 实际披露日期
+- name: modify_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 披露日期修正记录

@@ -1,130 +1,92 @@
 id: 73
+api_name: fut_daily
 name: fut_daily
-title: 期货日线行情
-index_key: ts_code, trade_date
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 合约代码
-  - name: exchange
-    data_type: str
-    must: 'N'
-    desc: 交易所代码
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations:
-  - name: trade_date
-    validator: required
-    options: null
-    trigger:
-      link: and
-      exp:
-        - name: ts_code
-          operator: "="
-          type: builtin
-          value: None
-        - name: exchange
-          operator: "="
-          type: builtin
-          value: None
-    message: 'trade_date,ts_code参数不能都为空'
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易代码
-  - column: PRE_CLOSE
-    name: pre_close
-    data_type: float
-    must: 'Y'
-    desc: 昨收盘价
-  - column: PRE_SETTLE
-    name: pre_settle
-    data_type: float
-    must: 'Y'
-    desc: 昨结算价
-  - column: OPEN
-    name: open
-    data_type: float
-    must: 'Y'
-    desc: 开盘价
-  - column: HIGH
-    name: high
-    data_type: float
-    must: 'Y'
-    desc: 最高价
-  - column: LOW
-    name: low
-    data_type: float
-    must: 'Y'
-    desc: 最低价
-  - column: CLOSE
-    name: close
-    data_type: float
-    must: 'Y'
-    desc: 收盘价
-  - column: SETTLE
-    name: settle
-    data_type: float
-    must: 'Y'
-    desc: 结算价
-  - column: CHANGE1
-    name: change1
-    data_type: float
-    must: 'Y'
-    desc: '涨跌1,收盘价-昨结算价'
-  - column: CHANGE2
-    name: change2
-    data_type: float
-    must: 'Y'
-    desc: '涨跌2,结算价-昨结算价'
-  - column: VOL
-    name: vol
-    data_type: float
-    must: 'Y'
-    desc: 成交量(手)
-  - column: AMOUNT
-    name: amount
-    data_type: float
-    must: 'Y'
-    desc: 成交金额(万元)
-  - column: OI
-    name: oi
-    data_type: float
-    must: 'Y'
-    desc: 持仓量(手)
-  - column: OI_CHG
-    name: oi_chg
-    data_type: float
-    must: 'Y'
-    desc: 持仓量变化
-  - column: DELV_SETTLE
-    name: delv_settle
-    data_type: float
-    must: 'N'
-    desc: 交割结算价
+comment: 期货日线行情
+dependencies: []
+primary_key: []
+indexes:
+- name: idx_default
+  columns:
+  - ts_code
+  - trade_date
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易代码
+- name: pre_close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 昨收盘价
+- name: pre_settle
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 昨结算价
+- name: open
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 开盘价
+- name: high
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 最高价
+- name: low
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 最低价
+- name: close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收盘价
+- name: settle
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 结算价
+- name: change1
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 涨跌1,收盘价-昨结算价
+- name: change2
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 涨跌2,结算价-昨结算价
+- name: vol
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交量(手)
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交金额(万元)
+- name: oi
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 持仓量(手)
+- name: oi_chg
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 持仓量变化
+- name: delv_settle
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 交割结算价

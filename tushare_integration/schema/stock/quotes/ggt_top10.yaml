@@ -1,121 +1,98 @@
 id: 15
+api_name: ggt_top10
 name: ggt_top10
-title: 港股通十大成交股
-index_key: ts_code, trade_date
+comment: 港股通十大成交股
 dependencies:
-  - stock/basic/trade_cal
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: market_type
-    data_type: str
-    must: 'N'
-    desc: 市场类型 2：港股通（沪） 4：港股通（深）
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - name: trade_date
-    column: TRADE_DATE
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - name: ts_code
-    column: CODE
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - name: name
-    column: NAME
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - name: close
-    column: CLOSE
-    data_type: float
-    must: 'Y'
-    desc: 收盘价
-  - name: p_change
-    column: CHANGE
-    data_type: float
-    must: 'Y'
-    desc: 涨跌幅
-  - name: rank
-    column: RANK
-    data_type: str
-    must: 'Y'
-    desc: 资金排名
-  - name: market_type
-    column: MARKETTYPE
-    data_type: str
-    must: 'Y'
-    desc: 市场类型 2：港股通（沪） 4：港股通（深）
-  - name: amount
-    column: GGTCJL
-    data_type: float
-    must: 'Y'
-    desc: 累计成交金额
-  - name: net_amount
-    column: GGTJME
-    data_type: float
-    must: 'Y'
-    desc: 净买入金额
-  - name: sh_amount
-    column: GGTHCJJE
-    data_type: float
-    must: 'Y'
-    desc: 沪市成交金额
-  - name: sh_net_amount
-    column: GGTHJME
-    data_type: float
-    must: 'Y'
-    desc: 沪市净买入金额
-  - name: sh_buy
-    column: GGTHMRJE
-    data_type: float
-    must: 'Y'
-    desc: 沪市买入金额
-  - name: sh_sell
-    column: GGTHMCJE
-    data_type: float
-    must: 'Y'
-    desc: 沪市卖出金额
-  - name: sz_amount
-    column: GGTSCJJE
-    data_type: float
-    must: 'Y'
-    desc: 深市成交金额
-  - name: sz_net_amount
-    column: GGTSJME
-    data_type: float
-    must: 'Y'
-    desc: 深市净买入金额
-  - name: sz_buy
-    column: GGTSMRJE
-    data_type: float
-    must: 'Y'
-    desc: 深市买入金额
-  - name: sz_sell
-    column: GGTSMCJE
-    data_type: float
-    must: 'Y'
-    desc: 深市卖出金额
+- stock/basic/trade_cal
+primary_key: []
+indexes:
+- name: idx_default
+  columns:
+  - ts_code
+  - trade_date
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收盘价
+- name: p_change
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 涨跌幅
+- name: rank
+  data_type: str
+  length: 255
+  default: ''
+  comment: 资金排名
+- name: market_type
+  data_type: str
+  length: 255
+  default: ''
+  comment: 市场类型 2：港股通（沪） 4：港股通（深）
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 累计成交金额
+- name: net_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 净买入金额
+- name: sh_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 沪市成交金额
+- name: sh_net_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 沪市净买入金额
+- name: sh_buy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 沪市买入金额
+- name: sh_sell
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 沪市卖出金额
+- name: sz_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 深市成交金额
+- name: sz_net_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 深市净买入金额
+- name: sz_buy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 深市买入金额
+- name: sz_sell
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 深市卖出金额

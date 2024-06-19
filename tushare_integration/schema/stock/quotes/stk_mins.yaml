@@ -1,75 +1,55 @@
 id: -1
+api_name: stk_mins
 name: stk_mins
-title: 分钟线行情
-index_key: ts_code, trade_time
+comment: 分钟线行情
 dependencies:
-  - stock/basic/stock_basic
-  - stock/basic/trade_cal
-  - stock/quotes/daily
-inputs:
-  - name: ts_code
-    data_type: str
-    must: "N"
-    desc: 股票代码
-  - name: trade_date
-    data_type: str
-    must: "N"
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: "N"
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: "N"
-    desc: 结束日期
-  - name: offset
-    data_type: str
-    must: "N"
-    desc: 开始行数
-  - name: limit
-    data_type: str
-    must: "N"
-    desc: 最大行数
-validations: []
-outputs:
-  - name: ts_code
-    column: TS_CODE
-    data_type: str
-    must: "Y"
-    desc: 股票代码
-  - name: trade_time
-    column: TRADE_TIME
-    data_type: datetime
-    must: "Y"
-    desc: 交易时间
-  - name: open
-    column: OPEN
-    must: "Y"
-    data_type: float
-    desc: 开盘价
-  - name: high
-    column: HIGH
-    must: "Y"
-    data_type: float
-    desc: 最高价
-  - name: low
-    column: LOW
-    must: "Y"
-    data_type: float
-    desc: 最低价
-  - name: close
-    column: CLOSE
-    must: "Y"
-    data_type: float
-    desc: 收盘价
-  - name: vol
-    column: VOL
-    must: "Y"
-    data_type: float
-    desc: 成交量
-  - name: amount
-    column: AMOUNT
-    must: "Y"
-    data_type: float
-    desc: 成交额
+- stock/basic/stock_basic
+- stock/basic/trade_cal
+- stock/quotes/daily
+primary_key: []
+indexes:
+- name: idx_default
+  columns:
+  - ts_code
+  - trade_time
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: trade_time
+  data_type: datetime
+  length: 0
+  default: '1970-01-01 00:00:00'
+  comment: 交易时间
+- name: open
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 开盘价
+- name: high
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 最高价
+- name: low
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 最低价
+- name: close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收盘价
+- name: vol
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交量
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交额

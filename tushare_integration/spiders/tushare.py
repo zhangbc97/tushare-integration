@@ -12,11 +12,13 @@ from tushare_integration.settings import TushareIntegrationSettings
 
 
 class TushareSpider(scrapy.Spider):
-    name = None
-    api_name: str = None
-    schema = None
-    spider_settings: TushareIntegrationSettings = None  # 不能直接叫settings，会覆盖掉scrapy的settings
-    db_engine: DBEngine = None
+    name: str
+    api_name: str
+    schema: dict = {}
+    spider_settings: TushareIntegrationSettings  # 不能直接叫settings，会覆盖掉scrapy的settings
+    db_engine: DBEngine
+
+    custom_settings: dict = {}
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name, **kwargs)
@@ -64,7 +66,7 @@ class TushareSpider(scrapy.Spider):
     def get_db_engine(self):
         return self.db_engine
 
-    def get_scrapy_request(self, params: dict = None, meta: dict = None):
+    def get_scrapy_request(self, params: dict | None = None, meta: dict | None = None):
         if not params:
             params = {}
 
@@ -95,7 +97,7 @@ class TushareSpider(scrapy.Spider):
         )
 
     def load_fields(self):
-        return ",".join([column["name"] for column in self.schema["outputs"]])
+        return ",".join([column["name"] for column in self.schema["columns"]])
 
     def get_schema_name(self):
         return self.name
@@ -105,14 +107,14 @@ class TushareSpider(scrapy.Spider):
             return self.api_name
         return self.name.split("/")[-1]
 
-    def get_table_name(self):
+    def get_table_name(self) -> str:
         if self.custom_settings and self.custom_settings.get("TABLE_NAME"):
-            return self.custom_settings.get("TABLE_NAME")
+            return self.custom_settings.get("TABLE_NAME", '')
         return self.name.split("/")[-1]
 
 
 class DailySpider(TushareSpider):
-    name = None
+    name: str
     custom_settings = {"TABLE_NAME": "daily", "TRADE_DATE_FIELD": "trade_date"}
 
     def start_requests(self):
@@ -145,7 +147,7 @@ class DailySpider(TushareSpider):
 
 
 class TSCodeSpider(TushareSpider):
-    name = None
+    name: str
 
     custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
@@ -161,7 +163,7 @@ class TSCodeSpider(TushareSpider):
 
 
 class FinancialReportSpider(TushareSpider):
-    name = None
+    name: str
     api_name = "financial_report"
 
     def start_requests(self):

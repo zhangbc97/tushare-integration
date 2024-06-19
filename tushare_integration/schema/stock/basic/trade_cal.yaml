@@ -1,54 +1,30 @@
 id: 3
+api_name: trade_cal
 name: trade_cal
-title: 交易日历
-primary_key: cal_date,exchange
-inputs:
-  - name: exchange
-    data_type: str
-    must: N
-    default: SSE
-    desc: 交易所 SSE上交所 SZSE深交所
-  - name: cal_date
-    data_type: str
-    must: N
-    desc: 日历日期
-  - name: start_date
-    data_type: str
-    must: N
-  - name: end_date
-    data_type: str
-    must: N
-  - name: is_open
-    must: N
-    data_type: str
-    desc: 是否交易 0休市 1交易
-  - name: limit
-    data_type: int
-    must: N
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: N
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - name: exchange
-    column: EXCHANGE
-    data_type: str
-    must: Y
-    desc: 交易所 SSE上交所 SZSE深交所
-  - name: cal_date
-    column: CAL_DATE
-    must: Y
-    data_type: date
-    desc: 日历日期
-  - name: is_open
-    column: IS_OPEN
-    must: Y
-    data_type: int
-    desc: 是否交易 0休市 1交易
-  - name: pretrade_date
-    column: PRETRADE_DATE
-    must: Y
-    data_type: date
-    desc: 上一个交易日
+comment: 交易日历
+dependencies: []
+primary_key:
+- cal_date
+- exchange
+indexes: []
+columns:
+- name: exchange
+  data_type: str
+  length: 255
+  default: ''
+  comment: 交易所 SSE上交所 SZSE深交所
+- name: cal_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 日历日期
+- name: is_open
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 是否交易 0休市 1交易
+- name: pretrade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 上一个交易日
