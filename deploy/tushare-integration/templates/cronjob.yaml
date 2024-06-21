@@ -5,13 +5,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-    name: tushare-integration-{{ (splitList  "/" $spider.name) | last }}
+    name: tushare-integration-{{ (splitList  "/" $spider.name) | last | replace "_" "-" }}
     namespace: {{ $.Release.Namespace }}
 spec:
     concurrencyPolicy: Forbid
     failedJobsHistoryLimit: 1
     successfulJobsHistoryLimit: 1
-    schedule: {{ .cron_expr }}
+    schedule: {{ $job.cron_expr }}
     jobTemplate:
       spec:
         backoffLimit: 1
@@ -37,7 +37,7 @@ spec:
                     - key: config.yaml
                       path: config.yaml
             containers:
-              - name: {{ .name }}
+              - name: {{ (splitList  "/" $spider.name) | last | replace "_" "-" }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
                 imagePullPolicy: IfNotPresent
                 command:

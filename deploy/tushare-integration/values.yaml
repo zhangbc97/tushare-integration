@@ -45,7 +45,16 @@ cronjob:
   - name: weekly
     cron_expr: "0 8 * * 1"
     spiders:
-      - name: "stock/financial/.*"
+      - name: "stock/financial/balancesheet"
+      - name: "stock/financial/cashflow"
+      - name: "stock/financial/income"
+      - name: "stock/financial/forecast"
+      - name: "stock/financial/fina_indicator"
+      - name: "stock/financial/fina_audit"
+      - name: "stock/financial/fina_mainbz"
+      - name: "stock/financial/express"
+      - name: "stock/financial/dividend"
+      - name: "stock/financial/disclosure_date"
 
 configOverrides:
   # TUSHARE相关配置
