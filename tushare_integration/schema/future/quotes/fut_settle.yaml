@@ -3,70 +3,68 @@ api_name: fut_settle
 name: fut_settle
 comment: 结算参数
 dependencies: []
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+primary_key:
   - ts_code
   - trade_date
+indexes: []
 columns:
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 合约代码
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: settle
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 结算价
-- name: trading_fee_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 交易手续费率
-- name: trading_fee
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 交易手续费
-- name: delivery_fee
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 交割手续费
-- name: b_hedging_margin_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 买套保交易保证金率
-- name: s_hedging_margin_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 卖套保交易保证金率
-- name: long_margin_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 买投机交易保证金率
-- name: short_margin_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 卖投机交易保证金率
-- name: offset_today_fee
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 平今仓手续率
-- name: exchange
-  data_type: str
-  length: 255
-  default: ''
-  comment: 交易所
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 合约代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: settle
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 结算价
+  - name: trading_fee_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 交易手续费率
+  - name: trading_fee
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 交易手续费
+  - name: delivery_fee
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 交割手续费
+  - name: b_hedging_margin_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 买套保交易保证金率
+  - name: s_hedging_margin_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 卖套保交易保证金率
+  - name: long_margin_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 买投机交易保证金率
+  - name: short_margin_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 卖投机交易保证金率
+  - name: offset_today_fee
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平今仓手续率
+  - name: exchange
+    data_type: str
+    length: 255
+    default: ""
+    comment: 交易所

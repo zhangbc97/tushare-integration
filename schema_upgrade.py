@@ -74,7 +74,7 @@ def main():
     # 将旧版本的schema文件转换成新版
     # 遍历tushare_integration/schema下的所有.yaml文件，包括他的子目录，转换后输出到tushare_integration/schema_v2下
 
-    schema_dir = pathlib.Path(__file__).parent / 'tushare_integration' / 'schema'
+    schema_dir = pathlib.Path(__file__).parent / 'tushare_integration' / 'schema_v1'
 
     print(schema_dir)
 

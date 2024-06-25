@@ -3,96 +3,94 @@ api_name: ggt_top10
 name: ggt_top10
 comment: 港股通十大成交股
 dependencies:
-- stock/basic/trade_cal
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/trade_cal
+primary_key:
   - ts_code
   - trade_date
+indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 股票代码
-- name: name
-  data_type: str
-  length: 255
-  default: ''
-  comment: 股票名称
-- name: close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 收盘价
-- name: p_change
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 涨跌幅
-- name: rank
-  data_type: str
-  length: 255
-  default: ''
-  comment: 资金排名
-- name: market_type
-  data_type: str
-  length: 255
-  default: ''
-  comment: 市场类型 2：港股通（沪） 4：港股通（深）
-- name: amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 累计成交金额
-- name: net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 净买入金额
-- name: sh_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 沪市成交金额
-- name: sh_net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 沪市净买入金额
-- name: sh_buy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 沪市买入金额
-- name: sh_sell
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 沪市卖出金额
-- name: sz_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深市成交金额
-- name: sz_net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深市净买入金额
-- name: sz_buy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深市买入金额
-- name: sz_sell
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深市卖出金额
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘价
+  - name: p_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅
+  - name: rank
+    data_type: str
+    length: 255
+    default: ""
+    comment: 资金排名
+  - name: market_type
+    data_type: str
+    length: 255
+    default: ""
+    comment: 市场类型 2：港股通（沪） 4：港股通（深）
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 累计成交金额
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 净买入金额
+  - name: sh_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 沪市成交金额
+  - name: sh_net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 沪市净买入金额
+  - name: sh_buy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 沪市买入金额
+  - name: sh_sell
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 沪市卖出金额
+  - name: sz_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深市成交金额
+  - name: sz_net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深市净买入金额
+  - name: sz_buy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深市买入金额
+  - name: sz_sell
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深市卖出金额

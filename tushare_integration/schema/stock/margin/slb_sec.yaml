@@ -1,0 +1,46 @@
+id: 268
+api_name: slb_sec
+name: slb_sec
+comment: 转融券交易汇总
+dependencies:
+  - stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期（YYYYMMDD）
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: ope_inv
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 期初余量(万股)
+- name: lent_qnt
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 转融券融出数量(万股)
+- name: cls_inv
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 期末余量(万股)
+- name: end_bal
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 期末余额(万元)

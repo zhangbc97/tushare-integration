@@ -3,53 +3,51 @@ api_name: stk_mins
 name: stk_mins
 comment: 分钟线行情
 dependencies:
-- stock/basic/stock_basic
-- stock/basic/trade_cal
-- stock/quotes/daily
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
+  - stock/quotes/daily
+primary_key:
   - ts_code
   - trade_time
+indexes: []
 columns:
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 股票代码
-- name: trade_time
-  data_type: datetime
-  length: 0
-  default: '1970-01-01 00:00:00'
-  comment: 交易时间
-- name: open
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 开盘价
-- name: high
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 最高价
-- name: low
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 最低价
-- name: close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 收盘价
-- name: vol
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 成交量
-- name: amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 成交额
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: trade_time
+    data_type: datetime
+    length: 0
+    default: "1970-01-01 00:00:00"
+    comment: 交易时间
+  - name: open
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 开盘价
+  - name: high
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最高价
+  - name: low
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最低价
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘价
+  - name: vol
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交量
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交额

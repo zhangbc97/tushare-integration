@@ -3,46 +3,44 @@ api_name: moneyflow_hsgt
 name: moneyflow_hsgt
 comment: 沪深港通资金流向
 dependencies:
-- stock/basic/stock_basic
-- stock/basic/trade_cal
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
+primary_key:
   - trade_date
+indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: ggt_ss
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 港股通（上海）
-- name: ggt_sz
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 港股通（深圳）
-- name: hgt
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 沪股通
-- name: sgt
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深股通
-- name: north_money
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 北向资金
-- name: south_money
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 南向资金
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ggt_ss
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 港股通（上海）
+  - name: ggt_sz
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 港股通（深圳）
+  - name: hgt
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 沪股通
+  - name: sgt
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深股通
+  - name: north_money
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 北向资金
+  - name: south_money
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 南向资金

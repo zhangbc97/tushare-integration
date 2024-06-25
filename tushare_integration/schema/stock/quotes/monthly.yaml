@@ -3,67 +3,65 @@ api_name: monthly
 name: monthly
 comment: 月线行情
 dependencies:
-- stock/basic/stock_basic
-- stock/basic/trade_cal
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
+primary_key:
   - ts_code
   - trade_date
+indexes: []
 columns:
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: ''
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: ''
-- name: close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: open
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: high
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: low
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: pre_close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: change
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: pct_chg
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: vol
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
-- name: amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: ''
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: ""
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: ""
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: open
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: high
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: low
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: pre_close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: vol
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: ""

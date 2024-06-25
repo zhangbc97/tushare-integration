@@ -3,117 +3,115 @@ api_name: moneyflow
 name: moneyflow
 comment: 个股资金流向
 dependencies:
-- stock/basic/stock_basic
-- stock/basic/trade_cal
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/stock_basic
+  - stock/basic/trade_cal
+primary_key:
   - ts_code
   - trade_date
+indexes: []
 columns:
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: TS代码
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: buy_sm_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 小单买入量（手）
-- name: buy_sm_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 小单买入金额（万元）
-- name: sell_sm_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 小单卖出量（手）
-- name: sell_sm_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 小单卖出金额（万元）
-- name: buy_md_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 中单买入量（手）
-- name: buy_md_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 中单买入金额（万元）
-- name: sell_md_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 中单卖出量（手）
-- name: sell_md_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 中单卖出金额（万元）
-- name: buy_lg_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 大单买入量（手）
-- name: buy_lg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 大单买入金额（万元）
-- name: sell_lg_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 大单卖出量（手）
-- name: sell_lg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 大单卖出金额（万元）
-- name: buy_elg_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 特大单买入量（手）
-- name: buy_elg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 特大单买入金额（万元）
-- name: sell_elg_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 特大单卖出量（手）
-- name: sell_elg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 特大单卖出金额（万元）
-- name: net_mf_vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 净流入量（手）
-- name: net_mf_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 净流入额（万元）
-- name: trade_count
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 交易笔数
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: TS代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: buy_sm_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 小单买入量（手）
+  - name: buy_sm_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 小单买入金额（万元）
+  - name: sell_sm_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 小单卖出量（手）
+  - name: sell_sm_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 小单卖出金额（万元）
+  - name: buy_md_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 中单买入量（手）
+  - name: buy_md_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 中单买入金额（万元）
+  - name: sell_md_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 中单卖出量（手）
+  - name: sell_md_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 中单卖出金额（万元）
+  - name: buy_lg_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 大单买入量（手）
+  - name: buy_lg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 大单买入金额（万元）
+  - name: sell_lg_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 大单卖出量（手）
+  - name: sell_lg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 大单卖出金额（万元）
+  - name: buy_elg_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 特大单买入量（手）
+  - name: buy_elg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 特大单买入金额（万元）
+  - name: sell_elg_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 特大单卖出量（手）
+  - name: sell_elg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 特大单卖出金额（万元）
+  - name: net_mf_vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 净流入量（手）
+  - name: net_mf_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 净流入额（万元）
+  - name: trade_count
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 交易笔数

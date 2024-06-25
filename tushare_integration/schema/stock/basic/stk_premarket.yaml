@@ -1,7 +1,7 @@
-id: 120
-api_name: stk_limit
-name: stk_limit
-comment: 每日涨跌停价格
+id: 259
+api_name: stk_premarket
+name: stk_premarket
+comment: 股本情况（盘前）
 dependencies:
   - stock/basic/stock_basic
   - stock/basic/trade_cal
@@ -20,6 +20,16 @@ columns:
     length: 16
     default: ""
     comment: TS股票代码
+  - name: total_share
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 总股本
+  - name: float_share
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 流通股本
   - name: pre_close
     data_type: float
     length: 0

@@ -37,8 +37,8 @@ item_pipelines:
 # 重试配置
 # Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
 retry_enabled: true
-retry_delay: 10
-retry_times: 10
+retry_delay: 60
+retry_times: 3
 
 spider_modules:
   - "tushare_integration.spiders"

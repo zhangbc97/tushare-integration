@@ -97,10 +97,10 @@ class MySQLEngine(SQLAlchemyEngine):
         self.functions['to_date'] = 'Date'
 
 
-class DatabendEngine(SQLAlchemyEngine):
+class ApacheDorisEngine(SQLAlchemyEngine):
     def __init__(self, settings: TushareIntegrationSettings):
         super().__init__(settings)
-        self.functions['to_date'] = 'toDate'
+        self.functions['to_date'] = 'to_date'
 
 
 class ClickhouseEngine(DBEngine):
@@ -145,8 +145,8 @@ class DatabaseEngineFactory(object):
     def create(settings: TushareIntegrationSettings) -> DBEngine:
         if settings.database.db_type == 'clickhouse':
             return ClickhouseEngine(settings)
-        elif settings.database.db_type == 'databend':
-            return DatabendEngine(settings)
+        elif settings.database.db_type == 'doris':
+            return ApacheDorisEngine(settings)
         elif settings.database.db_type == 'mysql':
             return MySQLEngine(settings)
         else:

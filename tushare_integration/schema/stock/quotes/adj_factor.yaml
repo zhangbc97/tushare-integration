@@ -3,26 +3,24 @@ api_name: adj_factor
 name: adj_factor
 comment: 复权因子
 dependencies:
-- stock/basic/trade_cal
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/basic/trade_cal
+primary_key:
   - ts_code
   - trade_date
+indexes: []
 columns:
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 股票代码
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: adj_factor
-  data_type: number
-  length: 0
-  default: '0.0'
-  comment: 复权因子
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: adj_factor
+    data_type: number
+    length: 0
+    default: "0.0"
+    comment: 复权因子

@@ -3,59 +3,57 @@ api_name: fut_holding
 name: fut_holding
 comment: 每日成交持仓排名
 dependencies: []
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+primary_key:
   - trade_date
+indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: symbol
-  data_type: str
-  length: 255
-  default: ''
-  comment: 合约代码或类型
-- name: broker
-  data_type: str
-  length: 255
-  default: ''
-  comment: 期货公司会员简称
-- name: vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 成交量
-- name: vol_chg
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 成交量变化
-- name: long_hld
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 持买仓量
-- name: long_chg
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 持买仓量变化
-- name: short_hld
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 持卖仓量
-- name: short_chg
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 持卖仓量变化
-- name: exchange
-  data_type: str
-  length: 255
-  default: ''
-  comment: 交易所
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: symbol
+    data_type: str
+    length: 255
+    default: ""
+    comment: 合约代码或类型
+  - name: broker
+    data_type: str
+    length: 255
+    default: ""
+    comment: 期货公司会员简称
+  - name: vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 成交量
+  - name: vol_chg
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 成交量变化
+  - name: long_hld
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 持买仓量
+  - name: long_chg
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 持买仓量变化
+  - name: short_hld
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 持卖仓量
+  - name: short_chg
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 持卖仓量变化
+  - name: exchange
+    data_type: str
+    length: 255
+    default: ""
+    comment: 交易所

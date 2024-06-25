@@ -1,5 +1,48 @@
 cronjob:
-  - cron_expr: Unsupported
+  - cron_expr: UnSupported
+    name: future/basic
+    spiders:
+      - name: future/basic/fut_basic
+  - cron_expr: UnSupported
+    name: future/quotes
+    spiders:
+      - name: future/quotes/fut_daily
+      - name: future/quotes/fut_holding
+      - name: future/quotes/fut_settle
+      - name: future/quotes/fut_mapping
+      - name: future/quotes/fut_wsr
+      - name: future/quotes/fut_weekly_detail
+  - cron_expr: UnSupported
+    name: index/basic
+    spiders:
+      - name: index/basic/index_basic
+  - cron_expr: UnSupported
+    name: index/quotes
+    spiders:
+      - name: index/quotes/index_daily
+      - name: index/quotes/daily_info
+      - name: index/quotes/index_dailybasic
+      - name: index/quotes/index_global
+      - name: index/quotes/index_monthly
+      - name: index/quotes/index_weekly
+      - name: index/quotes/index_weight
+      - name: index/quotes/sz_daily_info
+  - cron_expr: UnSupported
+    name: index/sw
+    spiders:
+      - name: index/sw/index_classify
+      - name: index/sw/index_member
+  - cron_expr: UnSupported
+    name: index/ths
+    spiders:
+      - name: index/ths/ths_daily
+      - name: index/ths/ths_index
+      - name: index/ths/ths_member
+  - cron_expr: UnSupported
+    name: index/zx
+    spiders:
+      - name: index/zx/ci_daily
+  - cron_expr: UnSupported
     name: stock/basic
     spiders:
       - name: stock/basic/stock_basic
@@ -10,8 +53,9 @@ cronjob:
       - name: stock/basic/stk_managers
       - name: stock/basic/stk_rewards
       - name: stock/basic/new_share
+      - name: stock/basic/stk_premarket
       - name: stock/basic/bak_basic
-  - cron_expr: Unsupported
+  - cron_expr: UnSupported
     name: stock/financial
     spiders:
       - name: stock/financial/balancesheet
@@ -24,12 +68,19 @@ cronjob:
       - name: stock/financial/fina_audit
       - name: stock/financial/fina_mainbz
       - name: stock/financial/disclosure_date
-  - cron_expr: Unsupported
+  - cron_expr: UnSupported
+    name: stock/margin
+    spiders:
+      - name: stock/margin/margin
+      - name: stock/margin/margin_detail
+      - name: stock/margin/slb_len_mm
+      - name: stock/margin/slb_len
+      - name: stock/margin/slb_sec_detail
+      - name: stock/margin/slb_sec
+  - cron_expr: UnSupported
     name: stock/market
     spiders:
-      - name: stock/market/margin
-      - name: stock/market/margin_detail
-      - name: stock/market/margin_target
+      - name: stock/market/margin_secs
       - name: stock/market/top10_holders
       - name: stock/market/top10_floatholders
       - name: stock/market/top_list
@@ -43,7 +94,7 @@ cronjob:
       - name: stock/market/block_trade
       - name: stock/market/stk_holdernumber
       - name: stock/market/stk_holdertrade
-  - cron_expr: Unsupported
+  - cron_expr: UnSupported
     name: stock/quotes
     spiders:
       - name: stock/quotes/daily
@@ -60,7 +111,7 @@ cronjob:
       - name: stock/quotes/ggt_daily
       - name: stock/quotes/bak_daily
       - name: stock/quotes/stk_mins
-  - cron_expr: Unsupported
+  - cron_expr: UnSupported
     name: stock/special
     spiders:
       - name: stock/special/report_rc
@@ -73,3 +124,5 @@ cronjob:
       - name: stock/special/limit_list_d
       - name: stock/special/stk_surv
       - name: stock/special/broker_recommend
+      - name: stock/special/hm_list
+      - name: stock/special/hm_detail

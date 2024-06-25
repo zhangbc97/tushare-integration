@@ -103,7 +103,7 @@ class TushareSpider(scrapy.Spider):
         return self.name
 
     def get_api_name(self):
-        if self.api_name:
+        if hasattr(self, 'api_name') and self.api_name:
             return self.api_name
         return self.name.split("/")[-1]
 
@@ -148,7 +148,6 @@ class DailySpider(TushareSpider):
 
 class TSCodeSpider(TushareSpider):
     name: str
-
     custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
     def start_requests(self):
@@ -158,7 +157,7 @@ class TSCodeSpider(TushareSpider):
 
         ts_codes = conn.query_df(f"SELECT ts_code FROM {db_name}.{table_name}")
 
-        for ts_code in ts_codes:
+        for ts_code in ts_codes['ts_code']:
             yield self.get_scrapy_request(params={"ts_code": ts_code})
 
 

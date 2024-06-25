@@ -1,7 +1,7 @@
-id: 14
-api_name: hsgt_top10
-name: hsgt_top10
-comment: 沪深股通十大成交股
+id: 20
+api_name: margin_detail
+name: margin_detail
+comment: 融资融券交易明细
 dependencies:
   - stock/basic/trade_cal
 primary_key:
@@ -18,49 +18,49 @@ columns:
     data_type: str
     length: 16
     default: ""
-    comment: 股票代码
+    comment: TS股票代码
   - name: name
     data_type: str
     length: 255
     default: ""
     comment: 股票名称
-  - name: close
+  - name: rzye
     data_type: float
     length: 0
     default: "0.0"
-    comment: 收盘价
-  - name: change
+    comment: 融资余额(元)
+  - name: rqye
     data_type: float
     length: 0
     default: "0.0"
-    comment: 涨跌幅
-  - name: rank
-    data_type: int
-    length: 0
-    default: "0"
-    comment: 资金排名
-  - name: market_type
-    data_type: str
-    length: 255
-    default: ""
-    comment: 市场类型（1：沪市 3：深市）
-  - name: amount
+    comment: 融券余额(元)
+  - name: rzmre
     data_type: float
     length: 0
     default: "0.0"
-    comment: 成交金额
-  - name: net_amount
+    comment: 融资买入额(元)
+  - name: rqyl
     data_type: float
     length: 0
     default: "0.0"
-    comment: 净成交金额
-  - name: buy
+    comment: 融券余量（手）
+  - name: rzche
     data_type: float
     length: 0
     default: "0.0"
-    comment: 买入金额
-  - name: sell
+    comment: 融资偿还额(元)
+  - name: rqchl
     data_type: float
     length: 0
     default: "0.0"
-    comment: 卖出金额
+    comment: 融券偿还量(手)
+  - name: rqmcl
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 融券卖出量(股,份,手)
+  - name: rzrqye
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 融资融券余额(元)

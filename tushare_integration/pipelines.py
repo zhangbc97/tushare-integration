@@ -119,7 +119,7 @@ class TushareIntegrationDataPipeline(BasePipeline):
         if data.empty:
             return item
 
-        if (primary_key := self.schema.get("primary_key", None)) is not None:
+        if (primary_key := self.schema.get("primary_key", None)) is not None and len(primary_key) > 0:
             data = data.drop_duplicates(subset=primary_key, keep="last")
             self.db_engine.upsert(self.table_name, schema=self.schema, data=data)
         else:
@@ -190,7 +190,7 @@ class RecordLogPipeline(BasePipeline):
                 {
                     "batch_id": spider.settings.get("BATCH_ID", ''),
                     "spider_name": spider.name,
-                    "description": self.schema.get("title", ""),
+                    "description": self.schema.get("name", ""),
                     "count": self.count,
                     "start_time": self.start_time,
                     "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

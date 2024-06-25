@@ -3,95 +3,93 @@ api_name: fut_weekly_detail
 name: fut_weekly_detail
 comment: 期货主要品种交易周报
 dependencies: []
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+primary_key:
   - week
   - prd
+indexes: []
 columns:
-- name: exchange
-  data_type: str
-  length: 255
-  default: ''
-  comment: 交易所代码
-- name: prd
-  data_type: str
-  length: 255
-  default: ''
-  comment: 期货品种代码
-- name: name
-  data_type: str
-  length: 255
-  default: ''
-  comment: 品种名称
-- name: vol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 成交量（手）
-- name: vol_yoy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 同比增减（%）
-- name: amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 成交金额（亿元）
-- name: amout_yoy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 同比增减（%）
-- name: cumvol
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 年累计成交总量（手）
-- name: cumvol_yoy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 同比增减（%）
-- name: cumamt
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 年累计成交金额（亿元）
-- name: cumamt_yoy
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 同比增减（%）
-- name: open_interest
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 持仓量（手）
-- name: interest_wow
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 环比增减（%）
-- name: mc_close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 本周主力合约收盘价
-- name: close_wow
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 环比涨跌（%）
-- name: week
-  data_type: str
-  length: 255
-  default: ''
-  comment: 周期
-- name: week_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 周日期
+  - name: exchange
+    data_type: str
+    length: 255
+    default: ""
+    comment: 交易所代码
+  - name: prd
+    data_type: str
+    length: 255
+    default: ""
+    comment: 期货品种代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 品种名称
+  - name: vol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 成交量（手）
+  - name: vol_yoy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 同比增减（%）
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交金额（亿元）
+  - name: amout_yoy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 同比增减（%）
+  - name: cumvol
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 年累计成交总量（手）
+  - name: cumvol_yoy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 同比增减（%）
+  - name: cumamt
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 年累计成交金额（亿元）
+  - name: cumamt_yoy
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 同比增减（%）
+  - name: open_interest
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 持仓量（手）
+  - name: interest_wow
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 环比增减（%）
+  - name: mc_close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 本周主力合约收盘价
+  - name: close_wow
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 环比涨跌（%）
+  - name: week
+    data_type: str
+    length: 255
+    default: ""
+    comment: 周期
+  - name: week_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 周日期

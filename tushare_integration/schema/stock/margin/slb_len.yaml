@@ -1,0 +1,40 @@
+id: 267
+api_name: slb_len
+name: slb_len
+comment: 转融资交易汇总
+dependencies:
+  - stock/basic/trade_cal
+primary_key:
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期（YYYYMMDD）
+- name: ob
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 期初余额(亿元)
+- name: auc_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 竞价成交金额(亿元)
+- name: repo_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 再借成交金额(亿元)
+- name: repay_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 偿还金额(亿元)
+- name: cb
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 期末余额(亿元)

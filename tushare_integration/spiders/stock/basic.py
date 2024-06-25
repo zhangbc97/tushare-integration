@@ -1,6 +1,6 @@
 import datetime
 
-from tushare_integration.spiders.tushare import TushareSpider, DailySpider, TSCodeSpider
+from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
 
 
 class StockBasicSpider(TushareSpider):
@@ -103,6 +103,12 @@ class StockNewShareSpider(TushareSpider):
         for year in range(1990, datetime.datetime.now().year + 1, 5):
             params = {"start_date": str(year) + "0101", "end_date": str(year + 5) + "1231"}
             yield self.get_scrapy_request(params)
+
+
+class StkPremarket(DailySpider):
+    name = "stock/basic/stk_premarket"
+    description = '每日股本(盘前数据)'
+    api_name = "stk_premarket"
 
 
 class StockBakBasicSpider(DailySpider):

@@ -39,7 +39,7 @@ def env_variable(env_key, case_sensitive=False):
 
 class DatabaseConfig(BaseSettings):
     # 数据库相关配置
-    db_type: Annotated[Literal["clickhouse", "mysql", "databend"], env_variable('DB_TYPE')] = Field(
+    db_type: Annotated[Literal["clickhouse", "mysql", "doris"], env_variable('DB_TYPE')] = Field(
         ..., description='SQL模板'
     )
 
@@ -56,7 +56,7 @@ class DatabaseConfig(BaseSettings):
             return f"clickhouse://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
         elif self.db_type == 'mysql':
             return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
-        elif self.db_type == 'databend':
+        elif self.db_type == 'doris':
             return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
         else:
             raise ValueError(f"Unsupported db_type: {self.db_type}")
@@ -70,14 +70,18 @@ class TushareIntegrationSettings(BaseSettings):
     tushare_token: Annotated[str, env_variable('TUSHARE_TOKEN')] = Field(..., description='Tushare token')
     tushare_url: str = Field('https://api.tushare.pro', description='Tushare API URL')
     tushare_point: Annotated[int, env_variable('TUSHARE_POINT')] = Field(2000, description='Tushare积分')
-    tushare_max_concurrent_requests: int | None = Field(None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算')
+    tushare_max_concurrent_requests: int | None = Field(
+        None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算'
+    )
 
     database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
     feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(..., description='飞书webhook')
 
-    parallel_mode: bool = Field(default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任务依赖')
+    parallel_mode: bool = Field(
+        default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任务依赖'
+    )
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
     bot_name: str = Field(default='tushare_integration', description='爬虫名称')
@@ -86,7 +90,9 @@ class TushareIntegrationSettings(BaseSettings):
 
     robotstxt_obey: bool = Field(default=False, description='是否遵守robots.txt')
 
-    concurrent_requests: Annotated[int, env_variable('CONCURRENT_REQUESTS')] = Field(default=1, description='并发请求数')
+    concurrent_requests: Annotated[int, env_variable('CONCURRENT_REQUESTS')] = Field(
+        default=1, description='并发请求数'
+    )
     concurrent_items: Annotated[int, env_variable('CONCURRENT_ITEMS')] = Field(default=100, description='并发item数')
 
     download_delay: float = Field(default=0, description='下载延迟')

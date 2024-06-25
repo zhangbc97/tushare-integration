@@ -2,8 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
@@ -14,9 +12,16 @@ cronjob:
   - name: daily-morning
     cron_expr: "0 8 * * 1-5"
     spiders:
-      - name: "stock/basic/stock_basic"
-      - name: "stock/basic/stock_company"
-
+      - name: stock/basic/stock_basic
+      - name: stock/basic/namechange
+      - name: stock/basic/hs_const
+      - name: stock/basic/trade_cal
+      - name: stock/basic/stock_company
+      - name: stock/basic/stk_managers
+      - name: stock/basic/stk_rewards
+      - name: stock/basic/new_share
+      - name: stock/basic/stk_premarket
+      - name: stock/basic/bak_basic
   - name: daily-open
     cron_expr: "40 9 * * 1-5"
     spiders:
@@ -25,19 +30,24 @@ cronjob:
   - name: daily
     cron_expr: "0 16,17 * * 1-5"
     spiders:
-      - name: "stock/quotes/daily"
-      - name: "stock/quotes/suspend_d"
-      - name: "stock/basic/namechange"
+      - name: stock/quotes/daily
+      - name: stock/quotes/weekly
+      - name: stock/quotes/monthly
+      - name: stock/quotes/suspend_d
+      - name: stock/quotes/hsgt_top10
+      - name: stock/quotes/moneyflow
+      - name: stock/quotes/moneyflow_hsgt
+      - name: stock/quotes/stk_limit
+      - name: stock/quotes/daily_basic
+      - name: stock/quotes/ggt_top10
+      - name: stock/quotes/ggt_daily
+      - name: stock/quotes/bak_daily
   - name: daily-evening
     cron_expr: "0 19 * * 1-5"
     spiders:
       - name: "stock/quotes/hsgt_top10"
       - name: "stock/quotes/moneyflow"
       - name: "stock/quotes/moneyflow_hsgt"
-  - name: nightly
-    cron_expr: "0 21 * * *"
-    spiders:
-      - name: "stock/quotes/stk_mins"
   - name: monthly
     cron_expr: "0 0 1 * *"
     spiders:
@@ -45,16 +55,100 @@ cronjob:
   - name: weekly
     cron_expr: "0 8 * * 1"
     spiders:
-      - name: "stock/financial/balancesheet"
-      - name: "stock/financial/cashflow"
-      - name: "stock/financial/income"
-      - name: "stock/financial/forecast"
-      - name: "stock/financial/fina_indicator"
-      - name: "stock/financial/fina_audit"
-      - name: "stock/financial/fina_mainbz"
-      - name: "stock/financial/express"
-      - name: "stock/financial/dividend"
-      - name: "stock/financial/disclosure_date"
+      - name: stock/financial/balancesheet
+      - name: stock/financial/cashflow
+      - name: stock/financial/income
+      - name: stock/financial/express
+      - name: stock/financial/forecast
+      - name: stock/financial/dividend
+      - name: stock/financial/fina_indicator
+      - name: stock/financial/fina_audit
+      - name: stock/financial/fina_mainbz
+      - name: stock/financial/disclosure_date
+  - cron_expr: "0 19,21 * * 1-5"
+    name: stock/margin
+    spiders:
+      - name: stock/margin/margin
+      - name: stock/margin/margin_detail
+      - name: stock/margin/slb_len_mm
+      - name: stock/margin/slb_len
+      - name: stock/margin/slb_sec_detail
+      - name: stock/margin/slb_sec
+  - cron_expr: "0 19,21 * * 1-5"
+    name: stock/market
+    spiders:
+      - name: stock/market/margin_secs
+      - name: stock/market/top10_holders
+      - name: stock/market/top10_floatholders
+      - name: stock/market/top_list
+      - name: stock/market/top_inst
+      - name: stock/market/pledge_stat
+      - name: stock/market/pledge_detail
+      - name: stock/market/repurchase
+      - name: stock/market/share_float
+      - name: stock/market/concept
+      - name: stock/market/concept_detail
+      - name: stock/market/block_trade
+      - name: stock/market/stk_holdernumber
+      - name: stock/market/stk_holdertrade
+  - cron_expr: "0 18,21 * * 1-5"
+    name: stock/special
+    spiders:
+      - name: stock/special/report_rc
+      - name: stock/special/cyq_perf
+      - name: stock/special/cyq_chips
+      - name: stock/special/stk_factor
+      - name: stock/special/ccass_hold
+      - name: stock/special/ccass_hold_detail
+      - name: stock/special/hk_hold
+      - name: stock/special/limit_list_d
+      - name: stock/special/stk_surv
+      - name: stock/special/broker_recommend
+      - name: stock/special/hm_list
+      - name: stock/special/hm_detail
+  - cron_expr: "0 8 * * 1-5"
+    name: future/basic
+    spiders:
+      - name: future/basic/fut_basic
+  - cron_expr: "0 16,17 * * 1-5"
+    name: future/quotes
+    spiders:
+      - name: future/quotes/fut_daily
+      - name: future/quotes/fut_holding
+      - name: future/quotes/fut_settle
+      - name: future/quotes/fut_mapping
+      - name: future/quotes/fut_wsr
+      - name: future/quotes/fut_weekly_detail
+  - cron_expr: "0 8 * * 1-5"
+    name: index/basic
+    spiders:
+      - name: index/basic/index_basic
+  - cron_expr: "0 18,21 * * 1-5"
+    name: index/quotes
+    spiders:
+      - name: index/quotes/index_daily
+      - name: index/quotes/daily_info
+      - name: index/quotes/index_dailybasic
+      - name: index/quotes/index_global
+      - name: index/quotes/index_monthly
+      - name: index/quotes/index_weekly
+      - name: index/quotes/index_weight
+      - name: index/quotes/sz_daily_info
+  - cron_expr: "0 19,21 * * 1-5"
+    name: index/sw
+    spiders:
+      - name: index/sw/index_classify
+      - name: index/sw/index_member
+  - cron_expr: "0 19,21 * * 1-5"
+    name: index/ths
+    spiders:
+      - name: index/ths/ths_daily
+      - name: index/ths/ths_index
+      - name: index/ths/ths_member
+  - cron_expr: "0 19,21 * * 1-5"
+    name: index/zx
+    spiders:
+      - name: index/zx/ci_daily
 
 configOverrides:
   # TUSHARE相关配置
@@ -99,8 +193,8 @@ configOverrides:
   # 重试配置
   # Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
   retry_enabled: true
-  retry_delay: 10
-  retry_times: 6
+  retry_delay: 60
+  retry_times: 3
 
   spider_modules:
     - "tushare_integration.spiders"

@@ -3,35 +3,33 @@ api_name: ggt_daily
 name: ggt_daily
 comment: 港股通每日成交统计
 dependencies:
-- stock/quotes/daily
-primary_key: []
-indexes:
-- name: idx_default
-  columns:
+  - stock/quotes/daily
+primary_key:
   - trade_date
+indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: buy_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 买入成交金额（亿元）
-- name: buy_volume
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 买入成交笔数（万笔）
-- name: sell_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 卖出成交金额（亿元）
-- name: sell_volume
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 卖出成交笔数（万笔）
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: buy_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 买入成交金额（亿元）
+  - name: buy_volume
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 买入成交笔数（万笔）
+  - name: sell_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 卖出成交金额（亿元）
+  - name: sell_volume
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 卖出成交笔数（万笔）
