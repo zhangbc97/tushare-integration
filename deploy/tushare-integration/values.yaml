@@ -206,3 +206,5 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+ttlSecondsAfterFinished: 86400
