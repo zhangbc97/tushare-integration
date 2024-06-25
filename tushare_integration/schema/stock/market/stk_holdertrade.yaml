@@ -1,106 +1,76 @@
 id: 110
+api_name: stk_holdertrade
 name: stk_holdertrade
-title: 股东增减持
-primary_key: ts_code,ann_date
+comment: 股东增减持
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS股票代码
-  - name: ann_date
-    data_type: str
-    must: 'N'
-    desc: 公告日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 公告开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 公告结束日期
-  - name: trade_type
-    data_type: str
-    must: 'N'
-    desc: 交易类型IN增持DE减持
-  - name: holder_type
-    data_type: str
-    must: 'N'
-    desc: 股东类型G高管C公司P个人
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: ANN_DATE
-    name: ann_date
-    data_type: date
-    must: 'Y'
-    desc: 公告日期
-  - column: HOLDER_NAME
-    name: holder_name
-    data_type: str
-    must: 'Y'
-    desc: 股东名称
-  - column: HOLDER_TYPE
-    name: holder_type
-    data_type: str
-    must: 'Y'
-    desc: 股东类型G高管P个人C公司
-  - column: IN_DE
-    name: in_de
-    data_type: str
-    must: 'Y'
-    desc: 类型IN增持DE减持
-  - column: CHANGE_VOL
-    name: change_vol
-    data_type: float
-    must: 'Y'
-    desc: 变动数量
-  - column: CHANGE_RATIO
-    name: change_ratio
-    data_type: float
-    must: 'Y'
-    desc: 占流通比例（%）
-  - column: AFTER_SHARE
-    name: after_share
-    data_type: float
-    must: 'Y'
-    desc: 变动后持股
-  - column: AFTER_RATIO
-    name: after_ratio
-    data_type: float
-    must: 'Y'
-    desc: 变动后占流通比例（%）
-  - column: AVG_PRICE
-    name: avg_price
-    data_type: float
-    must: 'Y'
-    desc: 平均价格
-  - column: TOTAL_SHARE
-    name: total_share
-    data_type: float
-    must: 'Y'
-    desc: 持股总数
-  - column: BEGIN_DATE
-    name: begin_date
-    data_type: date
-    must: 'N'
-    desc: 增减持开始日期
-  - column: CLOSE_DATE
-    name: close_date
-    data_type: date
-    must: 'N'
-    desc: 增减持结束日期
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- ann_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: ann_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 公告日期
+- name: holder_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股东名称
+- name: holder_type
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股东类型G高管P个人C公司
+- name: in_de
+  data_type: str
+  length: 255
+  default: ''
+  comment: 类型IN增持DE减持
+- name: change_vol
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 变动数量
+- name: change_ratio
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 占流通比例（%）
+- name: after_share
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 变动后持股
+- name: after_ratio
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 变动后占流通比例（%）
+- name: avg_price
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 平均价格
+- name: total_share
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 持股总数
+- name: begin_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 增减持开始日期
+- name: close_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 增减持结束日期

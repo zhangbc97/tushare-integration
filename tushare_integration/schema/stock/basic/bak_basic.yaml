@@ -1,146 +1,132 @@
 id: 176
+api_name: bak_basic
 name: bak_basic
-title: 备用列表
-primary_key: ts_code,trade_date
+comment: 备用列表
 dependencies:
-  - stock/basic/stock_basic
-  - stock/basic/trade_cal
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS股票代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: INDUSTRY
-    name: industry
-    data_type: str
-    must: 'Y'
-    desc: 行业
-  - column: AREA
-    name: area
-    data_type: str
-    must: 'Y'
-    desc: 地域
-  - column: PE
-    name: pe
-    data_type: float
-    must: 'Y'
-    desc: 市盈率（动）
-  - column: FLOAT_SHARE
-    name: float_share
-    data_type: float
-    must: 'Y'
-    desc: 流通股本（万）
-  - column: TOTAL_SHARE
-    name: total_share
-    data_type: float
-    must: 'Y'
-    desc: 总股本（万）
-  - column: TOTAL_ASSETS
-    name: total_assets
-    data_type: float
-    must: 'Y'
-    desc: 总资产（万）
-  - column: LIQUID_ASSETS
-    name: liquid_assets
-    data_type: float
-    must: 'Y'
-    desc: 流动资产（万）
-  - column: FIXED_ASSETS
-    name: fixed_assets
-    data_type: float
-    must: 'Y'
-    desc: 固定资产（万）
-  - column: RESERVED
-    name: reserved
-    data_type: float
-    must: 'Y'
-    desc: 公积金
-  - column: RESERVED_PERSHARE
-    name: reserved_pershare
-    data_type: float
-    must: 'Y'
-    desc: 每股公积金
-  - column: EPS
-    name: eps
-    data_type: float
-    must: 'Y'
-    desc: 每股收益
-  - column: BVPS
-    name: bvps
-    data_type: float
-    must: 'Y'
-    desc: 每股净资产
-  - column: PB
-    name: pb
-    data_type: float
-    must: 'Y'
-    desc: 市净率
-  - column: LIST_DATE
-    name: list_date
-    data_type: date
-    must: 'Y'
-    desc: 上市日期
-  - column: UNDP
-    name: undp
-    data_type: float
-    must: 'Y'
-    desc: 未分配利润
-  - column: PER_UNDP
-    name: per_undp
-    data_type: float
-    must: 'Y'
-    desc: 每股未分配利润
-  - column: REV_YOY
-    name: rev_yoy
-    data_type: float
-    must: 'Y'
-    desc: 收入同比（%）
-  - column: PROFIT_YOY
-    name: profit_yoy
-    data_type: float
-    must: 'Y'
-    desc: 利润同比（%）
-  - column: GPR
-    name: gpr
-    data_type: float
-    must: 'Y'
-    desc: 毛利率（%）
-  - column: NPR
-    name: npr
-    data_type: float
-    must: 'Y'
-    desc: 净利润率（%）
-  - column: HOLDER_NUM
-    name: holder_num
-    data_type: int
-    must: 'Y'
-    desc: 股东人数
+- stock/basic/stock_basic
+- stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: industry
+  data_type: str
+  length: 255
+  default: ''
+  comment: 行业
+- name: area
+  data_type: str
+  length: 255
+  default: ''
+  comment: 地域
+- name: pe
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 市盈率（动）
+- name: float_share
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 流通股本（万）
+- name: total_share
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 总股本（万）
+- name: total_assets
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 总资产（万）
+- name: liquid_assets
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 流动资产（万）
+- name: fixed_assets
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 固定资产（万）
+- name: reserved
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 公积金
+- name: reserved_pershare
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 每股公积金
+- name: eps
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 每股收益
+- name: bvps
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 每股净资产
+- name: pb
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 市净率
+- name: list_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 上市日期
+- name: undp
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 未分配利润
+- name: per_undp
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 每股未分配利润
+- name: rev_yoy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收入同比（%）
+- name: profit_yoy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 利润同比（%）
+- name: gpr
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 毛利率（%）
+- name: npr
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 净利润率（%）
+- name: holder_num
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 股东人数

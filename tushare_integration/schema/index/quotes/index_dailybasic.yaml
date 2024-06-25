@@ -1,90 +1,70 @@
 id: 71
+api_name: index_dailybasic
 name: index_dailybasic
-title: 大盘指数每日指标
-index_key: ts_code, trade_date
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
+comment: 大盘指数每日指标
+dependencies: []
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
   - name: ts_code
     data_type: str
-    must: 'N'
-    desc: TS指数代码
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: str
-    must: 'Y'
-    desc: 交易日期
-  - column: TOTAL_MV
-    name: total_mv
+    length: 16
+    default: ""
+    comment: TS代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: total_mv
     data_type: float
-    must: 'Y'
-    desc: 当日总市值
-  - column: FLOAT_MV
-    name: float_mv
+    length: 0
+    default: "0.0"
+    comment: 当日总市值
+  - name: float_mv
     data_type: float
-    must: 'Y'
-    desc: 当日流通市值
-  - column: TOTAL_SHARE
-    name: total_share
+    length: 0
+    default: "0.0"
+    comment: 当日流通市值
+  - name: total_share
     data_type: float
-    must: 'Y'
-    desc: 当日总股本
-  - column: FLOAT_SHARE
-    name: float_share
+    length: 0
+    default: "0.0"
+    comment: 当日总股本
+  - name: float_share
     data_type: float
-    must: 'Y'
-    desc: 当日流通股本
-  - column: FREE_SHARE
-    name: free_share
+    length: 0
+    default: "0.0"
+    comment: 当日流通股本
+  - name: free_share
     data_type: float
-    must: 'Y'
-    desc: 当日自由流通股本
-  - column: TURNOVER_RATE
-    name: turnover_rate
+    length: 0
+    default: "0.0"
+    comment: 当日自由流通股本
+  - name: turnover_rate
     data_type: float
-    must: 'Y'
-    desc: 换手率
-  - column: TURNOVER_RATE_F
-    name: turnover_rate_f
+    length: 0
+    default: "0.0"
+    comment: 换手率
+  - name: turnover_rate_f
     data_type: float
-    must: 'Y'
-    desc: 换手率(自由流通股本)
-  - column: PE
-    name: pe
+    length: 0
+    default: "0.0"
+    comment: 换手率(自由流通股本)
+  - name: pe
     data_type: float
-    must: 'Y'
-    desc: 市盈率
-  - column: PE_TTM
-    name: pe_ttm
+    length: 0
+    default: "0.0"
+    comment: 市盈率
+  - name: pe_ttm
     data_type: float
-    must: 'Y'
-    desc: 市盈率TTM
-  - column: PB
-    name: pb
+    length: 0
+    default: "0.0"
+    comment: 市盈率TTM
+  - name: pb
     data_type: float
-    must: 'Y'
-    desc: 市净率
+    length: 0
+    default: "0.0"
+    comment: 市净率

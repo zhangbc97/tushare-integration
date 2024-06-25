@@ -1,54 +1,41 @@
 id: 69
+api_name: concept_detail
 name: concept_detail
-title: 概念股列表
-primary_key: ts_code,id
+comment: 概念股列表
 dependencies:
-  - stock/market/concept
-inputs:
-  - name: id
-    data_type: str
-    must: 'N'
-    desc: 概念分类ID
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - column: CONCEPT_CODE
-    name: id
-    data_type: str
-    must: 'Y'
-    desc: 概念代码
-  - column: CONCEPT_NAME
-    name: concept_name
-    data_type: str
-    must: 'Y'
-    desc: 概念名称
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: IN_DATE
-    name: in_date
-    data_type: date
-    must: 'N'
-    desc: 纳入日期
-  - column: OUT_DATE
-    name: out_date
-    data_type: date
-    must: 'N'
-    desc: 剔除日期
+- stock/market/concept
+primary_key:
+- ts_code
+- id
+indexes: []
+columns:
+- name: id
+  data_type: str
+  length: 255
+  default: ''
+  comment: 概念代码
+- name: concept_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 概念名称
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: in_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 纳入日期
+- name: out_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 剔除日期

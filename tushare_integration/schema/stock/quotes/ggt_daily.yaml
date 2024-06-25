@@ -1,54 +1,35 @@
 id: 133
+api_name: ggt_daily
 name: ggt_daily
-title: 港股通每日成交统计
-index_key: trade_date
+comment: 港股通每日成交统计
 dependencies:
   - stock/quotes/daily
-inputs:
+primary_key:
+  - trade_date
+indexes: []
+columns:
   - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
     data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: BUY_AMOUNT
-    name: buy_amount
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: buy_amount
     data_type: float
-    must: 'Y'
-    desc: 买入成交金额（亿元）
-  - column: BUY_VOLUME
-    name: buy_volume
+    length: 0
+    default: "0.0"
+    comment: 买入成交金额（亿元）
+  - name: buy_volume
     data_type: float
-    must: 'Y'
-    desc: 买入成交笔数（万笔）
-  - column: SELL_AMOUNT
-    name: sell_amount
+    length: 0
+    default: "0.0"
+    comment: 买入成交笔数（万笔）
+  - name: sell_amount
     data_type: float
-    must: 'Y'
-    desc: 卖出成交金额（亿元）
-  - column: SELL_VOLUME
-    name: sell_volume
+    length: 0
+    default: "0.0"
+    comment: 卖出成交金额（亿元）
+  - name: sell_volume
     data_type: float
-    must: 'Y'
-    desc: 卖出成交笔数（万笔）
+    length: 0
+    default: "0.0"
+    comment: 卖出成交笔数（万笔）

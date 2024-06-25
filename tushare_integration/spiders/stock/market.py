@@ -1,22 +1,16 @@
 from tushare_integration.spiders.tushare import DailySpider, FinancialReportSpider, TSCodeSpider, TushareSpider
 
-
-class MarginSpider(DailySpider):
-    name = "stock/market/margin"
-    api_name = "margin"
-    custom_settings = {"TABLE_NAME": "margin", 'MIN_CAL_DATE': '2010-01-01'}
-
-
-class MarginDetailSpider(DailySpider):
-    name = "stock/market/margin_detail"
-    api_name = "margin_detail"
-    custom_settings = {"TABLE_NAME": "margin_detail", 'MIN_CAL_DATE': '2010-01-01'}
+# 这玩意儿后面停用了
+# class MarginTargetSpider(TSCodeSpider):
+#     name = "stock/market/margin_target"
+#     api_name = "margin_target"
+#     custom_settings = {"TABLE_NAME": "margin_detail", "BASIC_TABLE": "stock_basic"}
 
 
-class MarginTargetSpider(TSCodeSpider):
-    name = "stock/market/margin_target"
-    api_name = "margin_target"
-    custom_settings = {"TABLE_NAME": "margin_detail", "BASIC_TABLE": "stock_basic"}
+class MarginSecsSpider(DailySpider):
+    name = "stock/market/margin_secs"
+    api_name = "margin_secs"
+    custom_settings = {"TABLE_NAME": "margin_secs"}
 
 
 class Top10HoldersSpider(FinancialReportSpider):

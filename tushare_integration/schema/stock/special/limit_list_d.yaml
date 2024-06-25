@@ -1,136 +1,106 @@
 id: 226
+api_name: limit_list_d
 name: limit_list_d
-title: 涨跌停列表（新）
-primary_key: ts_code,trade_date
+comment: 涨跌停列表（新）
 dependencies:
-  - stock/basic/trade_cal
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: limit_type
-    data_type: str
-    must: 'N'
-    desc: 涨跌停类型U涨停D跌停Z炸板
-  - name: exchange
-    data_type: str
-    must: 'N'
-    desc: 交易所（SH上交所SZ深交所BJ北交所）
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - column: INDUSTRY
-    name: industry
-    data_type: str
-    must: 'Y'
-    desc: 所属行业
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: CLOSE
-    name: close
-    data_type: float
-    must: 'Y'
-    desc: 收盘价
-  - column: PCT_CHG
-    name: pct_chg
-    data_type: float
-    must: 'Y'
-    desc: 涨跌幅
-  - column: SWING
-    name: swing
-    data_type: float
-    must: 'N'
-    desc: 振幅
-  - column: AMOUNT
-    name: amount
-    data_type: float
-    must: 'Y'
-    desc: 成交额
-  - column: LIMIT_AMOUNT
-    name: limit_amount
-    data_type: float
-    must: 'Y'
-    desc: 板上成交金额
-  - column: FLOAT_MV
-    name: float_mv
-    data_type: float
-    must: 'Y'
-    desc: 流通市值
-  - column: TOTAL_MV
-    name: total_mv
-    data_type: float
-    must: 'Y'
-    desc: 总市值
-  - column: TURNOVER_RATIO
-    name: turnover_ratio
-    data_type: float
-    must: 'Y'
-    desc: 换手率
-  - column: FD_AMOUNT
-    name: fd_amount
-    data_type: float
-    must: 'Y'
-    desc: 封单金额
-  - column: FIRST_TIME
-    name: first_time
-    data_type: str
-    must: 'Y'
-    desc: 首次封板时间
-  - column: LAST_TIME
-    name: last_time
-    data_type: str
-    must: 'Y'
-    desc: 最后封板时间
-  - column: OPEN_TIMES
-    name: open_times
-    data_type: int
-    must: 'Y'
-    desc: 炸板次数
-  - column: UP_STAT
-    name: up_stat
-    data_type: str
-    must: 'Y'
-    desc: 涨停统计
-  - column: LIMIT_TIMES
-    name: limit_times
-    data_type: int
-    must: 'Y'
-    desc: 连板数
-  - column: LIMIT
-    name: limit
-    data_type: str
-    must: 'Y'
-    desc: D跌停U涨停Z炸板
+- stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: industry
+  data_type: str
+  length: 255
+  default: ''
+  comment: 所属行业
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收盘价
+- name: pct_chg
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 涨跌幅
+- name: swing
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 振幅
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交额
+- name: limit_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 板上成交金额
+- name: float_mv
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 流通市值
+- name: total_mv
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 总市值
+- name: turnover_ratio
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 换手率
+- name: fd_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 封单金额
+- name: first_time
+  data_type: str
+  length: 255
+  default: ''
+  comment: 首次封板时间
+- name: last_time
+  data_type: str
+  length: 255
+  default: ''
+  comment: 最后封板时间
+- name: open_times
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 炸板次数
+- name: up_stat
+  data_type: str
+  length: 255
+  default: ''
+  comment: 涨停统计
+- name: limit_times
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 连板数
+- name: limit
+  data_type: str
+  length: 255
+  default: ''
+  comment: D跌停U涨停Z炸板

@@ -1,58 +1,46 @@
 id: 180
+api_name: ths_member
 name: ths_member
-title: 同花顺概念板块成分
-primary_key: ts_code, code, is_new
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 板块指数代码
-  - name: code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 指数代码
-  - column: CODE
-    name: code
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: WEIGHT
-    name: weight
-    data_type: float
-    must: 'N'
-    desc: 权重
-  - column: IN_DATE
-    name: in_date
-    data_type: str
-    must: 'N'
-    desc: 纳入日期
-  - column: OUT_DATE
-    name: out_date
-    data_type: str
-    must: 'N'
-    desc: 剔除日期
-  - column: IS_NEW
-    name: is_new
-    data_type: str
-    must: 'N'
-    desc: 是否最新Y是N否
+comment: 同花顺概念板块成分
+dependencies: []
+primary_key:
+- ts_code
+- code
+- is_new
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 指数代码
+- name: code
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: weight
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 权重
+- name: in_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 纳入日期
+- name: out_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 剔除日期
+- name: is_new
+  data_type: str
+  length: 255
+  default: ''
+  comment: 是否最新Y是N否

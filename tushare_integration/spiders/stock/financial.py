@@ -44,9 +44,7 @@ class ForeCastSpider(FinancialReportSpider):
 class DividendSpider(TSCodeSpider):
     name = "stock/financial/dividend"
     api_name = "dividend"
-    custom_settings = {
-        "TABLE_NAME": "dividend",
-    }
+    custom_settings = {"TABLE_NAME": "dividend", 'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaIndicatorSpider(FinancialReportSpider):
@@ -60,9 +58,7 @@ class FinaIndicatorSpider(FinancialReportSpider):
 class FinaAuditSpider(TSCodeSpider):
     name = "stock/financial/fina_audit"
     api_name = "fina_audit"
-    custom_settings = {
-        "TABLE_NAME": "fina_audit",
-    }
+    custom_settings = {"TABLE_NAME": "fina_audit", 'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaMainBZSpider(FinancialReportSpider):

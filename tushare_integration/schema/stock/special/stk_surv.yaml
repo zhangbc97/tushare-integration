@@ -1,83 +1,61 @@
 id: 195
+api_name: stk_surv
 name: stk_surv
-title: 机构调研表
-primary_key: ts_code,surv_date
+comment: 机构调研表
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 调研日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 调研开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 调研结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 股票代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: SURV_DATE
-    name: surv_date
-    data_type: date
-    must: 'Y'
-    desc: 调研日期
-  - column: FUND_VISITORS
-    name: fund_visitors
-    data_type: str
-    must: 'Y'
-    desc: 机构参与人员
-  - column: RECE_PLACE
-    name: rece_place
-    data_type: str
-    must: 'Y'
-    desc: 接待地点
-  - column: RECE_MODE
-    name: rece_mode
-    data_type: str
-    must: 'Y'
-    desc: 接待方式
-  - column: RECE_ORG
-    name: rece_org
-    data_type: str
-    must: 'Y'
-    desc: 接待的公司
-  - column: ORG_TYPE
-    name: org_type
-    data_type: str
-    must: 'Y'
-    desc: 接待公司类型
-  - column: COMP_RECE
-    name: comp_rece
-    data_type: str
-    must: 'Y'
-    desc: 上市公司接待人员
-  - column: CONTENT
-    name: content
-    data_type: str
-    must: 'N'
-    desc: 调研内容
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- surv_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: surv_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 调研日期
+- name: fund_visitors
+  data_type: str
+  length: 255
+  default: ''
+  comment: 机构参与人员
+- name: rece_place
+  data_type: str
+  length: 255
+  default: ''
+  comment: 接待地点
+- name: rece_mode
+  data_type: str
+  length: 255
+  default: ''
+  comment: 接待方式
+- name: rece_org
+  data_type: str
+  length: 255
+  default: ''
+  comment: 接待的公司
+- name: org_type
+  data_type: str
+  length: 255
+  default: ''
+  comment: 接待公司类型
+- name: comp_rece
+  data_type: str
+  length: 255
+  default: ''
+  comment: 上市公司接待人员
+- name: content
+  data_type: str
+  length: 255
+  default: ''
+  comment: 调研内容

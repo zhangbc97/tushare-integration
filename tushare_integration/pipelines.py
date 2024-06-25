@@ -55,6 +55,8 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
                 return "1970-01-01"
             case "datetime":
                 return "1970-01-01 00:00:00"
+            case 'json':
+                return '{}'
             case _:
                 raise ValueError(f"Unsupported data_type: {data_type}")
 
@@ -64,7 +66,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
         if data is None or len(data) == 0:
             raise DropItem()
 
-        for column in self.schema["outputs"]:
+        for column in self.schema["columns"]:
             if column.get("default", None) is None:
                 column["default"] = self.get_default_by_data_type(column["data_type"])
             # 需要特殊处理NaT,Pandas的fillna方法不支持NaT
@@ -76,7 +78,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
 class TransformDTypePipeline(BasePipeline):
     def process_item(self, item, spider):
         data = item["data"]
-        for column in self.schema["outputs"]:
+        for column in self.schema["columns"]:
             match column["data_type"]:
                 case "str":
                     data[column["name"]] = data[column["name"]].astype(str)
@@ -88,9 +90,11 @@ class TransformDTypePipeline(BasePipeline):
                     data[column["name"]] = data[column["name"]].astype(float)
                 case "date":
                     data[column["name"]] = pd.to_datetime(data[column["name"]], format='mixed', errors='coerce').dt.date
-                    data[column["name"]] = data[column["name"]].replace({pd.NaT: pd.to_datetime('1970-01-01').date()})
+                    data[column["name"]] = data[column["name"]].replace({pd.NaT: pd.to_datetime('1971-01-01').date()})
                 case "datetime":
                     data[column["name"]] = pd.to_datetime(data[column["name"]])
+                case 'json':
+                    data[column["name"]] = data[column["name"]].apply(lambda x: '{}' if pd.isna(x) else x)
                 case _:
                     raise ValueError(f"Unsupported data_type: {column['data_type']}")
         return item
@@ -115,13 +119,12 @@ class TushareIntegrationDataPipeline(BasePipeline):
         if data.empty:
             return item
 
-        if (primary_key := self.schema.get("primary_key", None)) is not None:
-            data = data.drop_duplicates(subset=primary_key.split(","), keep="last")
-            self.db_engine.upsert(self.table_name, data.columns.tolist(), data)
-
+        if (primary_key := self.schema.get("primary_key", None)) is not None and len(primary_key) > 0:
+            data = data.drop_duplicates(subset=primary_key, keep="last")
+            self.db_engine.upsert(self.table_name, schema=self.schema, data=data)
         else:
             logging.debug(f"Insert data into {self.table_name}, data count: {len(data)}")
-            self.db_engine.insert(self.table_name, data.columns.tolist(), data)
+            self.db_engine.insert(self.table_name, schema=self.schema, data=data)
 
         return item
 
@@ -140,37 +143,37 @@ class RecordLogPipeline(BasePipeline):
 
     def create_log_table(self):
         schema = {
-            'index_key': 'batch_id',
-            'outputs': [
+            'primary_key': ['batch_id'],
+            'columns': [
                 {
                     'name': 'batch_id',
                     'data_type': 'str',
-                    'description': '批次ID',
+                    'comment': '批次ID',
                 },
                 {
                     'name': 'spider_name',
                     'data_type': 'str',
-                    'desc': '爬虫名称',
+                    'comment': '爬虫名称',
                 },
                 {
                     'name': 'description',
                     'data_type': 'str',
-                    'desc': '描述',
+                    'comment': '描述',
                 },
                 {
                     'name': 'count',
                     'data_type': 'int',
-                    'desc': '数量',
+                    'comment': '数量',
                 },
                 {
                     'name': 'start_time',
                     'data_type': 'datetime',
-                    'desc': '开始时间',
+                    'comment': '开始时间',
                 },
                 {
                     'name': 'end_time',
                     'data_type': 'datetime',
-                    'desc': '结束时间',
+                    'comment': '结束时间',
                 },
             ],
         }
@@ -187,7 +190,7 @@ class RecordLogPipeline(BasePipeline):
                 {
                     "batch_id": spider.settings.get("BATCH_ID", ''),
                     "spider_name": spider.name,
-                    "description": self.schema.get("title", ""),
+                    "description": self.schema.get("name", ""),
                     "count": self.count,
                     "start_time": self.start_time,
                     "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -197,7 +200,7 @@ class RecordLogPipeline(BasePipeline):
 
         statistics_data[['start_time', 'end_time']] = statistics_data[['start_time', 'end_time']].apply(pd.to_datetime)
 
-        self.db_engine.insert(self.table_name, self.schema["outputs"], statistics_data)
+        self.db_engine.insert(self.table_name, self.schema, statistics_data)
 
     def process_item(self, item, spider):
         self.count += len(item["data"])

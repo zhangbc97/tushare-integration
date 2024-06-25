@@ -1,71 +1,46 @@
 id: 197
+api_name: ccass_hold_detail
 name: ccass_hold_detail
-title: 中央结算系统持股明细
-primary_key: ts_code,trade_date
+comment: 中央结算系统持股明细
 dependencies:
-  - stock/basic/trade_cal
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: hk_code
-    data_type: str
-    must: 'N'
-    desc: 港交所股份代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 股票代号
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 股票名称
-  - column: COL_PARTICIPANT_ID
-    name: col_participant_id
-    data_type: str
-    must: 'Y'
-    desc: 参与者编号
-  - column: COL_PARTICIPANT_NAME
-    name: col_participant_name
-    data_type: str
-    must: 'Y'
-    desc: 机构名称
-  - column: COL_SHAREHOLDING
-    name: col_shareholding
-    data_type: str
-    must: 'Y'
-    desc: 持股量(股)
-  - column: COL_SHAREHOLDING_PERCENT
-    name: col_shareholding_percent
-    data_type: str
-    must: 'Y'
-    desc: 占已发行股份/权证/单位百分比(%)
+- stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代号
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: col_participant_id
+  data_type: str
+  length: 255
+  default: ''
+  comment: 参与者编号
+- name: col_participant_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 机构名称
+- name: col_shareholding
+  data_type: str
+  length: 255
+  default: ''
+  comment: 持股量(股)
+- name: col_shareholding_percent
+  data_type: str
+  length: 255
+  default: ''
+  comment: 占已发行股份/权证/单位百分比(%)

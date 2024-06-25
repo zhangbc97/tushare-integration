@@ -1,101 +1,87 @@
 id: 50
+api_name: top_list
 name: top_list
-title: 龙虎榜每日明细
-primary_key: ts_code,trade_date
+comment: 龙虎榜每日明细
 dependencies:
-  - stock/basic/stock_basic
-  - stock/basic/trade_cal
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'Y'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 名称
-  - column: CLOSE
-    name: close
-    data_type: float
-    must: 'Y'
-    desc: 收盘价
-  - column: PCT_CHANGE
-    name: pct_change
-    data_type: float
-    must: 'Y'
-    desc: 涨跌幅
-  - column: TURNOVER_RATE
-    name: turnover_rate
-    data_type: float
-    must: 'Y'
-    desc: 换手率
-  - column: AMOUNT
-    name: amount
-    data_type: float
-    must: 'Y'
-    desc: 总成交额
-  - column: L_SELL
-    name: l_sell
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜卖出额
-  - column: L_BUY
-    name: l_buy
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜买入额
-  - column: L_AMOUNT
-    name: l_amount
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜成交额
-  - column: NET_AMOUNT
-    name: net_amount
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜净买入额
-  - column: NET_RATE
-    name: net_rate
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜净买额占比
-  - column: AMOUNT_RATE
-    name: amount_rate
-    data_type: float
-    must: 'Y'
-    desc: 龙虎榜成交额占比
-  - column: FLOAT_VALUES
-    name: float_values
-    data_type: float
-    must: 'Y'
-    desc: 当日流通市值
-  - column: REASON
-    name: reason
-    data_type: str
-    must: 'Y'
-    desc: 上榜理由
+- stock/basic/stock_basic
+- stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 名称
+- name: close
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 收盘价
+- name: pct_change
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 涨跌幅
+- name: turnover_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 换手率
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 总成交额
+- name: l_sell
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜卖出额
+- name: l_buy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜买入额
+- name: l_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜成交额
+- name: net_amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜净买入额
+- name: net_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜净买额占比
+- name: amount_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 龙虎榜成交额占比
+- name: float_values
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 当日流通市值
+- name: reason
+  data_type: str
+  length: 255
+  default: ''
+  comment: 上榜理由

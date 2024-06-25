@@ -1,0 +1,55 @@
+id: 19
+api_name: margin
+name: margin
+comment: 融资融券交易汇总
+dependencies:
+- stock/basic/trade_cal
+primary_key: 
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: exchange_id
+  data_type: str
+  length: 255
+  default: ''
+  comment: 交易所代码（SSE上交所SZSE深交所）
+- name: rzye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资余额(元)
+- name: rzmre
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资买入额(元)
+- name: rzche
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资偿还额(元)
+- name: rqye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券余额(元)
+- name: rqmcl
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券卖出量(股,份,手)
+- name: rzrqye
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融资融券余额(元)
+- name: rqyl
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融券余量

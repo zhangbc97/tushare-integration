@@ -1,76 +1,62 @@
 id: 51
+api_name: top_inst
 name: top_inst
-title: 龙虎榜机构明细
-primary_key: ts_code,trade_date
+comment: 龙虎榜机构明细
 dependencies:
-  - stock/basic/stock_basic
-  - stock/basic/trade_cal
-inputs:
-  - name: trade_date
-    data_type: str
-    must: 'Y'
-    desc: 交易日期
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS代码
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日期
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: EXALTER
-    name: exalter
-    data_type: str
-    must: 'Y'
-    desc: 营业部名称
-  - column: BUY
-    name: buy
-    data_type: float
-    must: 'Y'
-    desc: 买入额（万）
-  - column: BUY_RATE
-    name: buy_rate
-    data_type: float
-    must: 'Y'
-    desc: 买入占总成交比例
-  - column: SELL
-    name: sell
-    data_type: float
-    must: 'Y'
-    desc: 卖出额（万）
-  - column: SELL_RATE
-    name: sell_rate
-    data_type: float
-    must: 'Y'
-    desc: 卖出占总成交比例
-  - column: NET_BUY
-    name: net_buy
-    data_type: float
-    must: 'Y'
-    desc: 净成交额（万）
-  - column: SIDE
-    name: side
-    data_type: str
-    must: 'Y'
-    desc: 买卖类型0买入1卖出
-  - column: REASON
-    name: reason
-    data_type: str
-    must: 'Y'
-    desc: 上榜理由
+- stock/basic/stock_basic
+- stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: exalter
+  data_type: str
+  length: 255
+  default: ''
+  comment: 营业部名称
+- name: buy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 买入额（万）
+- name: buy_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 买入占总成交比例
+- name: sell
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 卖出额（万）
+- name: sell_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 卖出占总成交比例
+- name: net_buy
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 净成交额（万）
+- name: side
+  data_type: str
+  length: 255
+  default: ''
+  comment: 买卖类型0买入1卖出
+- name: reason
+  data_type: str
+  length: 255
+  default: ''
+  comment: 上榜理由

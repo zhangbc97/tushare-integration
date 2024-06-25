@@ -1,67 +1,46 @@
 id: 92
+api_name: block_trade
 name: block_trade
-title: 大宗交易
-primary_key: ts_code,trade_date
+comment: 大宗交易
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: TS代码
-  - name: trade_date
-    data_type: str
-    must: 'N'
-    desc: 交易日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 结束日期
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: TS代码
-  - column: TRADE_DATE
-    name: trade_date
-    data_type: date
-    must: 'Y'
-    desc: 交易日历
-  - column: PRICE
-    name: price
-    data_type: float
-    must: 'Y'
-    desc: 成交价
-  - column: VOL
-    name: vol
-    data_type: float
-    must: 'Y'
-    desc: 成交量（万股）
-  - column: AMOUNT
-    name: amount
-    data_type: float
-    must: 'Y'
-    desc: 成交金额
-  - column: BUYER
-    name: buyer
-    data_type: str
-    must: 'Y'
-    desc: 买方营业部
-  - column: SELLER
-    name: seller
-    data_type: str
-    must: 'Y'
-    desc: 卖房营业部
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS代码
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日历
+- name: price
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交价
+- name: vol
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交量（万股）
+- name: amount
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 成交金额
+- name: buyer
+  data_type: str
+  length: 255
+  default: ''
+  comment: 买方营业部
+- name: seller
+  data_type: str
+  length: 255
+  default: ''
+  comment: 卖房营业部

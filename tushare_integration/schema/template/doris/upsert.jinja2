@@ -1,9 +1,8 @@
-REPLACE INTO {{ db_name }}.{{ table_name }} (
+INSERT INTO {{ db_name }}.{{ table_name }} (
     {%- for column in columns  %}
     {{ column }}{%- if not loop.last %}, {% endif %}
     {%- endfor %}
 )
-ON ({{ primary_key }})
 VALUES (
     {%- for column in columns  %}
     :{{ column }}{%- if not loop.last %}, {% endif %}

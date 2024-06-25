@@ -1,0 +1,41 @@
+id: 269
+api_name: slb_sec_detail
+name: slb_sec_detail
+comment: 转融券交易明细
+dependencies:
+  - stock/basic/trade_cal
+primary_key:
+- ts_code
+- trade_date
+indexes: []
+columns:
+- name: trade_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 交易日期（YYYYMMDD）
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 股票名称
+- name: tenor
+  data_type: str
+  length: 255
+  default: ''
+  comment: 期 限(天)
+- name: fee_rate
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 融出费率(%)
+- name: lent_qnt
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 转融券融出数量(万股)

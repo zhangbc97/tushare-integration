@@ -1,57 +1,39 @@
 id: 178
+api_name: ths_index
 name: ths_index
-title: 同花顺板块指数
-primary_key: ts_code
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 指数代码
-  - name: exchange
-    data_type: str
-    must: 'N'
-    desc: 市场类型A-a股票 HK-港股 US-美股
-  - name: type
-    data_type: str
-    must: 'N'
-    desc: 指数类型 N-板块指数 S-同花顺特色指数
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations: [ ]
-outputs:
-  - column: TS_CODE
-    name: ts_code
-    data_type: str
-    must: 'Y'
-    desc: 代码
-  - column: NAME
-    name: name
-    data_type: str
-    must: 'Y'
-    desc: 名称
-  - column: COUNT
-    name: count
-    data_type: int
-    must: 'Y'
-    desc: 成分个数
-  - column: EXCHANGE
-    name: exchange
-    data_type: str
-    must: 'Y'
-    desc: 交易所
-  - column: LIST_DATE
-    name: list_date
-    data_type: str
-    must: 'Y'
-    desc: 上市日期
-  - column: TYPE
-    name: type
-    data_type: str
-    must: 'Y'
-    desc: N概念指数S特色指数
+comment: 同花顺板块指数
+dependencies: []
+primary_key:
+- ts_code
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 名称
+- name: count
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 成分个数
+- name: exchange
+  data_type: str
+  length: 255
+  default: ''
+  comment: 交易所
+- name: list_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 上市日期
+- name: type
+  data_type: str
+  length: 255
+  default: ''
+  comment: N概念指数S特色指数

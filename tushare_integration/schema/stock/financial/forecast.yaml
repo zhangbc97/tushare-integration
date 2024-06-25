@@ -1,122 +1,82 @@
 id: 11
+api_name: forecast
 name: forecast
-title: 业绩预告
+comment: 业绩预告
 dependencies:
-  - stock/basic/stock_basic
-inputs:
-  - name: ts_code
-    data_type: str
-    must: 'N'
-    desc: 股票代码
-  - name: ann_date
-    data_type: str
-    must: 'N'
-    desc: 公告日期
-  - name: start_date
-    data_type: str
-    must: 'N'
-    desc: 公告开始日期
-  - name: end_date
-    data_type: str
-    must: 'N'
-    desc: 公告结束日期
-  - name: period
-    data_type: str
-    must: 'N'
-    desc: 报告期
-  - name: type
-    data_type: str
-    must: 'N'
-    desc: 预告类型
-  - name: limit
-    data_type: int
-    must: 'N'
-    desc: 单次返回数据长度
-  - name: offset
-    data_type: int
-    must: 'N'
-    desc: 请求数据的开始位移量
-validations:
-  - name: ann_date
-    validator: required
-    options: null
-    trigger:
-      link: and
-      exp:
-        - name: ts_code
-          operator: "="
-          type: builtin
-          value: None
-    message: ann_date和ts_code至少输入一个参数
-outputs:
-  - name: ts_code
-    column: TS_CODE
-    data_type: str
-    must: 'Y'
-    desc: TS股票代码
-  - name: ann_date
-    column: ANN_DATE
-    data_type: date
-    must: 'Y'
-    desc: 公告日期
-  - name: end_date
-    column: END_DATE
-    data_type: date
-    must: 'Y'
-    desc: 报告期
-  - name: type
-    column: TYPE
-    data_type: str
-    must: 'Y'
-    desc: 业绩预告类型
-  - name: p_change_min
-    column: P_CHANGE_MIN
-    data_type: float
-    must: 'Y'
-    desc: 预告净利润变动幅度下限（%）
-  - name: p_change_max
-    column: P_CHANGE_MAX
-    data_type: float
-    must: 'Y'
-    desc: 预告净利润变动幅度上限（%）
-  - name: net_profit_min
-    column: NET_PROFIT_MIN
-    data_type: float
-    must: 'Y'
-    desc: 预告净利润下限（万元）
-  - name: net_profit_max
-    column: NET_PROFIT_MAX
-    data_type: float
-    must: 'Y'
-    desc: 预告净利润上限（万元）
-  - name: last_parent_net
-    column: LAST_PARENT_NET
-    data_type: float
-    must: 'Y'
-    desc: 上年同期归属母公司净利润
-  - name: notice_times
-    column: NOTICE_TIMES
-    data_type: int
-    must: 'N'
-    desc: 公布次数
-  - name: first_ann_date
-    column: FIRST_ANN_DATE
-    data_type: str
-    must: 'Y'
-    desc: 首次公告日
-  - name: summary
-    column: SUMMARY
-    data_type: str
-    must: 'Y'
-    desc: 业绩预告摘要
-  - name: change_reason
-    column: CHANGE_REASON
-    data_type: str
-    must: 'Y'
-    desc: 业绩变动原因
-  - column: UPDATE_FLAG
-    name: update_flag
-    data_type: str
-    must: 'Y'
-    desc: 更新标志
-primary_key: ts_code,ann_date,end_date
+- stock/basic/stock_basic
+primary_key:
+- ts_code
+- ann_date
+- end_date
+indexes: []
+columns:
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: TS股票代码
+- name: ann_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 公告日期
+- name: end_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 报告期
+- name: type
+  data_type: str
+  length: 255
+  default: ''
+  comment: 业绩预告类型
+- name: p_change_min
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 预告净利润变动幅度下限（%）
+- name: p_change_max
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 预告净利润变动幅度上限（%）
+- name: net_profit_min
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 预告净利润下限（万元）
+- name: net_profit_max
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 预告净利润上限（万元）
+- name: last_parent_net
+  data_type: float
+  length: 0
+  default: '0.0'
+  comment: 上年同期归属母公司净利润
+- name: notice_times
+  data_type: int
+  length: 0
+  default: '0'
+  comment: 公布次数
+- name: first_ann_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 首次公告日
+- name: summary
+  data_type: str
+  length: 255
+  default: ''
+  comment: 业绩预告摘要
+- name: change_reason
+  data_type: str
+  length: 255
+  default: ''
+  comment: 业绩变动原因
+- name: update_flag
+  data_type: str
+  length: 255
+  default: ''
+  comment: 更新标志
