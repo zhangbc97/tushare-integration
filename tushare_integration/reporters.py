@@ -31,6 +31,13 @@ class FeishuWebHookReporter(Reporter):
                 }
             },
         }
+
+        # 找到最后一个content，移除掉末尾的\n
+        if body['content']['post']['zh_cn']['content'][-1][-1]['text'] == '\n':
+            body['content']['post']['zh_cn']['content'][-1][-1]['text'] = body['content']['post']['zh_cn']['content'][
+                -1
+            ][-1]['text'][:-1]
+
         resp = requests.post(self.webhook, json=body)
         logging.info(f'Send report to feishu webhook, status code: {resp.status_code}, response: {resp.text}')
 

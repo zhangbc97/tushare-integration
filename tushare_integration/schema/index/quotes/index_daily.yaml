@@ -2,7 +2,8 @@ id: 40
 api_name: index_daily
 name: index_daily
 comment: 指数日线行情
-dependencies: []
+dependencies:
+  - index/basic/index_basic
 primary_key:
   - ts_code
   - trade_date

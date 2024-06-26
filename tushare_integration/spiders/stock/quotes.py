@@ -31,7 +31,7 @@ class StockWeeklySpider(TushareSpider):
                     AND exchange = 'SSE'
                 ORDER BY cal_date
                 """
-        )['cal_date']
+        )
 
         trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
         trade_dates = (
@@ -40,7 +40,9 @@ class StockWeeklySpider(TushareSpider):
             .resample('W')
             .agg({'cal_date': 'last'})
             .reset_index(drop=True)
+            .dropna()
         )
+
         # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
         weekly_trade_dates = conn.query_df(
             f"""
@@ -50,7 +52,10 @@ class StockWeeklySpider(TushareSpider):
                 """
         )
 
-        weekly_trade_dates['trade_date'] = pd.to_datetime(weekly_trade_dates['trade_date'])
+        if weekly_trade_dates.empty:
+            weekly_trade_dates = pd.DataFrame(columns=['trade_date'])
+        else:
+            weekly_trade_dates['trade_date'] = pd.to_datetime(weekly_trade_dates['trade_date'])
         trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
 
         for trade_date in trade_dates['cal_date']:
@@ -84,6 +89,7 @@ class StockMonthlySpider(TushareSpider):
             .resample('ME')
             .agg({'cal_date': 'last'})
             .reset_index(drop=True)
+            .dropna()
         )
         # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
         weekly_trade_dates = conn.query_df(

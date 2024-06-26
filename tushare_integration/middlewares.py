@@ -118,7 +118,8 @@ class TushareRetryDownloaderMiddleware(RetryMiddleware):
             return self._retry(request, reason, spider) or response
 
         if json.loads(response.text)["code"] != 0:
-            if json.loads(response.text)["code"] == 40201:
+            # 如果是402XX，说明是限流
+            if json.loads(response.text)["code"] // 100 == 402:
                 time.sleep(self.retry_delay)
                 reason = "rate limit"
                 return self._retry(request, reason, spider) or response
