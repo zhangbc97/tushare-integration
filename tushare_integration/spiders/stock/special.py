@@ -13,7 +13,7 @@ class ReportRCSpider(TSCodeSpider):
 class CyqPerfSpider(DailySpider):
     name = "stock/special/cyq_perf"
     api_name = "cyq_perf"
-    custom_settings = {"TABLE_NAME": "cyq_perf"}
+    custom_settings = {"TABLE_NAME": "cyq_perf", 'MIN_CAL_DATE': '2018-01-02'}
 
 
 class CyqChipsSpider(TushareSpider):
@@ -67,13 +67,13 @@ class CCASSHoldDetailSpider(DailySpider):
 class HKHoldSpider(DailySpider):
     name = "stock/special/hk_hold"
     api_name = "hk_hold"
-    custom_settings = {"TABLE_NAME": "hk_hold"}
+    custom_settings = {"TABLE_NAME": "hk_hold", 'MIN_CAL_DATE': '2016-06-29'}
 
 
 class LimitListDailySpider(DailySpider):
     name = "stock/special/limit_list_d"
     api_name = "limit_list_d"
-    custom_settings = {"TABLE_NAME": "limit_list_d"}
+    custom_settings = {"TABLE_NAME": "limit_list_d", 'MIN_CAL_DATE': '2019-11-28'}
 
 
 class StkSurvSpider(TSCodeSpider):
@@ -105,3 +105,33 @@ class HMDetailSpider(DailySpider):
     name = "stock/special/hm_detail"
     api_name = "hm_detail"
     custom_settings = {"TABLE_NAME": "hm_detail", 'MIN_CAL_DATE': '2022-08-01'}
+
+
+class StkFactorPro(DailySpider):
+    name = "stock/special/stk_factor_pro"
+    api_name = "stk_factor_pro"
+    custom_settings = {"TABLE_NAME": "stk_factor_pro"}
+
+
+class ThsHotSpider(DailySpider):
+    name = "stock/special/ths_hot"
+    api_name = "ths_hot"
+    custom_settings = {"TABLE_NAME": "ths_hot", 'MIN_CAL_DATE': '2023-08-21'}
+
+    def start_requests(self):
+        # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据
+        yield self.get_scrapy_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
+        for req in super().start_requests():
+            yield req
+
+
+class DcHotSpider(DailySpider):
+    name = "stock/special/dc_hot"
+    api_name = "dc_hot"
+    custom_settings = {"TABLE_NAME": "dc_hot", 'MIN_CAL_DATE': '2024-03-20'}
+
+    def start_requests(self):
+        # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据
+        yield self.get_scrapy_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
+        for req in super().start_requests():
+            yield req
