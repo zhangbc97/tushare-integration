@@ -1,0 +1,63 @@
+id: 258
+api_name: dc_hot
+name: dc_hot
+comment: 东方财富热板
+dependencies:
+  - stock/basic/trade_cal
+primary_key:
+  - trade_date
+  - data_type
+  - ts_code
+  - rank_time
+indexes: []
+columns:
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: data_type
+    data_type: str
+    length: 255
+    default: ""
+    comment: 数据类型
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: ts_name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: rank
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 排行或者热度
+  - name: pct_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅%
+  - name: current_price
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 当前价格
+  - name: hot
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 热度
+  - name: concept
+    data_type: str
+    length: 255
+    default: ""
+    comment: 标签
+  - name: rank_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 排行榜获取时间

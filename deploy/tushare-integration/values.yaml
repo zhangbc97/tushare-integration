@@ -106,6 +106,9 @@ cronjob:
       - name: stock/special/broker_recommend
       - name: stock/special/hm_list
       - name: stock/special/hm_detail
+      - name: stock/special/stk_factor_pro
+      - name: stock/special/ths_hot
+      - name: stock/special/dc_hot
   - cron_expr: "0 8 * * 1-5"
     name: future/basic
     spiders:

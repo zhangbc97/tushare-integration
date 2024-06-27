@@ -116,7 +116,7 @@ class AdjFactorSpider(DailySpider):
 
 class SuspendDSpider(DailySpider):
     name = "stock/quotes/suspend_d"
-    custom_settings = {"TABLE_NAME": "suspend_d"}
+    custom_settings = {"TABLE_NAME": "suspend_d", 'MIN_CAL_DATE': '1999-05-04'}
 
 
 class HSGTTop10Spider(DailySpider):
@@ -156,7 +156,7 @@ class GGTDailySpider(DailySpider):
 
 class BakDailySpider(DailySpider):
     name = "stock/quotes/bak_daily"
-    custom_settings = {"TABLE_NAME": "bak_daily"}
+    custom_settings = {"TABLE_NAME": "bak_daily", 'MIN_CAL_DATE': '2017-06-14'}
 
 
 # 港股通每月成交统计数据只更新到2020年底，在这里不开发策略

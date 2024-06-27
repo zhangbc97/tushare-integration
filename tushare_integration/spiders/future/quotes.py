@@ -59,12 +59,12 @@ class FutSettleSpider(DailySpider):
 
 class FutMappingSpider(DailySpider):
     name = "future/quotes/fut_mapping"
-    custom_settings = {"TABLE_NAME": "fut_mapping"}
+    custom_settings = {"TABLE_NAME": "fut_mapping", 'MIN_CAL_DATE': '1995-04-17'}
 
 
 class FutWSRSpider(DailySpider):
     name = "future/quotes/fut_wsr"
-    custom_settings = {"TABLE_NAME": "fut_wsr"}
+    custom_settings = {"TABLE_NAME": "fut_wsr", 'MIN_CAL_DATE': '2006-01-06'}
 
 
 class FutWeeklyDetail(DailySpider):

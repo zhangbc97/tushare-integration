@@ -1,0 +1,1316 @@
+id: 266
+api_name: stk_factor_pro
+name: stk_factor_pro
+comment: 股票技术因子(专业版)
+dependencies:
+  - stock/basic/trade_cal
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: open
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 开盘价
+  - name: open_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 开盘价
+  - name: open_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 开盘价
+  - name: high
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最高价
+  - name: high_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最高价
+  - name: high_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最高价
+  - name: low
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最低价
+  - name: low_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最低价
+  - name: low_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最低价
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘价
+  - name: close_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘价
+  - name: close_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘价
+  - name: pre_close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 昨收价(前复权)
+  - name: change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌额
+  - name: pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅 （未复权，如果是复权请用 通用行情接口 ）
+  - name: vol
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交量 （手）
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交额 （千元）
+  - name: turnover_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 换手率（%）
+  - name: turnover_rate_f
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 换手率（自由流通股）
+  - name: volume_ratio
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 量比
+  - name: pe
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 市盈率（总市值/净利润， 亏损的PE为空）
+  - name: pe_ttm
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 市盈率（TTM，亏损的PE为空）
+  - name: pb
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 市净率（总市值/净资产）
+  - name: ps
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 市销率
+  - name: ps_ttm
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 市销率（TTM）
+  - name: dv_ratio
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 股息率 （%）
+  - name: dv_ttm
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 股息率（TTM）（%）
+  - name: total_share
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 总股本 （万股）
+  - name: float_share
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 流通股本 （万股）
+  - name: free_share
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 自由流通股本 （万）
+  - name: total_mv
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 总市值 （万元）
+  - name: circ_mv
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 流通市值（万元）
+  - name: adj_factor
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 复权因子
+  - name: asi_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: asi_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: asi_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: asit_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: asit_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: asit_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 振动升降指标-OPEN, CLOSE, HIGH, LOW, M1=26, M2=10
+  - name: atr_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 真实波动N日平均值-CLOSE, HIGH, LOW, N=20
+  - name: atr_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 真实波动N日平均值-CLOSE, HIGH, LOW, N=20
+  - name: atr_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 真实波动N日平均值-CLOSE, HIGH, LOW, N=20
+  - name: bbi_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BBI多空指标-CLOSE, M1=3, M2=6, M3=12, M4=20
+  - name: bbi_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BBI多空指标-CLOSE, M1=3, M2=6, M3=12, M4=21
+  - name: bbi_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BBI多空指标-CLOSE, M1=3, M2=6, M3=12, M4=22
+  - name: bias1_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias1_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias1_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias2_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias2_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias2_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias3_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias3_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: bias3_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BIAS乖离率-CLOSE, L1=6, L2=12, L3=24
+  - name: boll_lower_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_lower_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_lower_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_mid_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_mid_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_mid_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_upper_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_upper_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: boll_upper_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: BOLL指标，布林带-CLOSE, N=20, P=2
+  - name: brar_ar_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: brar_ar_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: brar_ar_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: brar_br_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: brar_br_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: brar_br_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " BRAR情绪指标-OPEN, CLOSE, HIGH, LOW, M1=26"
+  - name: cci_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 顺势指标又叫CCI指标-CLOSE, HIGH, LOW, N=14
+  - name: cci_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 顺势指标又叫CCI指标-CLOSE, HIGH, LOW, N=14
+  - name: cci_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 顺势指标又叫CCI指标-CLOSE, HIGH, LOW, N=14
+  - name: cr_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: CR价格动量指标-CLOSE, HIGH, LOW, N=20
+  - name: cr_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: CR价格动量指标-CLOSE, HIGH, LOW, N=20
+  - name: cr_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: CR价格动量指标-CLOSE, HIGH, LOW, N=20
+  - name: dfma_dif_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dfma_dif_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dfma_dif_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dfma_difma_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dfma_difma_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dfma_difma_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 平行线差指标-CLOSE, N1=10, N2=50, M=10
+  - name: dmi_adx_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_adx_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_adx_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_adxr_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_adxr_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_adxr_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_mdi_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_mdi_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_mdi_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_pdi_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_pdi_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: dmi_pdi_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 动向指标-CLOSE, HIGH, LOW, M1=14, M2=6"
+  - name: downdays
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 连跌天数
+  - name: updays
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 连涨天数
+  - name: dpo_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: dpo_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: dpo_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: madpo_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: madpo_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: madpo_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 区间震荡线-CLOSE, M1=20, M2=10, M3=6
+  - name: ema_bfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=10
+  - name: ema_bfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=20
+  - name: ema_bfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=250
+  - name: ema_bfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=30
+  - name: ema_bfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=5
+  - name: ema_bfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=60
+  - name: ema_bfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=90
+  - name: ema_hfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=10
+  - name: ema_hfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=20
+  - name: ema_hfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=250
+  - name: ema_hfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=30
+  - name: ema_hfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=5
+  - name: ema_hfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=60
+  - name: ema_hfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=90
+  - name: ema_qfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=10
+  - name: ema_qfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=20
+  - name: ema_qfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=250
+  - name: ema_qfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=30
+  - name: ema_qfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=5
+  - name: ema_qfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=60
+  - name: ema_qfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数移动平均-N=90
+  - name: emv_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: emv_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: emv_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: maemv_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: maemv_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: maemv_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简易波动指标-HIGH, LOW, VOL, N=14, M=9
+  - name: expma_12_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: expma_12_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: expma_12_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: expma_50_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: expma_50_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: expma_50_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: EMA指数平均数指标-CLOSE, N1=12, N2=50
+  - name: kdj_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_d_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_d_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_d_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_k_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_k_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: kdj_k_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: KDJ指标-CLOSE, HIGH, LOW, N=9, M1=3, M2=3
+  - name: ktn_down_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_down_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_down_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_mid_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_mid_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_mid_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_upper_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_upper_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: ktn_upper_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 肯特纳交易通道, N选20日，ATR选10日-CLOSE, HIGH, LOW, N=20, M=10
+  - name: lowdays
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: LOWRANGE(LOW)表示当前最低价是近多少周期内最低价的最小值
+  - name: topdays
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: TOPRANGE(HIGH)表示当前最高价是近多少周期内最高价的最大值
+  - name: ma_bfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=10
+  - name: ma_bfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=20
+  - name: ma_bfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=250
+  - name: ma_bfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=30
+  - name: ma_bfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=5
+  - name: ma_bfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=60
+  - name: ma_bfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=90
+  - name: ma_hfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=10
+  - name: ma_hfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=20
+  - name: ma_hfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=250
+  - name: ma_hfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=30
+  - name: ma_hfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=5
+  - name: ma_hfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=60
+  - name: ma_hfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=90
+  - name: ma_qfq_10
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=10
+  - name: ma_qfq_20
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=20
+  - name: ma_qfq_250
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=250
+  - name: ma_qfq_30
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=30
+  - name: ma_qfq_5
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=5
+  - name: ma_qfq_60
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=60
+  - name: ma_qfq_90
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 简单移动平均-N=90
+  - name: macd_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dea_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dea_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dea_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dif_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dif_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: macd_dif_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MACD指标-CLOSE, SHORT=12, LONG=26, M=9
+  - name: mass_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: mass_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: mass_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: ma_mass_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: ma_mass_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: ma_mass_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 梅斯线-HIGH, LOW, N1=9, N2=25, M=6
+  - name: mfi_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MFI指标是成交量的RSI指标-CLOSE, HIGH, LOW, VOL, N=14
+  - name: mfi_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MFI指标是成交量的RSI指标-CLOSE, HIGH, LOW, VOL, N=14
+  - name: mfi_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: MFI指标是成交量的RSI指标-CLOSE, HIGH, LOW, VOL, N=14
+  - name: mtm_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: mtm_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: mtm_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: mtmma_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: mtmma_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: mtmma_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 动量指标-CLOSE, N=12, M=6
+  - name: obv_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 能量潮指标-CLOSE, VOL
+  - name: obv_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 能量潮指标-CLOSE, VOL
+  - name: obv_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 能量潮指标-CLOSE, VOL
+  - name: psy_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: psy_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: psy_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: psyma_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: psyma_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: psyma_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 投资者对股市涨跌产生心理波动的情绪指标-CLOSE, N=12, M=6
+  - name: roc_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: roc_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: roc_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: maroc_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: maroc_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: maroc_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 变动率指标-CLOSE, N=12, M=6
+  - name: rsi_bfq_12
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=12
+  - name: rsi_bfq_24
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=24
+  - name: rsi_bfq_6
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=6
+  - name: rsi_hfq_12
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=12
+  - name: rsi_hfq_24
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=24
+  - name: rsi_hfq_6
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=6
+  - name: rsi_qfq_12
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=12
+  - name: rsi_qfq_24
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=24
+  - name: rsi_qfq_6
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: RSI指标-CLOSE, N=6
+  - name: taq_down_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_down_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_down_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_mid_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_mid_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_mid_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_up_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_up_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: taq_up_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 唐安奇通道(海龟)交易指标-HIGH, LOW, 20
+  - name: trix_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: trix_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: trix_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: trma_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: trma_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: trma_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 三重指数平滑平均线-CLOSE, M1=12, M2=20
+  - name: vr_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: VR容量比率-CLOSE, VOL, M1=26
+  - name: vr_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: VR容量比率-CLOSE, VOL, M1=26
+  - name: vr_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: VR容量比率-CLOSE, VOL, M1=26
+  - name: wr_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: wr_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: wr_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: wr1_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: wr1_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: wr1_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: W&R 威廉指标-CLOSE, HIGH, LOW, N=10, N1=6
+  - name: xsii_td1_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td1_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td1_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td2_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td2_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td2_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td3_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td3_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td3_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td4_bfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td4_hfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7
+  - name: xsii_td4_qfq
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 薛斯通道II-CLOSE, HIGH, LOW, N=102, M=7

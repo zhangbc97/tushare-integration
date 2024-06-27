@@ -74,4 +74,4 @@ class IndexWeightSpider(StockMonthlySpider):
 
 class SzDailyInfoSpider(DailySpider):
     name = "index/quotes/sz_daily_info"
-    custom_settings = {"TABLE_NAME": "sz_daily_info"}
+    custom_settings = {"TABLE_NAME": "sz_daily_info", ' MIN_CAL_DATE': '2008-01-02'}
