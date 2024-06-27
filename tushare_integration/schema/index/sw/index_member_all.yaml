@@ -1,0 +1,67 @@
+id: 119
+api_name: index_member_all
+name: index_member_all
+comment: 申万行业成分构成
+dependencies: []
+primary_key:
+- l1_code
+- l2_code
+- l3_code
+- ts_code
+indexes: []
+columns:
+- name: l1_code
+  data_type: str
+  length: 255
+  default: ''
+  comment: L1代码
+- name: l1_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: L1名称
+- name: l2_code
+  data_type: str
+  length: 255
+  default: ''
+  comment: L2代码
+- name: l2_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: L2名称
+- name: l3_code
+  data_type: str
+  length: 255
+  default: ''
+  comment: L3代码
+- name: l3_name
+  data_type: str
+  length: 255
+  default: ''
+  comment: L3名称
+- name: ts_code
+  data_type: str
+  length: 16
+  default: ''
+  comment: 成分股票代码
+- name: name
+  data_type: str
+  length: 255
+  default: ''
+  comment: 成分股票名称
+- name: in_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 纳入日期
+- name: out_date
+  data_type: date
+  length: 0
+  default: '1970-01-01'
+  comment: 剔除日期
+- name: is_new
+  data_type: str
+  length: 255
+  default: ''
+  comment: 是否最新Y是N否
