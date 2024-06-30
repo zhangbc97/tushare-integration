@@ -6,7 +6,7 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.2"
+  tag: "0.1.3"
 
 cronjob:
   - name: daily-morning
@@ -142,6 +142,8 @@ cronjob:
     spiders:
       - name: index/sw/index_classify
       - name: index/sw/index_member
+      - name: index/sw/index_member_all
+      - name: index/sw/sw_daily
   - cron_expr: "0 19,21 * * 1-5"
     name: index/ths
     spiders:
