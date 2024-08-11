@@ -21,11 +21,11 @@ class FutHoldingSpider(DailySpider):
         conn = self.get_db_engine()
         # 写死每个交易所最早有数据的交易日
         min_cal_dates = {
-            'CFFEX': '2010-04-16',
+            'CFFEX': '2010-04-16',  # TODO 这里有个问题，交易日历里面CFFEX最早日期是2015年，直接用日期取数据会更早一些
             'DCE': '2006-01-04',
             'CZCE': '2005-04-29',
             'SHFE': '2002-01-07',
-            'INE': '2002-01-01',
+            # 'INE': '2002-01-01', 暂时没获取到INE的数据，先注释掉
         }
 
         for exchange in min_cal_dates.keys():
@@ -54,7 +54,7 @@ class FutHoldingSpider(DailySpider):
 
 class FutSettleSpider(DailySpider):
     name = "future/quotes/fut_settle"
-    custom_settings = {"TABLE_NAME": "fut_settle"}
+    custom_settings = {"TABLE_NAME": "fut_settle", 'MIN_CAL_DATE': '2012-01-04'}
 
 
 class FutMappingSpider(DailySpider):

@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import logging
 from typing import Any
@@ -22,6 +23,12 @@ class StockWeeklySpider(TushareSpider):
         db_name = self.spider_settings.database.db_name
         table_name = self.get_table_name()
 
+        trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
+
+        for trade_date in trade_dates['cal_date']:
+            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+
+    def get_trade_dates(self, conn, db_name, table_name, period):
         trade_dates = conn.query_df(
             f"""
                 SELECT DISTINCT cal_date
@@ -37,14 +44,14 @@ class StockWeeklySpider(TushareSpider):
         trade_dates = (
             trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
             .set_index('trade_date_index')
-            .resample('W')
+            .resample(period)
             .agg({'cal_date': 'last'})
             .reset_index(drop=True)
             .dropna()
         )
 
         # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
-        weekly_trade_dates = conn.query_df(
+        period_trade_dates = conn.query_df(
             f"""
                 SELECT DISTINCT trade_date
                 FROM {db_name}.{table_name}
@@ -52,17 +59,15 @@ class StockWeeklySpider(TushareSpider):
                 """
         )
 
-        if weekly_trade_dates.empty:
-            weekly_trade_dates = pd.DataFrame(columns=['trade_date'])
+        if period_trade_dates.empty:
+            period_trade_dates = pd.DataFrame(columns=['trade_date'])
         else:
-            weekly_trade_dates['trade_date'] = pd.to_datetime(weekly_trade_dates['trade_date'])
-        trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
-
-        for trade_date in trade_dates['cal_date']:
-            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+            period_trade_dates['trade_date'] = pd.to_datetime(period_trade_dates['trade_date'])
+        trade_dates = trade_dates[~trade_dates['cal_date'].isin(period_trade_dates['trade_date'])]
+        return trade_dates
 
 
-class StockMonthlySpider(TushareSpider):
+class StockMonthlySpider(StockWeeklySpider):
     name = "stock/quotes/monthly"
     custom_settings = {"TABLE_NAME": "monthly"}
 
@@ -71,42 +76,70 @@ class StockMonthlySpider(TushareSpider):
         db_name = self.spider_settings.database.db_name
         table_name = self.get_table_name()
 
-        trade_dates = conn.query_df(
-            f"""
-                SELECT DISTINCT cal_date
-                FROM {db_name}.trade_cal
-                WHERE is_open = 1
-                  AND cal_date <= today()
-                  AND exchange = 'SSE'
-                ORDER BY cal_date
-                """
-        )
-
-        trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
-        trade_dates = (
-            trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
-            .set_index('trade_date_index')
-            .resample('ME')
-            .agg({'cal_date': 'last'})
-            .reset_index(drop=True)
-            .dropna()
-        )
-        # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
-        weekly_trade_dates = conn.query_df(
-            f"""
-                SELECT DISTINCT trade_date
-                FROM {db_name}.{table_name}
-                ORDER BY trade_date
-                """
-        )
-
-        if weekly_trade_dates.empty:
-            weekly_trade_dates = pd.DataFrame(columns=['trade_date'])
-        weekly_trade_dates['trade_date'] = pd.to_datetime(weekly_trade_dates['trade_date'])
-        trade_dates = trade_dates[~trade_dates['cal_date'].isin(weekly_trade_dates['trade_date'])]
+        trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
 
         for trade_date in trade_dates['cal_date']:
             yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+
+
+class StockWeeklyMonthlySpider(StockWeeklySpider):
+    name = "stock/quotes/stk_weekly_monthly"
+    custom_settings = {"TABLE_NAME": "stk_weekly_monthly"}
+
+    def get_latest_trade_date(self, conn, db_name, date):
+        trade_dates = conn.query_df(
+            f"""
+                SELECT max(cal_date) AS `trade_date`
+                FROM {db_name}.trade_cal
+                WHERE is_open = 1
+                    AND cal_date <= '{date}'
+                    AND exchange = 'SSE'
+                """
+        )
+
+        if trade_dates.empty:
+            return date
+
+        return trade_dates['trade_date'].iloc[-1]
+
+    def get_weekly_trade_date(self):
+        today = datetime.date.today()
+        weekday = today.weekday()
+        if weekday == 6:
+            return today
+        sunday = (today + datetime.timedelta(days=6 - weekday)).strftime("%Y-%m-%d")
+
+        return self.get_latest_trade_date(self.get_db_engine(), self.spider_settings.database.db_name, sunday)
+
+    def get_end_of_month(self):
+        today = datetime.date.today()
+        end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1]).strftime("%Y-%m-%d")
+
+        return self.get_latest_trade_date(
+            self.get_db_engine(), self.spider_settings.database.db_name, end_date_of_month
+        )
+
+    def start_requests(self):
+        conn = self.get_db_engine()
+        db_name = self.spider_settings.database.db_name
+        table_name = self.get_table_name()
+
+        weekly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
+        weekly_trade_dates = pd.concat(
+            [weekly_trade_dates, pd.DataFrame([{'cal_date': self.get_weekly_trade_date()}])], ignore_index=True
+        )
+        weekly_trade_dates['freq'] = 'week'
+
+        monthly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
+        monthly_trade_dates = pd.concat(
+            [monthly_trade_dates, pd.DataFrame([{'cal_date': self.get_end_of_month()}])], ignore_index=True
+        )
+        monthly_trade_dates['freq'] = 'month'
+
+        trade_dates = pd.concat([weekly_trade_dates, monthly_trade_dates], ignore_index=True)
+
+        for trade_date, freq in trade_dates[['cal_date', 'freq']].itertuples(index=False):
+            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d"), "freq": freq})
 
 
 class AdjFactorSpider(DailySpider):
