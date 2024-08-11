@@ -4,7 +4,9 @@ name: fut_holding
 comment: 每日成交持仓排名
 dependencies: []
 primary_key:
+  - symbol
   - trade_date
+  - broker
 indexes: []
 columns:
   - name: trade_date
