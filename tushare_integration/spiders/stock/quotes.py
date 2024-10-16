@@ -157,16 +157,6 @@ class HSGTTop10Spider(DailySpider):
     custom_settings = {"TABLE_NAME": "hsgt_top10", "MIN_CAL_DATE": "2014-11-17"}
 
 
-class MoneyFlowSpider(DailySpider):
-    name = "stock/quotes/moneyflow"
-    custom_settings = {"TABLE_NAME": "moneyflow"}
-
-
-class MoneyFlowHSGTSpider(DailySpider):
-    name = "stock/quotes/moneyflow_hsgt"
-    custom_settings = {"TABLE_NAME": "moneyflow_hsgt", "MIN_CAL_DATE": "2014-11-17"}
-
-
 class StkLimitSpider(DailySpider):
     name = "stock/quotes/stk_limit"
     custom_settings = {"TABLE_NAME": "stk_limit", 'MIN_CAL_DATE': '2007-01-01'}
