@@ -6,7 +6,7 @@ image:
   repository: zhangbc/tushare-integration
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.4"
+  tag: "0.1.5"
 
 cronjob:
   - name: daily-morning
@@ -43,12 +43,20 @@ cronjob:
       - name: stock/quotes/ggt_daily
       - name: stock/quotes/bak_daily
       - name: stock/quotes/stk_weekly_monthly
+  - name: moneyflow
+    cron_expr: "0 19,21 * * 1-5"
+    spiders:
+      - name: stock/moneyflow/moneyflow
+      - name: stock/moneyflow/moneyflow_hsgt
+      - name: stock/moneyflow/moneyflow_dc
+      - name: stock/moneyflow/moneyflow_ind_dc
+      - name: stock/moneyflow/moneyflow_ind_ths
+      - name: stock/moneyflow/moneyflow_ths
+      - name: stock/moneyflow/moneyflow_mkt_dc
   - name: daily-evening
     cron_expr: "0 19 * * 1-5"
     spiders:
       - name: "stock/quotes/hsgt_top10"
-      - name: "stock/quotes/moneyflow"
-      - name: "stock/quotes/moneyflow_hsgt"
   - name: monthly
     cron_expr: "0 0 1 * *"
     spiders:

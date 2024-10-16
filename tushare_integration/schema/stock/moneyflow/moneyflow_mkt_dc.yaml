@@ -2,82 +2,85 @@ id: 283
 api_name: moneyflow_mkt_dc
 name: moneyflow_mkt_dc
 comment: 大盘资金流向（DC）
-dependencies: []
-primary_key: []
+dependencies:
+  - stock_basic
+  - trade_cal
+primary_key:
+  - trade_date
 indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: close_sh
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 上证收盘价（元）
-- name: ptc_change_sh
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 上证涨跌幅(%)
-- name: close_sz
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深证收盘价（元）
-- name: pct_change_sz
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 深证涨跌幅(%)
-- name: net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日主力净流入 净额（元）
-- name: net_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日主力净流入净占比%
-- name: buy_elg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日超大单净流入 净额（元）
-- name: buy_elg_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日超大单净流入 净占比%
-- name: buy_lg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日大单净流入 净额（元）
-- name: buy_lg_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日大单净流入 净占比%
-- name: buy_md_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日中单净流入 净额（元）
-- name: buy_md_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日中单净流入 净占比%
-- name: buy_sm_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日小单净流入 净额（元）
-- name: buy_sm_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日小单净流入 净占比%
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: close_sh
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 上证收盘价（元）
+  - name: ptc_change_sh
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 上证涨跌幅(%)
+  - name: close_sz
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深证收盘价（元）
+  - name: pct_change_sz
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 深证涨跌幅(%)
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日主力净流入 净额（元）
+  - name: net_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日主力净流入净占比%
+  - name: buy_elg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日超大单净流入 净额（元）
+  - name: buy_elg_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日超大单净流入 净占比%
+  - name: buy_lg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入 净额（元）
+  - name: buy_lg_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入 净占比%
+  - name: buy_md_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入 净额（元）
+  - name: buy_md_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入 净占比%
+  - name: buy_sm_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入 净额（元）
+  - name: buy_sm_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入 净占比%

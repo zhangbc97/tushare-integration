@@ -2,67 +2,71 @@ id: 281
 api_name: moneyflow_ind_ths
 name: moneyflow_ind_ths
 comment: 行业资金流向（THS）
-dependencies: []
-primary_key: []
+dependencies:
+  - stock_basic
+  - trade_cal
+primary_key:
+  - ts_code
+  - trade_date
 indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 板块代码
-- name: industry
-  data_type: str
-  length: 255
-  default: ''
-  comment: 板块名称
-- name: lead_stock
-  data_type: str
-  length: 255
-  default: ''
-  comment: 领涨股票名称
-- name: close
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 收盘指数
-- name: pct_change
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 指数涨跌幅
-- name: company_num
-  data_type: int
-  length: 0
-  default: '0'
-  comment: 公司数量
-- name: pct_change_stock
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 领涨股涨跌幅
-- name: close_price
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 领涨股最新价
-- name: net_buy_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 流入资金(元)
-- name: net_sell_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 流出资金(元)
-- name: net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 净额(元)
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 板块代码
+  - name: industry
+    data_type: str
+    length: 255
+    default: ""
+    comment: 板块名称
+  - name: lead_stock
+    data_type: str
+    length: 255
+    default: ""
+    comment: 领涨股票名称
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 收盘指数
+  - name: pct_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 指数涨跌幅
+  - name: company_num
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 公司数量
+  - name: pct_change_stock
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 领涨股涨跌幅
+  - name: close_price
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 领涨股最新价
+  - name: net_buy_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 流入资金(元)
+  - name: net_sell_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 流出资金(元)
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 净额(元)

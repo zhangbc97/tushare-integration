@@ -2,72 +2,76 @@ id: 285
 api_name: moneyflow_ths
 name: moneyflow_ths
 comment: 个股资金流向（THS）
-dependencies: []
-primary_key: []
+dependencies:
+  - stock_basic
+  - trade_cal
+primary_key:
+  - ts_code
+  - trade_date
 indexes: []
 columns:
-- name: trade_date
-  data_type: date
-  length: 0
-  default: '1970-01-01'
-  comment: 交易日期
-- name: ts_code
-  data_type: str
-  length: 16
-  default: ''
-  comment: 股票代码
-- name: name
-  data_type: str
-  length: 255
-  default: ''
-  comment: 股票名称
-- name: pct_change
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 涨跌幅
-- name: latest
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 最新价
-- name: net_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 资金净流入(万元)
-- name: net_d5_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 5日主力净额(万元)
-- name: buy_lg_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日大单净流入额(万元)
-- name: buy_lg_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日大单净流入占比(%)
-- name: buy_md_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日中单净流入额(万元)
-- name: buy_md_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日中单净流入占比(%)
-- name: buy_sm_amount
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日小单净流入额(万元)
-- name: buy_sm_amount_rate
-  data_type: float
-  length: 0
-  default: '0.0'
-  comment: 今日小单净流入占比(%)
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: pct_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅
+  - name: latest
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最新价
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 资金净流入(万元)
+  - name: net_d5_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 5日主力净额(万元)
+  - name: buy_lg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入额(万元)
+  - name: buy_lg_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入占比(%)
+  - name: buy_md_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入额(万元)
+  - name: buy_md_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入占比(%)
+  - name: buy_sm_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入额(万元)
+  - name: buy_sm_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入占比(%)
