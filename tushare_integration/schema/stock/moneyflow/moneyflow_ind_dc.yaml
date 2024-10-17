@@ -1,0 +1,97 @@
+id: 282
+api_name: moneyflow_ind_dc
+name: moneyflow_ind_dc
+comment: 板块资金流向（DC）
+dependencies:
+  - stock_basic
+  - trade_cal
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: pct_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅（%）
+  - name: close
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最新价（元）
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日主力净流入 净额（元）
+  - name: net_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日主力净流入净占比%
+  - name: buy_elg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日超大单净流入 净额（元）
+  - name: buy_elg_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日超大单净流入 净占比%
+  - name: buy_lg_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入 净额（元）
+  - name: buy_lg_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日大单净流入 净占比%
+  - name: buy_md_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入 净额（元）
+  - name: buy_md_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日中单净流入 净占比%
+  - name: buy_sm_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入 净额（元）
+  - name: buy_sm_amount_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 今日小单净流入 净占比%
+  - name: buy_sm_amount_stock
+    data_type: str
+    length: 255
+    default: ""
+    comment: 今日主力净流入最大股
+  - name: rank
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 序号

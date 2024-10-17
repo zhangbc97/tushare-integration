@@ -1,4 +1,4 @@
-clickhouse-connect==0.7.18
+clickhouse-connect==0.8.3
 cryptography==42.0.8
 jinja2==3.1.4
 lz4==4.3.3
@@ -6,15 +6,15 @@ numpy==1.26.4
 pandas==2.2.2
 pyarrow==17.0.0
 pydantic-settings==2.3.3
-pydantic==2.8.2
+pydantic==2.9.2
 pymysql==1.1.1
 python-dateutil==2.9.0
 pyyaml==6.0.1
 requests==2.32.3
-rich==13.7.1
+rich==13.9.2
 scrapy==2.11.2
 setuptools==70.0.0
-sqlalchemy==2.0.32
-typer==0.12.3
+sqlalchemy==2.0.36
+typer==0.12.5
 typing-extensions==4.12.2
 zstandard==0.23.0

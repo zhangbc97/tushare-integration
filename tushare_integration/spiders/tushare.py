@@ -3,6 +3,7 @@ import json
 import logging
 
 import pandas as pd
+import requests
 import scrapy
 import yaml
 
@@ -95,6 +96,23 @@ class TushareSpider(scrapy.Spider):
             }
             | meta,
         )
+
+    # 搞个函数，直接使用requests发起请求
+    def request_with_requests(self, params: dict | None = None, meta: dict | None = None) -> TushareIntegrationItem:
+        response = requests.post(
+            url=self.spider_settings.tushare_url,
+            json={
+                "api_name": self.get_api_name(),
+                "token": self.spider_settings.tushare_token,
+                "params": params,
+                "fields": self.load_fields(),
+            },
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+        return self.parse_response(response)
 
     def load_fields(self):
         return ",".join([column["name"] for column in self.schema["columns"]])
