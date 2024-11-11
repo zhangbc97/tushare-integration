@@ -113,6 +113,7 @@ class ClickhouseEngine(DBEngine):
             username=settings.database.user,
             password=settings.database.password,
             database=settings.database.db_name,
+            apply_server_timezone=True
         )
 
         self.functions['to_date'] = 'toDate'
