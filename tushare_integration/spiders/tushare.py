@@ -35,7 +35,7 @@ class TushareSpider(scrapy.Spider):
         return spider
 
     def create_table(self):
-        logging.info(f"create table {self.get_table_name()}")
+        logging.info(f"quest {self.name}: create table {self.get_table_name()}")
 
         self.db_engine = DatabaseEngineFactory.create(self.spider_settings)
         self.db_engine.create_table(self.get_table_name(), self.schema)

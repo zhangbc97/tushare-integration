@@ -109,6 +109,7 @@ class StkPremarket(DailySpider):
     name = "stock/basic/stk_premarket"
     description = '每日股本(盘前数据)'
     api_name = "stk_premarket"
+    custom_settings = {"TABLE_NAME": "stk_premarket"}
 
 
 class StockBakBasicSpider(DailySpider):
