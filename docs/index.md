@@ -10,6 +10,79 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
 - 实现同步 Tushare Pro 接口数据到本地数据库，并支持全量同步与增量更新
 - 支持将数据写入到多种数据库
 
+## 快速开始
+
+### 前置条件
+
+- Python 3.8+
+- Docker（推荐）或本地数据库环境
+- Tushare Pro 账号及 Token（[注册地址](https://tushare.pro/register?reg=7)）
+- 至少2000积分以上的账号（推荐5000分以上）
+
+### 使用Docker快速部署（推荐）
+
+1. 拉取并运行Clickhouse容器
+
+```bash
+docker pull clickhouse/clickhouse-server:23.6.2.18-alpine
+docker run -d --name clickhouse-server \
+    --net=host \
+    -v /data/clickhouse:/var/lib/clickhouse \
+    --ulimit nofile=262144:262144 \
+    clickhouse/clickhouse-server:23.6.2.18-alpine
+```
+
+2. 创建配置文件
+
+```bash
+mkdir -p /data/tushare-integration/config
+```
+
+3. 编写基础配置文件 (config.yaml)
+
+```yaml
+tushare_token: '你的Token'  # 替换为你的Token
+tushare_point: 2000        # 替换为你的积分
+
+database:
+  db_type: 'clickhouse'
+  host: '127.0.0.1'
+  port: '8123'
+  user: 'default'
+  password: ''
+  db_name: 'default'
+```
+
+4. 运行数据同步任务
+
+```bash
+docker run -d --net=host \
+    -v /data/tushare-integration/config/config.yaml:/code/app/config.yaml \
+    zhangbc/tushare-integration:latest \
+    python main.py run spider stock/basic/stock_basic
+```
+
+### 验证安装
+
+1. 检查数据是否写入成功
+
+```sql
+SELECT count(*) FROM stock_basic;
+```
+
+2. 查看最新同步数据
+
+```sql
+SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
+```
+
+### 下一步
+
+- 阅读[配置文档](settings.md)了解更多配置选项
+- 查看[使用说明](usage.md)了解如何配置定时任务
+- 参考[开发指南](develop.md)了解如何扩展功能
+- 查看[故障排除](troubleshooting.md)解决常见问题
+
 ## 目前支持的接口
 
 下列列表来自于Tushare Pro官方文档，标注了已完成的接口和不计划支持的接口

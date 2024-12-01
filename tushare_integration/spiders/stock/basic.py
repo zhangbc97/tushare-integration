@@ -1,6 +1,8 @@
 import datetime
+import pandas as pd
 
 from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
+from tushare_integration.items import TushareIntegrationItem
 
 
 class StockBasicSpider(TushareSpider):
@@ -29,22 +31,25 @@ class StockNameChangeSpider(TushareSpider):
         request = self.get_scrapy_request(params={'offset': 0, 'limit': 5000})
         request.meta["offset"] = 0
         request.meta["limit"] = 5000
-
         yield request
 
     def parse(self, response, **kwargs):
-        parsed_data = self.parse_response(response, **kwargs)
-        # data为空时，说明已经拉完所有数据
-        if parsed_data["data"].empty:
-            return
-        yield parsed_data
-        # 继续拉取下一页数据
-        request = self.get_scrapy_request(
-            params={'offset': response.meta["offset"] + response.meta["limit"], 'limit': response.meta["limit"]}
-        )
-        request.meta["offset"] = response.meta["offset"] + response.meta["limit"]
-        request.meta["limit"] = response.meta["limit"]
-        yield request
+        first_page = self.parse_response(response, **kwargs)
+        if first_page["data"].empty:
+            return None
+
+        all_data = [first_page["data"]]
+        offset = response.meta["offset"] + response.meta["limit"]
+        limit = response.meta["limit"]
+
+        while True:
+            parsed_data = self.request_with_requests(params={'offset': offset, 'limit': limit})
+            if parsed_data["data"].empty:
+                break
+            all_data.append(parsed_data["data"])
+            offset += limit
+
+        return TushareIntegrationItem(data=pd.concat(all_data, ignore_index=True))
 
 
 class StockHSConstSpider(TushareSpider):
