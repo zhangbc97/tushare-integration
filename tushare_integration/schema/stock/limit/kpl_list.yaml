@@ -1,0 +1,131 @@
+id: 277
+api_name: kpl_list
+name: kpl_list
+comment: 开盘啦板单数据
+dependencies: []
+primary_key:
+  - ts_code
+  - trade_date
+  - tag
+indexes: []
+columns:
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 名称
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易时间
+  - name: lu_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 涨停时间
+  - name: ld_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 跌停时间
+  - name: open_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 开板时间
+  - name: last_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 最后涨停时间
+  - name: lu_desc
+    data_type: str
+    length: 255
+    default: ""
+    comment: 涨停原因
+  - name: tag
+    data_type: str
+    length: 255
+    default: ""
+    comment: 标签|类别
+  - name: theme
+    data_type: str
+    length: 255
+    default: ""
+    comment: 板块
+  - name: net_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 主力净额(元)
+  - name: bid_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 主力净额(元)
+  - name: status
+    data_type: str
+    length: 255
+    default: ""
+    comment: 状态
+  - name: bid_change
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 竞价成交额(元|个)
+  - name: bid_turnover
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 竞价换手)%
+  - name: lu_bid_vol
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨停委买额(元|个)
+  - name: pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅%
+  - name: bid_pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 竞价涨幅%
+  - name: rt_pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 实时涨幅%
+  - name: limit_order
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 封单(元|个)
+  - name: amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交额(元|个)
+  - name: turnover_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 换手率%
+  - name: free_float
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 实际流通(元|个)
+  - name: lu_limit_order
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最大封单(元|个)

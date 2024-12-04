@@ -1,0 +1,130 @@
+id: 296
+api_name: limit_list_ths
+name: limit_list_ths
+comment: 涨跌停榜单（同花顺）
+dependencies: []
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 股票代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: price
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最近价格(元)
+  - name: pct_chg
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨跌幅%
+  - name: open_num
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 打开次数
+  - name: lu_desc
+    data_type: str
+    length: 255
+    default: ""
+    comment: 涨停原因
+  - name: limit_type
+    data_type: str
+    length: 255
+    default: ""
+    comment: 板单类别
+  - name: tag
+    data_type: str
+    length: 255
+    default: ""
+    comment: 涨停标签
+  - name: status
+    data_type: str
+    length: 255
+    default: ""
+    comment: 涨停状态（N连板、一字板）
+  - name: first_lu_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 首次涨停时间
+  - name: last_lu_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 最后涨停时间
+  - name: first_ld_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 首次跌停时间
+  - name: last_ld_time
+    data_type: str
+    length: 255
+    default: ""
+    comment: 最后涨停时间
+  - name: limit_order
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 封单量(元|个)
+  - name: limit_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 封单额(元|个)
+  - name: turnover_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 换手率%
+  - name: free_float
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 实际流通(元|个)
+  - name: lu_limit_order
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 最大封单(元|个)
+  - name: limit_up_suc_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 近一年涨停封板率
+  - name: turnover
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 成交额
+  - name: rise_rate
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 涨速
+  - name: sum_float
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: " 总市值 亿元"
+  - name: market_type
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票类型：HS沪深主板、GEM创业板、STAR科创板

@@ -2,9 +2,9 @@
     {%- if column.data_type == 'str' -%}
         VARCHAR({{ column.length or 255 }})
     {%- elif column.data_type == 'int' -%}
-        INT
+        BIGINT
     {%- elif column.data_type == 'float' or column.data_type == 'number' -%}
-        FLOAT
+        DOUBLE
     {%- elif column.data_type == 'date' -%}
         DATE
     {%- elif column.data_type == 'datetime' -%}
@@ -25,37 +25,31 @@
         '1970-01-01'
     {%- elif column.data_type == 'datetime' -%}
         '1970-01-01 00:00:00'
+    {%- elif column.data_type == 'json' -%}
+        ''
     {%- endif -%}
 {%- endmacro %}
 
 {%- macro parse_type(column) -%}
-    {%- if column.data_type == 'json' -%}
-        {{ type_(column) }} NOT NULL
-    {%- else -%}
-        {{ type_(column) }} NOT NULL DEFAULT {{ default_value(column) }}
-    {%- endif -%}
+    {{ type_(column) }} NOT NULL DEFAULT {{ default_value(column) }}
 {%- endmacro -%}
 
 CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
 (
 {%- for column in columns %}
-    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.comment }}'{{ ',' if not loop.last or primary_key or indexes }}
+    `{{ column.name }}` {{ parse_type(column) }} COMMENT '{{ column.comment }}'{{ ',' if not loop.last }}
 {%- endfor %}
-
+)
 {%- if primary_key %}
-    PRIMARY KEY (`{{  primary_key | join('`, `') }}`) {%- if indexes %},{% endif %}
+PRIMARY KEY ({{ primary_key | join(', ') }})
 {%- endif %}
-
-{%- if indexes %}
-    {%- for index in indexes %}
-    KEY `{{ index.name }}` (`{{ index.columns | join('`, `') }}`) {{ ',' if not loop.last }}
-    {%- endfor %}
+COMMENT '{{ comment }}'
+{%- if primary_key %}
+ORDER BY {{ primary_key | join(', ') }}
 {%- endif %}
-) ENGINE={{ engine or 'InnoDB' }}
-{%- if template_params %}
+DISTRIBUTED BY HASH({% if primary_key %}{{ primary_key[0] }}{% else %}{{ columns[0].name }}{% endif %}) BUCKETS {{ template_params.buckets }}
+PROPERTIES (
 {%- for key, value in template_params.items() %}
-  {{ key }}={{ value }}
+    "{{ key }}" = "{{ value }}"{{ ',' if not loop.last }}
 {%- endfor %}
-{%- endif %}
-DEFAULT CHARSET={{ charset or 'utf8mb4' }}
-COMMENT='{{ comment }}';
+); 

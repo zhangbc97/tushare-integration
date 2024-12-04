@@ -1,0 +1,24 @@
+id: 246
+api_name: hm_list
+name: hm_list
+comment: 游资名录
+dependencies: []
+primary_key:
+  - name
+indexes: []
+columns:
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: ""
+  - name: desc
+    data_type: str
+    length: 255
+    default: ""
+    comment: 描述
+  - name: orgs
+    data_type: str
+    length: 255
+    default: ""
+    comment: 关联机构

@@ -1,0 +1,46 @@
+id: 288
+api_name: kpl_concept_cons
+name: kpl_concept_cons
+comment: 开盘啦题材成分
+dependencies: []
+primary_key:
+  - ts_code
+  - cons_code
+  - trade_date
+indexes: []
+columns:
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 题材ID
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 题材名称
+  - name: cons_name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票名称
+  - name: cons_code
+    data_type: str
+    length: 255
+    default: ""
+    comment: 股票代码
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: desc
+    data_type: str
+    length: 255
+    default: ""
+    comment: 描述
+  - name: hot_num
+    data_type: int
+    length: 0
+    default: "0"
+    comment: 人气值

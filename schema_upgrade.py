@@ -1,6 +1,9 @@
+import logging
 import pathlib
 
 import yaml
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def get_type_default(data_type: str) -> str:
@@ -24,6 +27,7 @@ def get_type_default(data_type: str) -> str:
 
 
 def parse_schema(schema: dict):
+    logging.info(f'Parsing schema: {schema["name"]}')
     v2_schema = {
         'id': schema['id'],
         'api_name': schema['name'],
