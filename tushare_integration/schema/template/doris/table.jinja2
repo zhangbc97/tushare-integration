@@ -25,6 +25,8 @@
         '1970-01-01'
     {%- elif column.data_type == 'datetime' -%}
         '1970-01-01 00:00:00'
+    {%- elif column.data_type == 'json' -%}
+        ''
     {%- endif -%}
 {%- endmacro %}
 
@@ -43,12 +45,23 @@ CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
 {%- endfor %}
 
 {%- if primary_key %}
-    UNIQUE  KEY (`{{  primary_key | join('`, `') }}`) {%- if indexes %},{% endif %}
+    UNIQUE KEY (`{{  primary_key | join('`, `') }}`) {%- if indexes %},{% endif %}
 {%- endif %}
 
 {%- if indexes %}
     {%- for index in indexes %}
-    INDEX `{{ index.name }}` (`{{ index.columns | join('`, `') }}`) {{ ',' if not loop.last }}
+    KEY `{{ index.name }}` (`{{ index.columns | join('`, `') }}`) {{ ',' if not loop.last }}
     {%- endfor %}
 {%- endif %}
-) ENGINE={{ engine or 'innoDB' }} DEFAULT CHARSET={{ charset or 'utf8mb4' }} COMMENT='{{ comment }}';
+)
+ENGINE={{ engine or 'OLAP' }}
+{%- if primary_key %}
+UNIQUE KEY(`{{ primary_key | join('`, `') }}`)
+{%- endif %}
+COMMENT '{{ comment }}'
+DISTRIBUTED BY HASH({% if primary_key %}{{ primary_key[0] }}{% else %}{{ columns[0].name }}{% endif %}) BUCKETS {{ template_params.buckets }}
+PROPERTIES (
+{%- for key, value in template_params.items() %}
+    "{{ key }}" = "{{ value }}"{{ ',' if not loop.last }}
+{%- endfor %}
+);

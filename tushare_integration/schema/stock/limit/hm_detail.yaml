@@ -1,0 +1,55 @@
+id: 247
+api_name: hm_detail
+name: hm_detail
+comment: 游资每日明细
+dependencies: []
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: ""
+  - name: ts_name
+    data_type: str
+    length: 255
+    default: ""
+    comment: ""
+  - name: buy_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 买入数量（万）
+  - name: sell_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 卖出数量（万）
+  - name: net_amount
+    data_type: float
+    length: 0
+    default: "0.0"
+    comment: 净买入（买卖和（万））
+  - name: tag
+    data_type: str
+    length: 255
+    default: ""
+    comment: 标签
+  - name: hm_name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 游资名称
+  - name: hm_orgs
+    data_type: str
+    length: 255
+    default: ""
+    comment: 关联机构

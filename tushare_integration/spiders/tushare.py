@@ -99,6 +99,7 @@ class TushareSpider(scrapy.Spider):
 
     # 搞个函数，直接使用requests发起请求
     def request_with_requests(self, params: dict | None = None, meta: dict | None = None) -> TushareIntegrationItem:
+        logging.info(f"Requesting {self.get_api_name()} with params: {params}")
         response = requests.post(
             url=self.spider_settings.tushare_url,
             json={

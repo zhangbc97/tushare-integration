@@ -1,0 +1,12 @@
+INSERT INTO {{ db_name }}.{{ table_name }}
+(
+{%- for column in columns %}
+    `{{ column.name }}`{{ ',' if not loop.last }}
+{%- endfor %}
+)
+VALUES
+(
+{%- for column in columns %}
+    %s{{ ',' if not loop.last }}
+{%- endfor %}
+) 

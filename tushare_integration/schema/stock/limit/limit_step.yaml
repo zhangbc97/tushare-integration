@@ -1,0 +1,30 @@
+id: 297
+api_name: limit_step
+name: limit_step
+comment: 涨停股票连板天梯
+dependencies: []
+primary_key:
+  - ts_code
+  - trade_date
+indexes: []
+columns:
+  - name: ts_code
+    data_type: str
+    length: 16
+    default: ""
+    comment: 代码
+  - name: name
+    data_type: str
+    length: 255
+    default: ""
+    comment: 名称
+  - name: trade_date
+    data_type: date
+    length: 0
+    default: "1970-01-01"
+    comment: 交易日期
+  - name: nums
+    data_type: str
+    length: 255
+    default: ""
+    comment: 连板次数

@@ -10,6 +10,79 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
 - 实现同步 Tushare Pro 接口数据到本地数据库，并支持全量同步与增量更新
 - 支持将数据写入到多种数据库
 
+## 快速开始
+
+### 前置条件
+
+- Python 3.8+
+- Docker（推荐）或本地数据库环境
+- Tushare Pro 账号及 Token（[注册地址](https://tushare.pro/register?reg=7)）
+- 至少2000积分以上的账号（推荐5000分以上）
+
+### 使用Docker快速部署（推荐）
+
+1. 拉取并运行Clickhouse容器
+
+```bash
+docker pull clickhouse/clickhouse-server:23.6.2.18-alpine
+docker run -d --name clickhouse-server \
+    --net=host \
+    -v /data/clickhouse:/var/lib/clickhouse \
+    --ulimit nofile=262144:262144 \
+    clickhouse/clickhouse-server:23.6.2.18-alpine
+```
+
+2. 创建配置文件
+
+```bash
+mkdir -p /data/tushare-integration/config
+```
+
+3. 编写基础配置文件 (config.yaml)
+
+```yaml
+tushare_token: '你的Token'  # 替换为你的Token
+tushare_point: 2000        # 替换为你的积分
+
+database:
+  db_type: 'clickhouse'
+  host: '127.0.0.1'
+  port: '8123'
+  user: 'default'
+  password: ''
+  db_name: 'default'
+```
+
+4. 运行数据同步任务
+
+```bash
+docker run -d --net=host \
+    -v /data/tushare-integration/config/config.yaml:/code/app/config.yaml \
+    zhangbc/tushare-integration:latest \
+    python main.py run spider stock/basic/stock_basic
+```
+
+### 验证安装
+
+1. 检查数据是否写入成功
+
+```sql
+SELECT count(*) FROM stock_basic;
+```
+
+2. 查看最新同步数据
+
+```sql
+SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
+```
+
+### 下一步
+
+- 阅读[配置文档](settings.md)了解更多配置选项
+- 查看[使用说明](usage.md)了解如何配置定时任务
+- 参考[开发指南](develop.md)了解如何扩展功能
+- 查看[故障排除](troubleshooting.md)解决常见问题
+
 ## 目前支持的接口
 
 下列列表来自于Tushare Pro官方文档，标注了已完成的接口和不计划支持的接口
@@ -81,13 +154,8 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
         - [x] 中央结算系统持股统计
         - [x] 中央结算系统持股明细
         - [x] 沪深股通持股明细
-        - [x] 涨跌停和炸板数据
         - [x] 结构调研数据
         - [x] 券商月度金股
-        - [x] 游资名录
-        - [x] 游资每日明细
-        - [x] 同花顺App热榜
-        - [x] 东财App热榜
     - [x] 两融及转融通
         - [x] 融资融券交易汇总
         - [x] 融资融券交易明细
@@ -103,6 +171,19 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
         - [x] 行业资金流向(THS)
         - [x] 板块资金流向(DC)
         - [x] 大盘资金流向(DC)
+    - [x] 打板专题数据
+        - [x] 同花顺涨跌停榜单
+        - [x] 涨跌停列表（新版）
+        - [x] 涨停股票连板天梯
+        - [x] 涨停最强板块统计
+        - [x] 榜单数据（开盘啦）
+        - [x] 题材数据（开盘啦）
+        - [x] 题材成分（开盘啦）
+        - [x] 同花顺热榜
+        - [x] 东财热榜
+        - [x] 游资名录
+        - [x] 游资每日明细
+        - [x] 涨跌停和炸板数据
 - [x] 指数
     - [x] 指数基本信息
     - [x] 指数日线行情
@@ -138,6 +219,7 @@ Tushare Pro目前已稳定运行几年时间，其提供了大量的金融数据
 - [Clickhouse](https://clickhouse.com)
 - [Apache Doris](https://doris.apache.org/)(未测试)
 - [MySQL](https://www.mysql.com/)(未完全测试)
+- [StarRocks](https://www.starrocks.io/)(使用PrimaryKey模型)
 - 其他数据库欢迎提交PR
 
 ## 使用建议
