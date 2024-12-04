@@ -44,6 +44,9 @@ CREATE TABLE IF NOT EXISTS {{ db_name }}.{{ table_name }}
 PRIMARY KEY ({{ primary_key | join(', ') }})
 {%- endif %}
 COMMENT '{{ comment }}'
+{%- if partition_key %}
+PARTITION BY ({{ partition_key | join(', ') }})
+{%- endif %}
 {%- if primary_key %}
 ORDER BY {{ primary_key | join(', ') }}
 {%- endif %}
