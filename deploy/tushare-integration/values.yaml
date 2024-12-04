@@ -110,14 +110,9 @@ cronjob:
       - name: stock/special/ccass_hold
       - name: stock/special/ccass_hold_detail
       - name: stock/special/hk_hold
-      - name: stock/special/limit_list_d
       - name: stock/special/stk_surv
       - name: stock/special/broker_recommend
-      - name: stock/special/hm_list
-      - name: stock/special/hm_detail
       - name: stock/special/stk_factor_pro
-      - name: stock/special/ths_hot
-      - name: stock/special/dc_hot
   - cron_expr: "0 8 * * 1-5"
     name: future/basic
     spiders:
@@ -163,6 +158,20 @@ cronjob:
     name: index/zx
     spiders:
       - name: index/zx/ci_daily
+  - cron_expr: "0 19,21 * * 1-5"
+    name: stock/limit
+    spiders:
+      - name: stock/limit/dc_hot
+      - name: stock/limit/hm_detail
+      - name: stock/limit/hm_list
+      - name: stock/limit/kpl_concept_cons
+      - name: stock/limit/kpl_concept
+      - name: stock/limit/kpl_list
+      - name: stock/limit/limit_cpt_list
+      - name: stock/limit/limit_list_d
+      - name: stock/limit/limit_list_ths
+      - name: stock/limit/limit_step
+      - name: stock/limit/ths_hot
 
 configOverrides:
   # TUSHARE相关配置

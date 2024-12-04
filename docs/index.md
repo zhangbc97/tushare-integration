@@ -117,19 +117,6 @@ SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
         - [ ] ~~港股通每月成交统计~~(官方数据未持续更新)
         - [x] 备用行情
         - [x] 1分钟行情
-    - [x] 打板专题数据
-        - [x] 同花顺涨跌停榜单
-        - [x] 涨跌停列表（新版）
-        - [x] 涨停股票连板天梯
-        - [x] 涨停最强板块统计
-        - [x] 榜单数据（开盘啦）
-        - [x] 题材数据（开盘啦）
-        - [x] 题材成分（开盘啦）
-        - [x] 同花顺热榜
-        - [x] 东财热榜
-        - [x] 游资名录
-        - [x] 游资每日明细
-        - [x] 涨跌停和炸板数据
     - [x] 财务数据
         - [x] 利润表
         - [x] 资产负债表
@@ -184,6 +171,19 @@ SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
         - [x] 行业资金流向(THS)
         - [x] 板块资金流向(DC)
         - [x] 大盘资金流向(DC)
+    - [x] 打板专题数据
+        - [x] 同花顺涨跌停榜单
+        - [x] 涨跌停列表（新版）
+        - [x] 涨停股票连板天梯
+        - [x] 涨停最强板块统计
+        - [x] 榜单数据（开盘啦）
+        - [x] 题材数据（开盘啦）
+        - [x] 题材成分（开盘啦）
+        - [x] 同花顺热榜
+        - [x] 东财热榜
+        - [x] 游资名录
+        - [x] 游资每日明细
+        - [x] 涨跌停和炸板数据
 - [x] 指数
     - [x] 指数基本信息
     - [x] 指数日线行情
@@ -219,6 +219,7 @@ SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
 - [Clickhouse](https://clickhouse.com)
 - [Apache Doris](https://doris.apache.org/)(未测试)
 - [MySQL](https://www.mysql.com/)(未完全测试)
+- [StarRocks](https://www.starrocks.io/)(使用PrimaryKey模型)
 - 其他数据库欢迎提交PR
 
 ## 使用建议
