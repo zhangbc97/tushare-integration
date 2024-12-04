@@ -1,7 +1,7 @@
 id: 287
 api_name: kpl_concept
 name: kpl_concept
-comment: 开盘啦题材库
+comment: 题材数据（开盘啦）
 dependencies: []
 primary_key:
   - ts_code

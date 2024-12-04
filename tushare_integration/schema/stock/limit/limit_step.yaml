@@ -1,7 +1,7 @@
 id: 297
 api_name: limit_step
 name: limit_step
-comment: 连板天梯
+comment: 涨停股票连板天梯
 dependencies: []
 primary_key:
   - ts_code

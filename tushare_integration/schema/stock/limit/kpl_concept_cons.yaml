@@ -1,7 +1,7 @@
 id: 288
 api_name: kpl_concept_cons
 name: kpl_concept_cons
-comment: 开盘啦题材成分
+comment: 题材成分（开盘啦）
 dependencies: []
 primary_key:
   - ts_code

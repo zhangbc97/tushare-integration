@@ -1,7 +1,7 @@
 id: 296
 api_name: limit_list_ths
 name: limit_list_ths
-comment: 涨跌停榜单（同花顺）
+comment: 涨跌停列表（同花顺）
 dependencies: []
 primary_key:
   - ts_code

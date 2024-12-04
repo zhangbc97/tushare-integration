@@ -1,7 +1,7 @@
 id: 277
 api_name: kpl_list
 name: kpl_list
-comment: 开盘啦板单数据
+comment: 榜单数据（开盘啦）
 dependencies: []
 primary_key:
   - ts_code
