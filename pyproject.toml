@@ -1,6 +1,6 @@
 [project]
 name = "tushare-integration"
-version = "0.1.0"
+version = "0.1.7"
 description = ""
 authors = [{ "name" = "zhangbingchen", "email" = "1731259685@qq.com" }]
 readme = "README.md"
