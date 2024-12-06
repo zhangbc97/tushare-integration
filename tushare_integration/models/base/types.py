@@ -1,7 +1,6 @@
 from typing import Optional
 
 from clickhouse_sqlalchemy.types import Date32, DateTime64, Float64, Int64
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.types import BigInteger
 from sqlalchemy.types import Date as SADate
 from sqlalchemy.types import DateTime as SADateTime
@@ -112,6 +111,3 @@ class DateTime(TypeDecorator):
     @property
     def python_type(self):
         return str
-
-
-Base = declarative_base()

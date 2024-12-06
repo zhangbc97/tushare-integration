@@ -8,8 +8,10 @@ from jinja2 import StrictUndefined, Template
 cookie = ''
 # SQLAlchemy模型模板
 MODEL_TEMPLATE = '''from sqlalchemy import Column, text
+from clickhouse_sqlalchemy import engines
 
-from tushare_integration.models.base import Base, String, Integer, Float, Date, DateTime
+from tushare_integration.models.base.types import String, Integer, Float, Date, DateTime
+from tushare_integration.models.base.base import Base
 
 
 class {{ table_name|to_camel_case }}(Base):
@@ -18,7 +20,23 @@ class {{ table_name|to_camel_case }}(Base):
     __tablename__ = '{{ table_name }}'
     __api_id__ = {{ api_id }}
     __api_name__ = '{{ api_name }}'
-
+    __dependencies__ = []
+    __primary_key__ = {{ primary_key }}
+    __mapper_args__ = {'primary_key': __primary_key__}
+    __table_args__ = (
+        # ClickHouse引擎
+        engines.ReplacingMergeTree(order_by=__primary_key__),
+        {
+            'comment': '{{ table_comment }}',
+            # MySQL引擎
+            'mysql_engine': 'InnoDB',
+            # StarRocks引擎
+            'starrocks_primary_key': ','.join(__primary_key__),
+            'starrocks_order_by': ','.join(__primary_key__),
+            # Apache Doris引擎
+            'doris_unique_key': __primary_key__,
+        }
+    )
     {% for field in fields %}
     {% if field.name[0].isdigit() %}
     _{{ field.name }} = Column('{{ field.original_name }}', {{ field|get_column_type }}, nullable=False, default={{ field.default|tojson }}, server_default=text({{ field|get_server_default }}), comment='{{ field.comment }}')
@@ -26,10 +44,6 @@ class {{ table_name|to_camel_case }}(Base):
     {{ field.name }} = Column('{{ field.original_name }}', {{ field|get_column_type }}, nullable=False, default={{ field.default|tojson }}, server_default=text({{ field|get_server_default }}), comment='{{ field.comment }}')
     {%- endif %}
     {%- endfor %}
-
-    __table_args__ = {
-        'comment': '{{ table_comment }}'
-    }
 '''
 
 
@@ -78,30 +92,33 @@ def get_api_info(api_id: int):
     return response.json()
 
 
-def escape_quote(text: str) -> str:
+def escape_quote(text: str | None) -> str:
     """
     转义字符串中的引号
-    
+
     Args:
         text: 需要转义的字符串
-    
+
     Returns:
         转义后的字符串
     """
+    if text is None:
+        return ''
     return text.replace("'", "\\'").replace('"', '\\"')
 
 
 def is_python_keyword(name: str) -> bool:
     """
     检查是否是Python关键字
-    
+
     Args:
         name: 需要检查的名称
-    
+
     Returns:
         是否是Python关键字
     """
     import keyword
+
     return keyword.iskeyword(name)
 
 
@@ -115,11 +132,11 @@ def get_fields(api_info: dict) -> List[Dict[str, Any]]:
     fields = api_info['data']['outputs']
     for field in fields:
         original_name = field['name'].lower()
-        
+
         # 处理Python关键字 - 只修改Python变量名，保留原始列名
         if is_python_keyword(original_name):
             field['original_name'] = original_name  # 保存原始列名
-            field['name'] = f"_{original_name}"    # Python变量名加下划线
+            field['name'] = f"_{original_name}"  # Python变量名加下划线
         else:
             field['original_name'] = original_name
             field['name'] = original_name
@@ -144,7 +161,7 @@ def get_fields(api_info: dict) -> List[Dict[str, Any]]:
 
 def to_camel_case(snake_str: str) -> str:
     """
-    将下划线形式转换为驼峰命名
+    将下划线形式转换为峰命名
 
     Args:
         snake_str: 下划线形式的字符串
@@ -173,7 +190,7 @@ def get_column_type(field: Dict[str, Any]) -> str:
 
     match data_type:
         case "str" | "varchar":
-            # 只有ts_code字段才指定具体长度，其他使用空括号
+            # 只ts_code字段才指定具体长度，其他使用空括号
             return f"String({field['length']})" if field.get('length') else "String()"
         case "float" | "number" | "double":
             return 'Float'
@@ -211,13 +228,30 @@ def get_server_default(data_type: str, value: Any) -> str:
             raise ValueError(f"Unsupported data_type: {data_type}")
 
 
+def get_primary_key(fields: List[Dict[str, Any]]) -> List[str]:
+    """
+    确定表的主键字段
+
+    规则:
+    1. 如果同时存在 ts_code 和 trade_date，使用它们作为联合主键
+    2. 其他情况返回空列表
+
+    Args:
+        fields: 字段列表
+
+    Returns:
+        主键字段列表
+    """
+    field_names = [field['original_name'] for field in fields]
+
+    if 'ts_code' in field_names and 'trade_date' in field_names:
+        return ['ts_code', 'trade_date']
+    return []
+
+
 def generate_model(api_id: int, output_dir: str):
     """
     生成SQLAlchemy模型文件
-
-    Args:
-        api_id: API ID
-        output_dir: 输出目录路径
     """
     logging.info(f"开始处理 API ID: {api_id}")
 
@@ -234,7 +268,11 @@ def generate_model(api_id: int, output_dir: str):
     if fields is None:
         logging.error(f"无法获取API {api_id}的字段信息")
         return
-    logging.info(f"成功获取字段信息， {len(fields)} 个字段")
+    logging.info(f"成功获取字段信息，{len(fields)} 个字段")
+
+    # 获取主键字段
+    primary_key = get_primary_key(fields)
+    logging.info(f"主键字段: {primary_key}")
 
     # 使用 api_name 作为表名和文件名
     table_name = api_name
@@ -247,6 +285,7 @@ def generate_model(api_id: int, output_dir: str):
         'table_comment': escape_quote(api_info['data']['title']),
         'api_id': api_id,
         'api_name': api_info['data']['name'],
+        'primary_key': primary_key,  # 添加主键信息
     }
 
     # 创建Jinja2环境并添加过滤器
@@ -276,7 +315,9 @@ if __name__ == '__main__':
         level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    # for i in range(1, 1000):
-    # generate_model(api_id=i, output_dir='tushare_integration/models')
+    # 这里生成的模型文件必须确认好主键后再使用，这里默认生成的主键不一定正确
+    # 目前最大的ID是358，留点冗余
+    for i in range(1, 400):
+        generate_model(api_id=i, output_dir='tushare_integration/models')
 
-    generate_model(api_id=201, output_dir='tushare_integration/models')
+    # generate_model(api_id=28, output_dir='tushare_integration/models')
