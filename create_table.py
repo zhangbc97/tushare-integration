@@ -2,13 +2,13 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import insert
 
-from tushare_integration.models.adj_factor import AdjFactor
+from tushare_integration.models.anns_d import AnnsD
 
 database = 'default'
-engine = create_engine(f'clickhouse://localhost/{database}', echo=False)
+engine = create_engine(f'mysql://localhost/{database}', echo=False)
 
 # 设置表的schema为数据库名
-table = AdjFactor.__table__
+table = AnnsD.__table__
 table.schema = database
 
 # 生成建表语句

@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import requests
 from jinja2 import StrictUndefined, Template
 
-cookie = ''
+cookie = 'session-id=090bc4f6-04d0-44e9-89af-03795ea8177d; uid="2|1:0|10:1733466924|3:uid|4:MzM=|b2177cf46463aa81776077e052640fb3d06d0dac2bd3d5e859a6bfae2351cf3e"; username=2|1:0|10:1733466924|8:username|12:56ug5LiZ6L6w|3168b7710da67f769b96e59fd1e8e858f8ec1d3fd6a6e22bbd18aaf3e4c7cbf1'
 # SQLAlchemy模型模板
 MODEL_TEMPLATE = '''from sqlalchemy import Column, text
 from clickhouse_sqlalchemy import engines
