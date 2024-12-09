@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import requests
 from jinja2 import StrictUndefined, Template
 
-cookie = ''
+cookie = 'session-id=4d8c37f1-3414-48e0-ac50-d3703c2b6341; uid="2|1:0|10:1733712803|3:uid|4:MzM=|fefe1b8cc76523b3e0cb0381c12a53fc6c03a1f8ec9dd9ad09e3476dcd45231f"; username=2|1:0|10:1733712803|8:username|12:56ug5LiZ6L6w|c15cd9833fbfea4d09c45490faa6c48f75771e22a6cfdefbbf90a225d057b7bc'
 # SQLAlchemy模型模板
 MODEL_TEMPLATE = '''from sqlalchemy import Column, text
 from clickhouse_sqlalchemy import engines
@@ -17,11 +17,13 @@ from tushare_integration.models.base.base import Base
 class {{ table_name|to_camel_case }}(Base):
     """{{ table_comment }}"""
 
-    __tablename__ = '{{ table_name }}'
-    __api_id__ = {{ api_id }}
-    __api_name__ = '{{ api_name }}'
-    __dependencies__ = []
-    __primary_key__ = {{ primary_key }}
+    __tablename__: str = '{{ table_name }}'
+    __api_id__: int = {{ api_id }}
+    __api_name__: str = '{{ api_name }}'
+    __dependencies__: list[str] = []
+    __primary_key__: list[str] = {{ primary_key }}
+    __start_date__: str | None = None
+    __end_date__: str | None = None
     __mapper_args__ = {'primary_key': __primary_key__}
     __table_args__ = (
         # ClickHouse引擎
@@ -38,11 +40,7 @@ class {{ table_name|to_camel_case }}(Base):
         }
     )
     {% for field in fields %}
-    {% if field.name[0].isdigit() %}
-    _{{ field.name }} = Column('{{ field.original_name }}', {{ field|get_column_type }}, nullable=False, default={{ field.default|tojson }}, server_default=text({{ field|get_server_default }}), comment='{{ field.comment }}')
-    {%- else %}
     {{ field.name }} = Column('{{ field.original_name }}', {{ field|get_column_type }}, nullable=False, default={{ field.default|tojson }}, server_default=text({{ field|get_server_default }}), comment='{{ field.comment }}')
-    {%- endif %}
     {%- endfor %}
 '''
 
@@ -133,8 +131,12 @@ def get_fields(api_info: dict) -> List[Dict[str, Any]]:
     for field in fields:
         original_name = field['name'].lower()
 
+        # 处理以数字开头的字段名 - 只修改Python变量名，保留原始列名
+        if original_name[0].isdigit():
+            field['original_name'] = original_name  # 保存原始列名
+            field['name'] = f"_{original_name}"  # Python变量名加下划线
         # 处理Python关键字 - 只修改Python变量名，保留原始列名
-        if is_python_keyword(original_name):
+        elif is_python_keyword(original_name):
             field['original_name'] = original_name  # 保存原始列名
             field['name'] = f"_{original_name}"  # Python变量名加下划线
         else:
@@ -288,7 +290,7 @@ def generate_model(api_id: int, output_dir: str):
         'primary_key': primary_key,  # 添加主键信息
     }
 
-    # 创建Jinja2环境并添加过滤器
+    # ���建Jinja2环境并添加过滤器
     env = Template.environment_class(undefined=StrictUndefined)
     env.filters['to_camel_case'] = to_camel_case
     env.filters['get_column_type'] = get_column_type

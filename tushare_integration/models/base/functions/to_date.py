@@ -1,5 +1,4 @@
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import FunctionElement
 
 

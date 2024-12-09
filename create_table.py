@@ -2,13 +2,13 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import insert
 
-from tushare_integration.models.anns_d import AnnsD
+from tushare_integration.models.adj_factor import AdjFactor
 
 database = 'default'
-engine = create_engine(f'mysql://localhost/{database}', echo=False)
+engine = create_engine(f'starrocks://localhost/{database}', echo=False)
 
 # 设置表的schema为数据库名
-table = AnnsD.__table__
+table = AdjFactor.__table__
 table.schema = database
 
 # 生成建表语句

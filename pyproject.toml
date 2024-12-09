@@ -4,6 +4,7 @@ version = "0.2.0"
 description = ""
 authors = [{ "name" = "zhangbingchen", "email" = "1731259685@qq.com" }]
 readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
     "cryptography==44.0.0",
     "jinja2==3.1.4",
@@ -37,14 +38,14 @@ doris = [
     "doris-alchemy==0.2.3",
 ]
 starrocks = [
-    "starrocks==1.1.0",
+    "starrocks==1.2.0",
 ]
 all = [
     "clickhouse-connect==0.8.8",
     "clickhouse-sqlalchemy==0.3.2",
     "pymysql==1.1.1",
     "doris-alchemy==0.2.3",
-    "starrocks==1.1.0",
+    "starrocks==1.2.0",
 ]
 
 [tool.black]
