@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine, select
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import insert
+from sqlalchemy import func
 
 from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
-engine = create_engine(f'starrocks://localhost/{database}', echo=False)
+engine = create_engine(f'clickhouse://localhost/{database}', echo=False)
 
 # 设置表的schema为数据库名
 table = LimitListThs.__table__
@@ -27,7 +28,7 @@ print(str(insert_stmt))
 print("\n")
 
 # 生成SELECT语句模板
-select_stmt = select(table).compile(
+select_stmt = select(func.to_date(LimitListThs.trade_date)).compile(
     engine,
     compile_kwargs={"literal_binds": True}
 )

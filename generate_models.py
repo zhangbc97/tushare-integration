@@ -11,8 +11,7 @@ MODEL_TEMPLATE = '''from sqlalchemy import Column, text
 from clickhouse_sqlalchemy import engines
 from typing import ClassVar, Dict, Any, List
 
-from tushare_integration.models.base.types import String, Integer, Float, Date, DateTime
-from tushare_integration.models.base.base import Base
+from tushare_integration.models.core import String, Integer, Float, Date, DateTime, Base
 
 
 class {{ table_name|to_camel_case }}(Base):
@@ -101,16 +100,18 @@ def get_api_info(api_id: int):
 
 def escape_quote(text: str | None) -> str:
     """
-    转义字符串中的引号
+    转义字符串中的引号��将中文括号替换为英文括号
 
     Args:
-        text: 需要转义的字符串
+        text: 需要处理的字符串
 
     Returns:
-        转义后的字符串
+        处理后的字符串
     """
     if text is None:
         return ''
+    # 先替换括号，再处理引号
+    text = text.replace("（", "(").replace("）", ")")  # 替换中文括号为英文括号
     return text.replace("'", "\\'").replace('"', '\\"')
 
 
@@ -192,7 +193,7 @@ def get_column_type(field: Dict[str, Any]) -> str:
         field: 字段信息字典
 
     Returns:
-        SQLAlchemy列类型字符串
+        SQLAlchemy列类型字��串
 
     Raises:
         ValueError: 当字段类型未知时
