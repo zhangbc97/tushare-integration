@@ -5,10 +5,11 @@ from typing import Any, Dict, List
 import requests
 from jinja2 import StrictUndefined, Template
 
-cookie = 'session-id=4d8c37f1-3414-48e0-ac50-d3703c2b6341; uid="2|1:0|10:1733712803|3:uid|4:MzM=|fefe1b8cc76523b3e0cb0381c12a53fc6c03a1f8ec9dd9ad09e3476dcd45231f"; username=2|1:0|10:1733712803|8:username|12:56ug5LiZ6L6w|c15cd9833fbfea4d09c45490faa6c48f75771e22a6cfdefbbf90a225d057b7bc'
+cookie = ''
 # SQLAlchemy模型模板
 MODEL_TEMPLATE = '''from sqlalchemy import Column, text
 from clickhouse_sqlalchemy import engines
+from typing import ClassVar, Dict, Any, List
 
 from tushare_integration.models.base.types import String, Integer, Float, Date, DateTime
 from tushare_integration.models.base.base import Base
@@ -18,12 +19,20 @@ class {{ table_name|to_camel_case }}(Base):
     """{{ table_comment }}"""
 
     __tablename__: str = '{{ table_name }}'
-    __api_id__: int = {{ api_id }}
-    __api_name__: str = '{{ api_name }}'
-    __dependencies__: list[str] = []
-    __primary_key__: list[str] = {{ primary_key }}
-    __start_date__: str | None = None
-    __end_date__: str | None = None
+    __api_id__: ClassVar[int] = {{ api_id }}
+    __api_name__: ClassVar[str] = '{{ api_name }}'
+    __api_title__: ClassVar[str] = '{{ api_title }}'
+    __api_info_title__: ClassVar[str] = '{{ api_info_title }}'
+    __api_path__: ClassVar[List[str]] = {{ api_path }}
+    __api_path_ids__: ClassVar[List[int]] = {{ api_path_ids }}
+    __api_points_required__: ClassVar[int] = {{ api_points_required }}
+    __api_special_permission__: ClassVar[bool] = {{ api_special_permission }}
+    __dependencies__: ClassVar[List[str]] = []
+    __primary_key__: ClassVar[List[str]] = {{ primary_key }}
+    __start_date__: ClassVar[str | None] = None
+    __end_date__: ClassVar[str | None] = None
+    __api_params__: ClassVar[Dict[str, Any]] = {{ api_params }}
+    
     __mapper_args__ = {'primary_key': __primary_key__}
     __table_args__ = (
         # ClickHouse引擎
@@ -56,7 +65,7 @@ def get_default_by_data_type(data_type: str):
         对应的默认值
 
     Raises:
-        ValueError: 当数据类型未知或为空时
+        ValueError: 当数类型未知或为空时
     """
     if data_type is None:
         raise ValueError("data_type is None")
@@ -125,7 +134,7 @@ def get_fields(api_info: dict) -> List[Dict[str, Any]]:
     从API信息中获取字段信息
     """
     if api_info is None:
-        return None
+        return []  # 返回空列表而不是 None
 
     fields = api_info['data']['outputs']
     for field in fields:
@@ -192,7 +201,7 @@ def get_column_type(field: Dict[str, Any]) -> str:
 
     match data_type:
         case "str" | "varchar":
-            # 只ts_code字段才指定具体长度，其他使用空括号
+            # 只ts_code字段才指定具体长度，其他用空括号
             return f"String({field['length']})" if field.get('length') else "String()"
         case "float" | "number" | "double":
             return 'Float'
@@ -235,7 +244,7 @@ def get_primary_key(fields: List[Dict[str, Any]]) -> List[str]:
     确定表的主键字段
 
     规则:
-    1. 如果同时存在 ts_code 和 trade_date，使用它们作为联合主键
+    1. 如果同时存 ts_code 和 trade_date，使用它作为联合主键
     2. 其他情况返回空列表
 
     Args:
@@ -251,9 +260,133 @@ def get_primary_key(fields: List[Dict[str, Any]]) -> List[str]:
     return []
 
 
+def get_api_params(api_info: dict) -> Dict[str, Any]:
+    """从API信息中获取输入参数配置"""
+    if not api_info or 'data' not in api_info or 'inputs' not in api_info['data']:
+        return {}
+
+    params = {}
+    for param in api_info['data']['inputs']:
+        params[param['name']] = {
+            'type': param.get('data_type', 'str'),
+            'required': param.get('must', 'N').upper() == 'Y',
+            'description': param.get('desc', ''),
+        }
+    return params
+
+
+def get_document_tree():
+    """获取API文档树结构"""
+    url = 'https://tushare.pro/wctapi/documents/tree'
+    response = requests.get(url, headers={'Cookie': cookie})
+    if response.status_code != 200:
+        raise Exception(f'获取文档树失败，状态码: {response.status_code}')
+
+    if response.json()['code'] != 0:
+        logging.warning(f'获取文档树失败，错误信息: {response.json()["message"]}')
+        return None
+    return response.json()['data']
+
+
+def build_api_title_map(tree_data: List[Dict]) -> Dict[int, Dict[str, Any]]:
+    """从文档树构建API信息映射"""
+    info_map = {}
+
+    def traverse_tree(node, parent_titles: List[str] | None = None, parent_ids: List[int] | None = None):
+        if parent_titles is None:
+            parent_titles = []
+        if parent_ids is None:
+            parent_ids = []
+
+        current_title = node.get('title', '')
+        current_id = node.get('id', 0)
+        current_path = parent_titles + [current_title]
+        current_path_ids = parent_ids + ([current_id] if current_id != 0 else [])
+
+        if 'id' in node:
+            info_map[current_id] = {
+                'title': current_title,
+                'desc': node.get('desc', ''),
+                'parent_ids': parent_ids,
+                'path': current_path,
+                'path_ids': current_path_ids,
+                'category': parent_titles[0] if parent_titles else '',
+                'api_name': node.get('api_name', ''),
+                'points_required': 2000,
+                'special_permission': False,
+            }
+
+        if 'children' in node and node['children']:
+            for child in node['children']:
+                traverse_tree(child, current_path, current_path_ids)
+
+    for category in tree_data:
+        traverse_tree(category)
+
+    return info_map
+
+
+def print_document_tree(tree_data: List[Dict], level: int = 0):
+    """
+    打印文档树结构
+
+    Args:
+        tree_data: 文档树数据
+        level: 当前层级（用于缩进）
+    """
+    for node in tree_data:
+        indent = "  " * level
+        title = node.get('title', '')
+        api_name = node.get('api_name', '')
+        print(f"{indent}{'├─' if level > 0 else ''} {title} {f'({api_name})' if api_name else ''}")
+
+        if 'children' in node and node['children']:
+            print_document_tree(node['children'], level + 1)
+
+
+# 在文件顶部添加全局变量
+_API_TITLE_MAP: Dict[int, Dict[str, Any]] | None = None
+
+
+def get_api_title_map() -> Dict[int, Dict[str, Any]]:
+    """
+    获取并缓存API标题映射
+
+    Returns:
+        Dict[int, Dict[str, Any]]: API ID到信息的映射，包含标题、父ID列表和路径
+    """
+    global _API_TITLE_MAP
+
+    if _API_TITLE_MAP is None:
+        doc_tree = get_document_tree()
+        if doc_tree is not None:
+            # 打印文档树结构
+            logging.info("文档树结构：")
+            print_document_tree(doc_tree)
+
+            _API_TITLE_MAP = build_api_title_map(doc_tree)
+            logging.info(f"成功获取 {len(_API_TITLE_MAP)} 个API的标题信息")
+
+            # 打印标题映射结果
+            logging.info("API标题映射：")
+            for api_id, info in sorted(_API_TITLE_MAP.items()):
+                logging.info(
+                    f"{api_id}: {info['title']} (父ID: {info['parent_ids']}, 路径: {' > '.join(info['path'])})"
+                )
+        else:
+            logging.error("无法获取文档树，将使用原始标题")
+            _API_TITLE_MAP = {}
+
+    return _API_TITLE_MAP
+
+
 def generate_model(api_id: int, output_dir: str):
     """
     生成SQLAlchemy模型文件
+
+    Args:
+        api_id: API ID
+        output_dir: 输出目录
     """
     logging.info(f"开始处理 API ID: {api_id}")
 
@@ -263,34 +396,49 @@ def generate_model(api_id: int, output_dir: str):
         return
 
     api_name = api_info['data']['name']
-    api_title = api_info['data']['title']
-    logging.info(f"正在处理: [{api_id}] {api_title} ({api_name})")
+
+    # 获取API标题和路径信息
+    api_info_map = get_api_title_map()
+    tree_info = api_info_map.get(
+        api_id,
+        {
+            'title': api_info['data']['title'],
+            'desc': api_info['data'].get('desc', ''),
+            'parent_ids': [],
+            'path': [api_info['data']['title']],
+            'path_ids': [],
+            'category': '',
+            'points_required': 2000,
+            'special_permission': False,
+        },
+    )
+
+    # 使用 api_name 作为表名和文件名
+    output_path = os.path.join(output_dir, f"{api_name}.py")
 
     fields = get_fields(api_info)
     if fields is None:
         logging.error(f"无法获取API {api_id}的字段信息")
         return
-    logging.info(f"成功获取字段信息，{len(fields)} 个字段")
 
-    # 获取主键字段
-    primary_key = get_primary_key(fields)
-    logging.info(f"主键字段: {primary_key}")
-
-    # 使用 api_name 作为表名和文件名
-    table_name = api_name
-    output_path = os.path.join(output_dir, f"{table_name}.py")
-
-    # 准备模板变量时转义表注释
+    # 准备模板变量
     template_vars = {
-        'table_name': table_name,
+        'table_name': api_name,
         'fields': fields,
-        'table_comment': escape_quote(api_info['data']['title']),
+        'table_comment': escape_quote(tree_info['title']),
         'api_id': api_id,
         'api_name': api_info['data']['name'],
-        'primary_key': primary_key,  # 添加主键信息
+        'api_title': escape_quote(tree_info['title']),
+        'api_info_title': escape_quote(api_info['data']['title']),
+        'api_path': tree_info.get('path', [api_info['data']['title']]),
+        'api_path_ids': tree_info.get('path_ids', []),
+        'api_points_required': tree_info.get('points_required', 0),
+        'api_special_permission': tree_info.get('special_permission', False),
+        'primary_key': get_primary_key(fields),
+        'api_params': get_api_params(api_info),
     }
 
-    # ���建Jinja2环境并添加过滤器
+    # 创建Jinja2环境并添加过滤器
     env = Template.environment_class(undefined=StrictUndefined)
     env.filters['to_camel_case'] = to_camel_case
     env.filters['get_column_type'] = get_column_type
@@ -319,7 +467,7 @@ if __name__ == '__main__':
 
     # 这里生成的模型文件必须确认好主键后再使用，这里默认生成的主键不一定正确
     # 目前最大的ID是358，留点冗余
-    for i in range(1, 400):
-        generate_model(api_id=i, output_dir='tushare_integration/models')
+    # for i in range(1, 400):
+    #     generate_model(api_id=i, output_dir='tushare_integration/models')
 
-    # generate_model(api_id=28, output_dir='tushare_integration/models')
+    generate_model(api_id=355, output_dir='tushare_integration/models')

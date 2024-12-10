@@ -2,13 +2,13 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import insert
 
-from tushare_integration.models.adj_factor import AdjFactor
+from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
 engine = create_engine(f'starrocks://localhost/{database}', echo=False)
 
 # 设置表的schema为数据库名
-table = AdjFactor.__table__
+table = LimitListThs.__table__
 table.schema = database
 
 # 生成建表语句
