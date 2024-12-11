@@ -1,80 +1,66 @@
 from tushare_integration.spiders.tushare import FinancialReportSpider, TSCodeSpider
+from tushare_integration.models.balancesheet import Balancesheet
+from tushare_integration.models.cashflow import Cashflow
+from tushare_integration.models.income import Income
+from tushare_integration.models.express import Express
+from tushare_integration.models.forecast import Forecast
+from tushare_integration.models.dividend import Dividend
+from tushare_integration.models.fina_indicator import FinaIndicator
+from tushare_integration.models.fina_audit import FinaAudit
+from tushare_integration.models.fina_mainbz import FinaMainbz
+from tushare_integration.models.disclosure_date import DisclosureDate
 
 
 class BalanceSheetSpider(FinancialReportSpider):
     name = "stock/financial/balancesheet"
-    api_name = "balancesheet"
-    custom_settings = {
-        "TABLE_NAME": "balancesheet",
-    }
+    __model__: type[Balancesheet] = Balancesheet
 
 
 class CashFlowSpider(FinancialReportSpider):
     name = "stock/financial/cashflow"
-    api_name = "cashflow"
-    custom_settings = {
-        "TABLE_NAME": "cashflow",
-    }
+    __model__: type[Cashflow] = Cashflow
 
 
 class IncomeSpider(FinancialReportSpider):
     name = "stock/financial/income"
-    api_name = "income"
-    custom_settings = {
-        "TABLE_NAME": "income",
-    }
+    __model__: type[Income] = Income
 
 
 class ExpressSpider(FinancialReportSpider):
     name = "stock/financial/express"
-    api_name = "express"
-    custom_settings = {
-        "TABLE_NAME": "express",
-    }
+    __model__: type[Express] = Express
 
 
 class ForeCastSpider(FinancialReportSpider):
     name = "stock/financial/forecast"
-    api_name = "forecast"
-    custom_settings = {
-        "TABLE_NAME": "forecast",
-    }
+    __model__: type[Forecast] = Forecast
 
 
 class DividendSpider(TSCodeSpider):
     name = "stock/financial/dividend"
-    api_name = "dividend"
-    custom_settings = {"TABLE_NAME": "dividend", 'BASIC_TABLE': 'stock_basic'}
+    __model__: type[Dividend] = Dividend
+    custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaIndicatorSpider(FinancialReportSpider):
     name = "stock/financial/fina_indicator"
-    api_name = "fina_indicator"
-    custom_settings = {
-        "TABLE_NAME": "fina_indicator",
-    }
+    __model__: type[FinaIndicator] = FinaIndicator
 
 
 class FinaAuditSpider(TSCodeSpider):
     name = "stock/financial/fina_audit"
-    api_name = "fina_audit"
-    custom_settings = {"TABLE_NAME": "fina_audit", 'BASIC_TABLE': 'stock_basic'}
+    __model__: type[FinaAudit] = FinaAudit
+    custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaMainBZSpider(FinancialReportSpider):
     name = "stock/financial/fina_mainbz"
-    api_name = "fina_mainbz"
-    custom_settings = {
-        "TABLE_NAME": "fina_mainbz",
-    }
+    __model__: type[FinaMainbz] = FinaMainbz
 
 
 class DisclosureDateSpider(FinancialReportSpider):
     name = "stock/financial/disclosure_date"
-    api_name = "disclosure_date"
-    custom_settings = {
-        "TABLE_NAME": "disclosure_date",
-    }
+    __model__: type[DisclosureDate] = DisclosureDate
 
     def start_requests(self):
         periods = self.get_all_period()

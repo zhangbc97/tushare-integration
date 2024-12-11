@@ -3,7 +3,6 @@ from tushare_integration.spiders.tushare import TushareSpider
 
 class IndexBasicSpider(TushareSpider):
     name = "index/basic/index_basic"
-    api_name = "index_basic"
 
     def start_requests(self):
         markets = ["MSCI", "CSI", "SSE", "SZSE", "CICC", "SW", "OTH"]

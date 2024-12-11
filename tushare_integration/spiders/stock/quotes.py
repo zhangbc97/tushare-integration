@@ -4,24 +4,39 @@ import logging
 from typing import Any
 
 import pandas as pd
+from sqlalchemy import and_, func, select, text
 
 from tushare_integration.items import TushareIntegrationItem
+from tushare_integration.models.adj_factor import AdjFactor
+from tushare_integration.models.bak_daily import BakDaily
+from tushare_integration.models.daily import Daily
+from tushare_integration.models.daily_basic import DailyBasic
+from tushare_integration.models.ggt_daily import GgtDaily
+from tushare_integration.models.ggt_top10 import GgtTop10
+from tushare_integration.models.hsgt_top10 import HsgtTop10
+from tushare_integration.models.monthly import Monthly
+from tushare_integration.models.stk_limit import StkLimit
+from tushare_integration.models.stk_mins import StkMins
+from tushare_integration.models.stk_weekly_monthly import StkWeeklyMonthly
+from tushare_integration.models.suspend_d import SuspendD
+from tushare_integration.models.weekly import Weekly
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.models.stock_basic import StockBasic
 
 
 class StockDailySpider(DailySpider):
     name = "stock/quotes/daily"
-    custom_settings = {"TABLE_NAME": "daily"}
+    __model__: type[Daily] = Daily
 
 
 class StockWeeklySpider(TushareSpider):
     name = "stock/quotes/weekly"
-    custom_settings = {"TABLE_NAME": "weekly"}
+    __model__: type[Weekly] = Weekly
 
     def start_requests(self):
         conn = self.get_db_engine()
         db_name = self.spider_settings.database.db_name
-        table_name = self.get_table_name()
+        table_name = self.table_name
 
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
 
@@ -29,16 +44,16 @@ class StockWeeklySpider(TushareSpider):
             yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
 
     def get_trade_dates(self, conn, db_name, table_name, period):
-        trade_dates = conn.query_df(
-            f"""
-                SELECT DISTINCT cal_date
-                FROM {db_name}.trade_cal
-                WHERE is_open = 1
-                    AND cal_date <= today()
-                    AND exchange = 'SSE'
-                ORDER BY cal_date
-                """
+        from tushare_integration.models.trade_cal import TradeCal
+
+        # 获取交易日历
+        stmt = (
+            select(TradeCal.cal_date)
+            .distinct()
+            .where(and_(TradeCal.is_open == 1, TradeCal.cal_date <= func.today(), TradeCal.exchange == 'SSE'))
+            .order_by(TradeCal.cal_date)
         )
+        trade_dates = conn.query_df(stmt)
 
         trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
         trade_dates = (
@@ -50,31 +65,27 @@ class StockWeeklySpider(TushareSpider):
             .dropna()
         )
 
-        # 找出weekly中所有交易日，判断没在trade_dates中的，就是需要更新的
-        period_trade_dates = conn.query_df(
-            f"""
-                SELECT DISTINCT trade_date
-                FROM {db_name}.{table_name}
-                ORDER BY trade_date
-                """
-        )
+        # 获已有的交易日期
+        stmt = select(self.__model__.trade_date).distinct().order_by(self.__model__.trade_date)
+        period_trade_dates = conn.query_df(stmt)
 
         if period_trade_dates.empty:
             period_trade_dates = pd.DataFrame(columns=['trade_date'])
         else:
             period_trade_dates['trade_date'] = pd.to_datetime(period_trade_dates['trade_date'])
+
         trade_dates = trade_dates[~trade_dates['cal_date'].isin(period_trade_dates['trade_date'])]
         return trade_dates
 
 
 class StockMonthlySpider(StockWeeklySpider):
     name = "stock/quotes/monthly"
-    custom_settings = {"TABLE_NAME": "monthly"}
+    __model__: type[Monthly] = Monthly
 
     def start_requests(self):
         conn = self.get_db_engine()
         db_name = self.spider_settings.database.db_name
-        table_name = self.get_table_name()
+        table_name = self.table_name
 
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
 
@@ -84,7 +95,7 @@ class StockMonthlySpider(StockWeeklySpider):
 
 class StockWeeklyMonthlySpider(StockWeeklySpider):
     name = "stock/quotes/stk_weekly_monthly"
-    custom_settings = {"TABLE_NAME": "stk_weekly_monthly"}
+    __model__: type[StkWeeklyMonthly] = StkWeeklyMonthly
 
     def get_latest_trade_date(self, conn, db_name, date):
         trade_dates = conn.query_df(
@@ -122,7 +133,7 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
     def start_requests(self):
         conn = self.get_db_engine()
         db_name = self.spider_settings.database.db_name
-        table_name = self.get_table_name()
+        table_name = self.table_name
 
         weekly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
         weekly_trade_dates = pd.concat(
@@ -144,42 +155,49 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
 
 class AdjFactorSpider(DailySpider):
     name = "stock/quotes/adj_factor"
-    custom_settings = {"TABLE_NAME": "adj_factor"}
+    __model__: type[AdjFactor] = AdjFactor
 
 
 class SuspendDSpider(DailySpider):
     name = "stock/quotes/suspend_d"
-    custom_settings = {"TABLE_NAME": "suspend_d", 'MIN_CAL_DATE': '1999-05-04'}
+    description = '每日停复牌信息'
+
+    __model__: type[SuspendD] = SuspendD
 
 
 class HSGTTop10Spider(DailySpider):
     name = "stock/quotes/hsgt_top10"
-    custom_settings = {"TABLE_NAME": "hsgt_top10", "MIN_CAL_DATE": "2014-11-17"}
+    description = '沪深股通十大成交股'
+    __model__: type[HsgtTop10] = HsgtTop10
 
 
 class StkLimitSpider(DailySpider):
     name = "stock/quotes/stk_limit"
-    custom_settings = {"TABLE_NAME": "stk_limit", 'MIN_CAL_DATE': '2007-01-01'}
+    description = '每日涨跌停价格'
+    __model__: type[StkLimit] = StkLimit
 
 
 class DailyBasicSpider(DailySpider):
     name = "stock/quotes/daily_basic"
-    custom_settings = {"TABLE_NAME": "daily_basic"}
+    __model__: type[DailyBasic] = DailyBasic
 
 
 class GGTTop10Spider(DailySpider):
     name = "stock/quotes/ggt_top10"
-    custom_settings = {"TABLE_NAME": "ggt_top10", "MIN_CAL_DATE": "2014-11-17"}
+    description = '港股通十大成交股'
+    __model__: type[GgtTop10] = GgtTop10
 
 
 class GGTDailySpider(DailySpider):
     name = "stock/quotes/ggt_daily"
-    custom_settings = {"TABLE_NAME": "ggt_daily", "MIN_CAL_DATE": "2014-11-17"}
+    description = '港股通每日成交统计'
+    __model__: type[GgtDaily] = GgtDaily
 
 
 class BakDailySpider(DailySpider):
     name = "stock/quotes/bak_daily"
-    custom_settings = {"TABLE_NAME": "bak_daily", 'MIN_CAL_DATE': '2017-06-14'}
+    description = '备用行情'
+    __model__: type[BakDaily] = BakDaily
 
 
 # 港股通每月成交统计数据只更新到2020年底，在这里不开发策略
@@ -188,26 +206,27 @@ class BakDailySpider(DailySpider):
 # noinspection SqlNoDataSourceInspection
 class StockMin(TushareSpider):
     name = "stock/quotes/stk_mins"
+    __model__: type[StkMins] = StkMins
     custom_settings: dict[str, Any] = {
-        "TABLE_NAME": "stk_mins",
         "BASIC_TABLE": "stock_basic",
         "DAILY_TABLE": "daily",
-        "MIN_CAL_DATE": "2009-01-01",
     }
 
-    # noinspection SqlDialectInspection
     def start_requests(self):
-        # 取所有的ts_code,按日筛分钟线
-        for ts_code in self.get_db_engine().query_df(
-            f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
-        )['ts_code']:
+        if not self.__model__ is StkMins:
+            raise ValueError("StkMins is the only supported model for this spider")
+
+        # 使用 SQLAlchemy select 获取所有的 ts_code
+        query = select(StockBasic.ts_code)
+        ts_codes = self.get_db_engine().query_df(query)['ts_code']
+
+        for ts_code in ts_codes:
             # 不同的数据库查询语句不同，这里可能需要特殊定制
             # 主要差异在toDate函数上，支持了自定义函数，放到DBEngine中
             exists_date_df = self.get_db_engine().query_df(
-                f"""
-                    SELECT DISTINCT {self.get_db_engine().functions.get('to_date', 'to_date')}(trade_time) AS `trade_date`
-                    FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
-                    WHERE ts_code = '{ts_code}'"""
+                select(func.to_date(self.__model__.trade_time).label('trade_date'))
+                .distinct()
+                .where(self.__model__.ts_code == ts_code)
             )
             if exists_date_df.empty:
                 exists_date = []
@@ -217,18 +236,18 @@ class StockMin(TushareSpider):
                 f"""
                     SELECT DISTINCT trade_date 
                     FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("DAILY_TABLE")}
-                    WHERE ts_code = '{ts_code}' AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
+                    WHERE ts_code = '{ts_code}' AND trade_date >= '{self.__model__.__start_date__}'
                     ORDER BY trade_date"""
             )
             if trade_dates.empty:
                 continue
             trade_dates = list(trade_dates['trade_date'].dt.date)
             # logging.error(f"ts_code: {ts_code[0]}, exists_date: {exists_date}, trade_dates: {trade_dates}")
-            # 当我们看到一个交易日的时候，直接拉取这个交易日和后面40天的数据
+            # 当我们看一个交易日的时候，直接拉取这个交易日和后面40天的数据
             # 大表的REPLACE INTO性能极差，不能使用REPLACE INTO的方案
             last_end_date = None
             for trade_date in trade_dates:
-                # 如果这个交易日已经存在，那么就不需要再拉取了
+                # 如果这个交易日已经存在，那么就不要再拉取了
                 if trade_date in exists_date:
                     continue
                 # 如果有last_end_date，那么就是在上一次请求的基础上继续拉取
@@ -254,19 +273,21 @@ class StockMin(TushareSpider):
     def parse(self, response, **kwargs):
         exists_date = response.meta['exists_date']
         item = self.parse_response(response)
-        # 一次采集多天的数据，需要逐天判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
-        # start_requests中已经保证单个任务中不会重复采集，判断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
+        # 一次采集多天的数据，需要逐判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
+        # start_requests中已经保证单个任务中不会重复采集，断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
         data: pd.DataFrame = item['data']
 
         if len(data) == 0:
             return
 
+        # 确保trade_time列是字符串类型
+        data['trade_time'] = data['trade_time'].astype(str)
         data['trade_time'] = pd.to_datetime(data['trade_time'])
 
         pipe_item = pd.DataFrame()
 
         for trade_date, values in data.groupby(data['trade_time'].dt.date):
-            # 在exists_date中的交易日不需要再次写入，说明在本地采集开始前就已经有数据了
+            # 在exists_date中的交易日不需要再次入，说明在本地采集开始前就已经有数据了
             # 单个采集任务中不会重复采集，所以不需要判断是否在本次采集中重复采集
             if trade_date in exists_date:
                 continue

@@ -1,154 +1,101 @@
-import clickhouse_connect.dbapi
-import jinja2
+from typing import Any, Dict, List, Optional, Type
+
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import Select, create_engine, text
+from sqlalchemy.engine import URL
+from sqlalchemy.schema import CreateTable
 
 from tushare_integration.settings import TushareIntegrationSettings
 
 
-class DBEngine(object):
-    def __init__(self, settings: TushareIntegrationSettings):
+class DBEngine:
+    def __init__(self, settings: TushareIntegrationSettings) -> None:
         self.settings = settings
-        self.templates = {
-            'create': jinja2.Template(
-                open(
-                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/table.jinja2'
-                ).read()
-            ),
-            'insert': jinja2.Template(
-                open(
-                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/insert.jinja2'
-                ).read()
-            ),
-            'upsert': jinja2.Template(
-                open(
-                    f'tushare_integration/schema/template/{self.settings.database.db_type.lower()}/upsert.jinja2'
-                ).read()
-            ),
-        }
+        self.engine = self._create_engine()
+        self.conn = self.engine.connect()
 
-        self.functions = {
-            'to_date': 'to_date',
-        }
+    def _create_engine(self):
+        """创建数据库引擎"""
+        url = URL.create(
+            self.settings.database.drivername,
+            username=self.settings.database.user,
+            password=self.settings.database.password,
+            host=self.settings.database.host,
+            port=self.settings.database.port,
+            database=self.settings.database.db_name,
+        )
+        return create_engine(url)
 
-    def insert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        raise NotImplementedError
+    def create_table(self, model) -> None:
+        """从模型创建表"""
+        create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
+        self.conn.execute(text(str(create_stmt)))
 
-    def upsert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        raise NotImplementedError
-
-    def create_table(self, table_name: str, schema: dict) -> None:
-        raise NotImplementedError
-
-    def query_df(self, sql: str) -> pd.DataFrame:
-        raise NotImplementedError
-
-    def query(self, sql: str) -> pd.DataFrame:
-        raise NotImplementedError
-
-
-class SQLAlchemyEngine(DBEngine):
-    def __init__(self, settings: TushareIntegrationSettings):
-        super().__init__(settings)
-        self.conn = create_engine(self.settings.database.get_uri()).connect()
-
-    def insert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        sql = self.templates['insert'].render(
-            db_name=self.settings.database.db_name,
-            table_name=table_name,
-            columns=data.columns.tolist(),
-            template_params=self.settings.database.template_params,
+    def insert(self, model, data: pd.DataFrame) -> None:
+        """插入数据"""
+        data.to_sql(
+            model.__tablename__,
+            self.conn,
+            schema=self.settings.database.db_name,
+            if_exists='append',
+            index=False,
         )
 
-        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))  # type: ignore
+    def upsert(self, model, data: pd.DataFrame) -> None:
+        """插入或更新数据"""
+        if 'clickhouse' in self.settings.database.drivername:
+            # ClickHouse使用ReplacingMergeTree引擎，直接插入即可
+            self.insert(model, data)
+            return
 
-    def upsert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        sql = self.templates['upsert'].render(
-            db_name=self.settings.database.db_name,
-            table_name=table_name,
-            columns=data.columns.tolist(),
-            primary_key=schema.get('primary_key', []),
-            template_params=self.settings.database.template_params,
-        )
-        self.conn.execute(statement=text(sql), parameters=data.to_dict('records'))  # type: ignore
+        # MySQL和StarRocks使用ON DUPLICATE KEY UPDATE
+        table = model.__table__
+        primary_key = model.__primary_key__
 
-    def create_table(self, table_name: str, schema: dict) -> None:
-        self.conn.execute(
-            statement=text(
-                self.templates['create'].render(
-                    db_name=self.settings.database.db_name,
-                    table_name=table_name,
-                    **schema,
-                    template_params=self.settings.database.template_params,
-                )
-            )
-        )
+        # 构建ON DUPLICATE KEY UPDATE子句
+        update_columns = [col.name for col in table.columns if col.name not in primary_key]
+        update_stmt = ", ".join([f"{col} = VALUES({col})" for col in update_columns])
 
-    def query_df(self, sql: str) -> pd.DataFrame:
-        return pd.read_sql(sql, self.conn)
+        # 构建INSERT语句
+        columns = [col.name for col in table.columns]
+        placeholders = ", ".join([":" + col for col in columns])
 
-    def query(self, sql: str):
-        return self.conn.execute(statement=text(sql))
+        sql = f"""
+            INSERT INTO {self.settings.database.db_name}.{table.name} 
+            ({", ".join(columns)}) 
+            VALUES ({placeholders})
+            ON DUPLICATE KEY UPDATE {update_stmt}
+        """
 
+        # 将DataFrame转换为字典列表，并确保所有值都是字符串
+        records = []
+        for _, row in data.iterrows():
+            record = {}
+            for col in columns:
+                val = row[col]
+                record[col] = str(val) if pd.notnull(val) else None
+            records.append(record)
 
-class MySQLEngine(SQLAlchemyEngine):
-    def __init__(self, settings: TushareIntegrationSettings):
-        super().__init__(settings)
-        self.functions['to_date'] = 'Date'
+        # 执行SQL语句
+        self.conn.execute(text(sql), records)
 
+    def query_df(self, stmt: Select | str) -> pd.DataFrame:
+        """执行查询并返回DataFrame
 
-class ApacheDorisEngine(SQLAlchemyEngine):
-    def __init__(self, settings: TushareIntegrationSettings):
-        super().__init__(settings)
-        self.functions['to_date'] = 'to_date'
+        Args:
+            stmt: SQLAlchemy Select 对象或 SQL 字符串
 
+        Returns:
+            查询结果的DataFrame
+        """
+        if isinstance(stmt, str):
+            return pd.read_sql(text(stmt), self.conn)
 
-class ClickhouseEngine(DBEngine):
-    def __init__(self, settings: TushareIntegrationSettings):
-        super().__init__(settings)
-
-        self.client = clickhouse_connect.get_client(
-            host=settings.database.host,
-            port=settings.database.port,
-            username=settings.database.user,
-            password=settings.database.password,
-            database=settings.database.db_name,
-            apply_server_timezone=True
-        )
-
-        self.functions['to_date'] = 'toDate'
-
-    def insert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        self.client.insert_df(table_name, data)
-
-    def upsert(self, table_name: str, schema: dict, data: pd.DataFrame) -> None:
-        self.client.insert_df(table_name, data)
-
-    def create_table(self, table_name: str, schema: dict) -> None:
-        self.client.query(
-            self.templates['create'].render(
-                db_name=self.settings.database.db_name,
-                table_name=table_name,
-                **schema,
-                template_params=self.settings.database.template_params,
-            )
-        )
-
-    def query_df(self, sql: str) -> pd.DataFrame:
-        return self.client.query_df(sql)
-
-    def query(self, sql: str):
-        return self.client.query(sql)
+        sql = stmt.compile(dialect=self.engine.dialect, compile_kwargs={"literal_binds": True})
+        return pd.read_sql(str(sql), self.conn)
 
 
-class DatabaseEngineFactory(object):
+class DatabaseEngineFactory:
     @staticmethod
     def create(settings: TushareIntegrationSettings) -> DBEngine:
-        if settings.database.db_type == 'clickhouse':
-            return ClickhouseEngine(settings)
-        elif settings.database.db_type == 'doris':
-            return ApacheDorisEngine(settings)
-        elif settings.database.db_type == 'mysql':
-            return MySQLEngine(settings)
-        else:
-            raise NotImplementedError
+        return DBEngine(settings)

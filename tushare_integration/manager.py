@@ -8,10 +8,12 @@ import scrapy.crawler
 import scrapy.signals
 import yaml
 from scrapy.signalmanager import dispatcher
+from sqlalchemy import select
 
 from tushare_integration.db_engine import DatabaseEngineFactory
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings
+from tushare_integration.log_model import TushareIntegrationLog
 
 
 class CrawlManager(object):
@@ -129,10 +131,12 @@ class CrawlManager(object):
 
         db_engine = DatabaseEngineFactory.create(self.settings)
 
-        for index, row in db_engine.query_df(
-            f"select description,count from {self.settings.database.db_name}.tushare_integration_log "
-            f"where batch_id = '{self.batch_id}'"
-        ).iterrows():
+        # 使用 SQLAlchemy select 获取日志记录
+        query = select(TushareIntegrationLog.description, TushareIntegrationLog.count).where(
+            TushareIntegrationLog.batch_id == self.batch_id
+        )
+
+        for index, row in db_engine.query_df(query).iterrows():
             content += f"爬虫名称:{row['description']}  数据数量:{row['count']}\n"
 
         if self.signals:

@@ -1,11 +1,56 @@
 import datetime
 
+from sqlalchemy import and_, distinct, not_, select
+from sqlalchemy.sql import func
+
+from tushare_integration.models.fut_daily import FutDaily
+from tushare_integration.models.fut_holding import FutHolding
+from tushare_integration.models.fut_mapping import FutMapping
+from tushare_integration.models.fut_settle import FutSettle
+from tushare_integration.models.fut_weekly_detail import FutWeeklyDetail
+from tushare_integration.models.fut_wsr import FutWsr
+from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.spiders.tushare import DailySpider
 
 
 class FutDailySpider(DailySpider):
     name = "future/quotes/fut_daily"
-    custom_settings = {"TABLE_NAME": "fut_daily"}
+    __model__: type[FutDaily] = FutDaily
+
+    def start_requests(self):
+        conn = self.get_db_engine()
+        min_cal_dates = {
+            'CFFEX': '20100416',  # 中金所
+            'SHFE': '19950417',  # 上期所
+            'DCE': '19930705',  # 大商所
+            'CZCE': '19910101',  # 郑商所
+            'INE': '20180326',  # 上海国际能源交易中心
+            'GFEX': '20210419',  # 广期所
+        }
+
+        for exchange in min_cal_dates.keys():
+            # 构建子查询：获取已有的交易日期
+            subquery = select(FutDaily.trade_date).distinct()
+
+            # 构建主查询：获取需要的交易日期
+            query = (
+                select(distinct(TradeCal.cal_date))
+                .where(
+                    and_(
+                        not_(TradeCal.cal_date.in_(subquery)),
+                        TradeCal.is_open == 1,
+                        TradeCal.cal_date >= min_cal_dates[exchange],
+                        TradeCal.cal_date <= func.today(),
+                        TradeCal.exchange == exchange,
+                    )
+                )
+                .order_by(TradeCal.cal_date)
+            )
+
+            trade_dates = [d.strftime('%Y%m%d') for d in conn.query_df(query)['cal_date']]
+
+            for trade_date in trade_dates:
+                yield self.get_scrapy_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
 class FutHoldingSpider(DailySpider):
@@ -15,11 +60,11 @@ class FutHoldingSpider(DailySpider):
     """
 
     name = "future/quotes/fut_holding"
-    custom_settings = {"TABLE_NAME": "fut_holding"}
+    __model__: type[FutHolding] = FutHolding
 
     def start_requests(self):
         conn = self.get_db_engine()
-        # 写死每个交易所最早有数据的交易日
+        # 写死每个交易所最���有数据的交易日
         min_cal_dates = {
             'CFFEX': '2010-04-16',  # TODO 这里有个问题，交易日历里面CFFEX最早日期是2015年，直接用日期取数据会更早一些
             'DCE': '2006-01-04',
@@ -38,7 +83,7 @@ class FutHoldingSpider(DailySpider):
                     SELECT DISTINCT cal_date
                     FROM trade_cal
                     WHERE cal_date NOT IN 
-                    (SELECT `trade_date` FROM {self.get_table_name()} WHERE exchange = '{exchange}')
+                    (SELECT `trade_date` FROM {self.table_name} WHERE exchange = '{exchange}')
                         AND is_open = 1
                         AND cal_date >= '{min_cal_dates[exchange]}'
                         AND cal_date <= today()
@@ -54,22 +99,22 @@ class FutHoldingSpider(DailySpider):
 
 class FutSettleSpider(DailySpider):
     name = "future/quotes/fut_settle"
-    custom_settings = {"TABLE_NAME": "fut_settle", 'MIN_CAL_DATE': '2012-01-04'}
+    __model__: type[FutSettle] = FutSettle
 
 
 class FutMappingSpider(DailySpider):
     name = "future/quotes/fut_mapping"
-    custom_settings = {"TABLE_NAME": "fut_mapping", 'MIN_CAL_DATE': '1995-04-17'}
+    __model__: type[FutMapping] = FutMapping
 
 
 class FutWSRSpider(DailySpider):
     name = "future/quotes/fut_wsr"
-    custom_settings = {"TABLE_NAME": "fut_wsr", 'MIN_CAL_DATE': '2006-01-06'}
+    __model__: type[FutWsr] = FutWsr
 
 
-class FutWeeklyDetail(DailySpider):
+class FutWeeklyDetailSpider(DailySpider):
     name = "future/quotes/fut_weekly_detail"
-    custom_settings = {"TABLE_NAME": "fut_weekly_detail"}
+    __model__: type[FutWeeklyDetail] = FutWeeklyDetail
 
     # 这个接口设计比较奇特，使用的是周编号，而不是日期，周编号格式是YYYYWW，比如202001
     def start_requests(self):
@@ -77,7 +122,7 @@ class FutWeeklyDetail(DailySpider):
         df = self.get_db_engine().query_df(
             f"""
             SELECT DISTINCT `week`
-            FROM {self.get_table_name()}
+            FROM {self.table_name}
             ORDER BY `week` DESC
             """
         )

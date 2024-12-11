@@ -1,97 +1,104 @@
 from tushare_integration.spiders.tushare import DailySpider, FinancialReportSpider, TSCodeSpider, TushareSpider
-
-# 这玩意儿后面停用了
-# class MarginTargetSpider(TSCodeSpider):
-#     name = "stock/market/margin_target"
-#     api_name = "margin_target"
-#     custom_settings = {"TABLE_NAME": "margin_detail", "BASIC_TABLE": "stock_basic"}
+from tushare_integration.models.margin_secs import MarginSecs
+from tushare_integration.models.top10_holders import Top10Holders
+from tushare_integration.models.top10_floatholders import Top10Floatholders
+from tushare_integration.models.top_list import TopList
+from tushare_integration.models.top_inst import TopInst
+from tushare_integration.models.pledge_stat import PledgeStat
+from tushare_integration.models.pledge_detail import PledgeDetail
+from tushare_integration.models.repurchase import Repurchase
+from tushare_integration.models.share_float import ShareFloat
+from tushare_integration.models.concept import Concept
+from tushare_integration.models.concept_detail import ConceptDetail
+from tushare_integration.models.block_trade import BlockTrade
+from tushare_integration.models.stk_holdernumber import StkHoldernumber
+from tushare_integration.models.stk_holdertrade import StkHoldertrade
+from sqlalchemy import select
 
 
 class MarginSecsSpider(DailySpider):
     name = "stock/market/margin_secs"
-    api_name = "margin_secs"
-    custom_settings = {"TABLE_NAME": "margin_secs"}
+    __model__: type[MarginSecs] = MarginSecs
 
 
 class Top10HoldersSpider(FinancialReportSpider):
     name = "stock/market/top10_holders"
-    api_name = "top10_holders"
-    custom_settings = {"TABLE_NAME": "top10_holders", "HAS_VIP": False}
+    __model__: type[Top10Holders] = Top10Holders
+    custom_settings = {"HAS_VIP": False}
 
 
 class Top10FloatHoldersSpider(FinancialReportSpider):
     name = "stock/market/top10_floatholders"
-    api_name = "top10_floatholders"
-    custom_settings = {"TABLE_NAME": "top10_floatholders", "HAS_VIP": False}
+    __model__: type[Top10Floatholders] = Top10Floatholders
+    custom_settings = {"HAS_VIP": False}
 
 
 class TopListSpider(DailySpider):
     name = "stock/market/top_list"
-    api_name = "top_list"
-    custom_settings = {"TABLE_NAME": "top_list", 'MIN_CAL_DATE': '2005-01-01'}
+    __model__: type[TopList] = TopList
 
 
 class TopInstSpider(DailySpider):
     name = "stock/market/top_inst"
-    api_name = "top_inst"
-    custom_settings = {"TABLE_NAME": "top_inst", 'MIN_CAL_DATE': '2005-01-01'}
+    __model__: type[TopInst] = TopInst
 
 
 class PledgeStatSpider(TSCodeSpider):
     name = "stock/market/pledge_stat"
-    api_name = "pledge_stat"
-    custom_settings = {"TABLE_NAME": "pledge_stat", "BASIC_TABLE": "stock_basic"}
+    __model__: type[PledgeStat] = PledgeStat
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class PledgeDetailSpider(TSCodeSpider):
     name = "stock/market/pledge_detail"
-    api_name = "pledge_detail"
-    custom_settings = {"TABLE_NAME": "pledge_detail", "BASIC_TABLE": "stock_basic"}
+    __model__: type[PledgeDetail] = PledgeDetail
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class RepurchaseSpider(TSCodeSpider):
     name = "stock/market/repurchase"
-    api_name = "repurchase"
-    custom_settings = {"TABLE_NAME": "repurchase", "BASIC_TABLE": "stock_basic"}
+    __model__: type[Repurchase] = Repurchase
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class ShareFloatSpider(TSCodeSpider):
     name = "stock/market/share_float"
-    api_name = "share_float"
-    custom_settings = {"TABLE_NAME": "share_float", "BASIC_TABLE": "stock_basic"}
+    __model__: type[ShareFloat] = ShareFloat
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class ConceptSpider(TushareSpider):
     name = "stock/market/concept"
-    api_name = "concept"
-    custom_settings = {"TABLE_NAME": "concept"}
+    __model__: type[Concept] = Concept
 
 
 class ConceptDetailSpider(TSCodeSpider):
     name = "stock/market/concept_detail"
-    api_name = "concept_detail"
-    custom_settings = {"TABLE_NAME": "concept_detail"}
+    __model__: type[ConceptDetail] = ConceptDetail
 
     def start_requests(self):
         conn = self.get_db_engine()
 
-        for code in conn.query_df('SELECT code FROM concept')['code']:
+        # 使用 SQLAlchemy select 获取所有的 concept code
+        query = select(Concept.code)
+        codes = conn.query_df(query)['code']
+
+        for code in codes:
             yield self.get_scrapy_request(params={'id': code})
 
 
 class BlockTradeSpider(DailySpider):
     name = "stock/market/block_trade"
-    api_name = "block_trade"
-    custom_settings = {"TABLE_NAME": "block_trade"}
+    __model__: type[BlockTrade] = BlockTrade
 
 
 class StkHoldernumberSpider(DailySpider):
     name = "stock/market/stk_holdernumber"
-    api_name = "stk_holdernumber"
-    custom_settings = {"TABLE_NAME": "stk_holdernumber", "TRADE_DATE_FIELD": "ann_date"}
+    __model__: type[StkHoldernumber] = StkHoldernumber
+    custom_settings = {"TRADE_DATE_FIELD": "ann_date"}
 
 
 class StkHoldertradeSpider(DailySpider):
     name = "stock/market/stk_holdertrade"
-    api_name = "stk_holdertrade"
-    custom_settings = {"TABLE_NAME": "stk_holdertrade", "TRADE_DATE_FIELD": "ann_date"}
+    __model__: type[StkHoldertrade] = StkHoldertrade
+    custom_settings = {"TRADE_DATE_FIELD": "ann_date"}

@@ -10,22 +10,13 @@ import yaml
 from scrapy.exceptions import DropItem
 
 from tushare_integration.db_engine import DatabaseEngineFactory
+from tushare_integration.log_model import TushareIntegrationLog
 from tushare_integration.settings import TushareIntegrationSettings
 
 
 class BasePipeline(object):
     def __init__(self, settings: TushareIntegrationSettings, *args, **kwargs):
         self.settings: TushareIntegrationSettings = settings
-        self.schema: dict = {}
-
-    def get_schema(self, schema: str):
-        with open(f"tushare_integration/schema/{schema}.yaml", "r", encoding="utf-8") as f:
-            self.schema = yaml.safe_load(f.read())
-
-        return self.schema
-
-    def open_spider(self, spider):
-        self.schema = self.get_schema(spider.get_schema_name())
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -38,27 +29,25 @@ class BasePipeline(object):
 
 class TushareIntegrationFillNAPipeline(BasePipeline):
     @staticmethod
-    def get_default_by_data_type(data_type: str):
-        if data_type is None:
-            raise ValueError("data_type is None")
+    def get_default_by_data_type(column_type):
+        if column_type is None:
+            raise ValueError("column_type is None")
 
-        match data_type:
-            case "str":
-                return ""
-            case "float":
-                return 0.0
-            case "int":
-                return 0
-            case "number":
-                return 0.0
-            case "date":
-                return "1970-01-01"
-            case "datetime":
-                return "1970-01-01 00:00:00"
-            case 'json':
-                return '{}'
-            case _:
-                raise ValueError(f"Unsupported data_type: {data_type}")
+        type_name = column_type.python_type.__name__
+        if type_name == 'str':
+            return ""
+        elif type_name == 'float':
+            return 0.0
+        elif type_name == 'int':
+            return 0
+        elif type_name == 'date':
+            return "1970-01-01"
+        elif type_name == 'datetime':
+            return "1970-01-01 00:00:00"
+        elif type_name == 'dict':
+            return '{}'
+        else:
+            raise ValueError(f"Unsupported python_type: {type_name} for column_type: {column_type}")
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
@@ -66,11 +55,11 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
         if data is None or len(data) == 0:
             raise DropItem()
 
-        for column in self.schema["columns"]:
-            if column.get("default", None) is None:
-                column["default"] = self.get_default_by_data_type(column["data_type"])
+        model = spider.__model__
+        for column in model.__table__.columns:
+            default = column.default.arg if column.default else self.get_default_by_data_type(column.type)
             # 需要特殊处理NaT,Pandas的fillna方法不支持NaT
-            data[column["name"]] = data[column["name"]].replace({pd.NaT: None}).fillna(column["default"])
+            data[column.name] = data[column.name].replace({pd.NaT: None}).fillna(default)
 
         return item
 
@@ -78,40 +67,37 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
 class TransformDTypePipeline(BasePipeline):
     def process_item(self, item, spider):
         data = item["data"]
-        for column in self.schema["columns"]:
-            match column["data_type"]:
-                case "str":
-                    data[column["name"]] = data[column["name"]].astype(str)
-                case "float":
-                    data[column["name"]] = data[column["name"]].astype(float)
-                case "int":
-                    data[column["name"]] = data[column["name"]].astype(int)
-                case "number":
-                    data[column["name"]] = data[column["name"]].astype(float)
-                case "date":
-                    data[column["name"]] = pd.to_datetime(data[column["name"]], format='mixed', errors='coerce').dt.date
-                    data[column["name"]] = data[column["name"]].replace({pd.NaT: pd.to_datetime('1971-01-01').date()})
-                case "datetime":
-                    data[column["name"]] = pd.to_datetime(data[column["name"]])
-                case 'json':
-                    data[column["name"]] = data[column["name"]].apply(lambda x: '{}' if pd.isna(x) else x)
-                case _:
-                    raise ValueError(f"Unsupported data_type: {column['data_type']}")
+        model = spider.__model__
+        for column in model.__table__.columns:
+            python_type = column.type.python_type
+            type_name = python_type.__name__
+            if type_name == 'str':
+                data[column.name] = data[column.name].astype(str)
+            elif type_name == 'float':
+                data[column.name] = data[column.name].astype(float)
+            elif type_name == 'int':
+                data[column.name] = data[column.name].astype(int)
+            elif type_name == 'date':
+                data[column.name] = pd.to_datetime(data[column.name], format='mixed', errors='coerce').dt.date
+                data[column.name] = data[column.name].replace({pd.NaT: pd.to_datetime('1971-01-01').date()})
+            elif type_name == 'datetime':
+                data[column.name] = pd.to_datetime(data[column.name])
+            elif type_name == 'dict':
+                data[column.name] = data[column.name].apply(lambda x: '{}' if pd.isna(x) else x)
+            else:
+                raise ValueError(f"Unsupported python_type: {python_type} for column_type: {column.type}")
         return item
 
 
 class TushareIntegrationDataPipeline(BasePipeline):
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-
         self.db_engine = DatabaseEngineFactory.create(self.settings)
-
         self.table_name: str = ""
         self.truncate: bool = False
 
     def open_spider(self, spider):
-        super().open_spider(spider)
-        self.table_name = spider.get_table_name()
+        self.table_name = spider.__model__.__tablename__
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
@@ -119,12 +105,13 @@ class TushareIntegrationDataPipeline(BasePipeline):
         if data.empty:
             return item
 
-        if (primary_key := self.schema.get("primary_key", None)) is not None and len(primary_key) > 0:
-            data = data.drop_duplicates(subset=primary_key, keep="last")
-            self.db_engine.upsert(self.table_name, schema=self.schema, data=data)
+        model = spider.__model__
+        if model.__primary_key__:
+            data = data.drop_duplicates(subset=model.__primary_key__, keep="last")
+            self.db_engine.upsert(model, data=data)
         else:
             logging.debug(f"Insert data into {self.table_name}, data count: {len(data)}")
-            self.db_engine.insert(self.table_name, schema=self.schema, data=data)
+            self.db_engine.insert(model, data=data)
 
         return item
 
@@ -132,75 +119,46 @@ class TushareIntegrationDataPipeline(BasePipeline):
 class RecordLogPipeline(BasePipeline):
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-
         self.db_engine = DatabaseEngineFactory.create(self.settings)
-
-        self.table_name: str = "tushare_integration_log"
-
         self.count: int = 0
-        self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.start_time = datetime.datetime.now()
         self.create_log_table()
 
     def create_log_table(self):
-        schema = {
-            'primary_key': ['batch_id'],
-            'columns': [
-                {
-                    'name': 'batch_id',
-                    'data_type': 'str',
-                    'comment': '批次ID',
-                },
-                {
-                    'name': 'spider_name',
-                    'data_type': 'str',
-                    'comment': '爬虫名称',
-                },
-                {
-                    'name': 'description',
-                    'data_type': 'str',
-                    'comment': '描述',
-                },
-                {
-                    'name': 'count',
-                    'data_type': 'int',
-                    'comment': '数量',
-                },
-                {
-                    'name': 'start_time',
-                    'data_type': 'datetime',
-                    'comment': '开始时间',
-                },
-                {
-                    'name': 'end_time',
-                    'data_type': 'datetime',
-                    'comment': '结束时间',
-                },
-            ],
-        }
-
-        self.db_engine.create_table(self.table_name, schema)
+        self.db_engine.create_table(TushareIntegrationLog)
 
     def open_spider(self, spider):
-        super().open_spider(spider)
-        self.start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.start_time = datetime.datetime.now()
 
     def close_spider(self, spider):
-        statistics_data = pd.DataFrame(
-            [
-                {
-                    "batch_id": spider.settings.get("BATCH_ID", ''),
-                    "spider_name": spider.name,
-                    "description": self.schema.get("name", ""),
-                    "count": self.count,
-                    "start_time": self.start_time,
-                    "end_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                }
-            ]
+        description = ""
+        model = spider.__model__
+        if model:
+            description = model.__table__.comment or ""
+
+        log_entry = TushareIntegrationLog(
+            batch_id=spider.settings.get("BATCH_ID", ''),
+            spider_name=spider.name,
+            description=description,
+            count=self.count,
+            start_time=self.start_time,
+            end_time=datetime.datetime.now(),
         )
-
-        statistics_data[['start_time', 'end_time']] = statistics_data[['start_time', 'end_time']].apply(pd.to_datetime)
-
-        self.db_engine.insert(self.table_name, self.schema, statistics_data)
+        self.db_engine.insert(
+            TushareIntegrationLog,
+            pd.DataFrame(
+                [
+                    {
+                        'batch_id': log_entry.batch_id,
+                        'spider_name': log_entry.spider_name,
+                        'description': log_entry.description,
+                        'count': log_entry.count,
+                        'start_time': log_entry.start_time,
+                        'end_time': log_entry.end_time,
+                    }
+                ]
+            ),
+        )
 
     def process_item(self, item, spider):
         self.count += len(item["data"])

@@ -1,43 +1,56 @@
 import datetime
+from sqlalchemy import select, distinct, and_, not_, text
 
+from tushare_integration.models.broker_recommend import BrokerRecommend
+from tushare_integration.models.ccass_hold import CcassHold
+from tushare_integration.models.ccass_hold_detail import CcassHoldDetail
+from tushare_integration.models.cyq_chips import CyqChips
+from tushare_integration.models.cyq_perf import CyqPerf
+from tushare_integration.models.hk_hold import HkHold
+from tushare_integration.models.report_rc import ReportRc
+from tushare_integration.models.stk_factor import StkFactor
+from tushare_integration.models.stk_factor_pro import StkFactorPro
+from tushare_integration.models.stk_surv import StkSurv
+from tushare_integration.models.stock_basic import StockBasic
+from tushare_integration.models.daily import Daily
 from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
 
 
 class ReportRCSpider(TSCodeSpider):
-    # 更新日期不固定，定期用TSCodeSpider更新
     name = "stock/special/report_rc"
-    api_name = "report_rc"
-    custom_settings = {"TABLE_NAME": "report_rc", "BASIC_TABLE": "stock_basic"}
+    __model__: type[ReportRc] = ReportRc
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class CyqPerfSpider(DailySpider):
     name = "stock/special/cyq_perf"
-    api_name = "cyq_perf"
-    custom_settings = {"TABLE_NAME": "cyq_perf", 'MIN_CAL_DATE': '2018-01-02'}
+    __model__: type[CyqPerf] = CyqPerf
 
 
 class CyqChipsSpider(TushareSpider):
     name = "stock/special/cyq_chips"
-    api_name = "cyq_chips"
-    custom_settings = {"TABLE_NAME": "cyq_chips", "BASIC_TABLE": "stock_basic", "MIN_CAL_DATE": "2010-01-01"}
+    __model__: type[CyqChips] = CyqChips
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
     def start_requests(self):
         conn = self.get_db_engine()
-        for ts_code in conn.query_df(
-            f""" SELECT ts_code FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("BASIC_TABLE")}"""
-        )['ts_code']:
-            # 查询在daily中出现，但是在cyq_chips中没有的trade_date
-            trade_dates = conn.query_df(
-                f"""
-                    SELECT DISTINCT trade_date 
-                    FROM {self.spider_settings.database.db_name}.daily
-                    WHERE ts_code = '{ts_code}' 
-                    AND trade_date >= '{self.custom_settings.get("MIN_CAL_DATE")}'
-                    AND trade_date NOT IN (
-                        SELECT DISTINCT trade_date FROM {self.spider_settings.database.db_name}.{self.get_table_name()}
-                        WHERE ts_code = '{ts_code}'
-                    )"""
+
+        # 获取所有股票代码
+        query = select(StockBasic.ts_code)
+        ts_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in ts_codes:
+            # 构建子查询：获取已有的交易日期
+            subquery = select(distinct(self.__model__.trade_date)).where(self.__model__.ts_code == ts_code)
+
+            # 构建主查询：获取在 daily 中出现但在 cyq_chips 中没有的交易日期
+            query = select(distinct(Daily.trade_date)).where(
+                and_(
+                    Daily.ts_code == ts_code, Daily.trade_date >= self.start_date, not_(Daily.trade_date.in_(subquery))
+                )
             )
+
+            trade_dates = conn.query_df(query)
 
             if trade_dates.empty:
                 continue
@@ -48,38 +61,33 @@ class CyqChipsSpider(TushareSpider):
 
 class StkFactorSpider(DailySpider):
     name = "stock/special/stk_factor"
-    api_name = "stk_factor"
-    custom_settings = {"TABLE_NAME": "stk_factor"}
+    __model__: type[StkFactor] = StkFactor
 
 
 class CCASSHoldSpider(DailySpider):
     name = "stock/special/ccass_hold"
-    api_name = "ccass_hold"
-    custom_settings = {"TABLE_NAME": "ccass_hold", "MIN_CAL_DATE": "2020-11-11"}
+    __model__: type[CcassHold] = CcassHold
 
 
 class CCASSHoldDetailSpider(DailySpider):
     name = "stock/special/ccass_hold_detail"
-    api_name = "ccass_hold_detail"
-    custom_settings = {"TABLE_NAME": "ccass_hold_detail", "MIN_CAL_DATE": "2016-12-05"}
+    __model__: type[CcassHoldDetail] = CcassHoldDetail
 
 
 class HKHoldSpider(DailySpider):
     name = "stock/special/hk_hold"
-    api_name = "hk_hold"
-    custom_settings = {"TABLE_NAME": "hk_hold", 'MIN_CAL_DATE': '2016-06-29'}
+    __model__: type[HkHold] = HkHold
 
 
 class StkSurvSpider(TSCodeSpider):
     name = "stock/special/stk_surv"
-    api_name = "stk_surv"
-    custom_settings = {"TABLE_NAME": "stk_surv", "BASIC_TABLE": "stock_basic"}
+    __model__: type[StkSurv] = StkSurv
+    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
-class BrokerRecommend(TushareSpider):
+class BrokerRecommendSpider(TushareSpider):
     name = "stock/special/broker_recommend"
-    api_name = "broker_recommend"
-    custom_settings = {"TABLE_NAME": "broker_recommend"}
+    __model__: type[BrokerRecommend] = BrokerRecommend
 
     def start_requests(self):
         # 生成从202003到现在的月份列表
@@ -89,7 +97,6 @@ class BrokerRecommend(TushareSpider):
                 yield self.get_scrapy_request({"month": f"{year}{month:02d}"})
 
 
-class StkFactorPro(DailySpider):
+class StkFactorProSpider(DailySpider):
     name = "stock/special/stk_factor_pro"
-    api_name = "stk_factor_pro"
-    custom_settings = {"TABLE_NAME": "stk_factor_pro"}
+    __model__: type[StkFactorPro] = StkFactorPro

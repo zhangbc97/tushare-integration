@@ -10,8 +10,11 @@ import os
 from typing import Annotated, Any, Literal
 
 import yaml
-from pydantic import BeforeValidator, Field
+from pydantic import BeforeValidator, Field, field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+import requests
+import logging
+import pandas as pd
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -39,8 +42,8 @@ def env_variable(env_key, case_sensitive=False):
 
 class DatabaseConfig(BaseSettings):
     # 数据库相关配置
-    db_type: Annotated[Literal["clickhouse", "mysql", "doris"], env_variable('DB_TYPE')] = Field(
-        ..., description='SQL模板'
+    db_type: Annotated[Literal["clickhouse", "mysql", "doris", "starrocks"], env_variable('DB_TYPE')] = Field(
+        ..., description='数据库类型'
     )
 
     host: Annotated[str, env_variable('DB_HOST')] = Field(..., description='数据库主机')
@@ -51,17 +54,53 @@ class DatabaseConfig(BaseSettings):
     db_name: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
     template_params: dict[str, Any] = Field(default={}, description='SQL模板参数')
 
-    def get_uri(self):
+    @property
+    def drivername(self) -> str:
+        """根据数据库类型返回对应的驱动名称"""
         if self.db_type == 'clickhouse':
-            return f"clickhouse://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
-        elif self.db_type == 'mysql':
-            return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
-        elif self.db_type == 'doris':
-            return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+            return 'clickhouse+native'
+        elif self.db_type in ('mysql', 'doris', 'starrocks'):
+            return 'mysql+pymysql'
         else:
             raise ValueError(f"Unsupported db_type: {self.db_type}")
 
+    def get_uri(self):
+        return f"{self.drivername}://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+
     model_config = SettingsConfigDict(extra='ignore')
+
+
+def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
+    """调用Tushare API获取用户积分
+    
+    Args:
+        token: Tushare token
+        url: Tushare API地址,默认为官方地址
+    """
+    try:
+        response = requests.post(
+            url=url,
+            json={
+                "api_name": "user",
+                "token": token,
+                "params": {
+                    "token": token
+                },
+            },
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+        data = response.json()
+        if data.get("code") == 0 and data.get("data", {}).get("items"):
+            df = pd.DataFrame(data["data"]["items"], columns=data["data"]["fields"])
+            total_points = int(df.iloc[:, 2].sum())
+            return total_points
+        logging.warning(f"获取Tushare积分失败,响应数据格式异常: {data}, 使用默认值2000")
+        return 2000
+    except Exception as e:
+        logging.warning(f"获取Tushare积分失败: {e}, 使用默认值2000")
+        return 2000
 
 
 # 使用pydantic定义数据模型
@@ -69,7 +108,19 @@ class TushareIntegrationSettings(BaseSettings):
     # Tushare相关的配置项
     tushare_token: Annotated[str, env_variable('TUSHARE_TOKEN')] = Field(..., description='Tushare token')
     tushare_url: str = Field('https://api.tushare.pro', description='Tushare API URL')
-    tushare_point: Annotated[int, env_variable('TUSHARE_POINT')] = Field(2000, description='Tushare积分')
+    tushare_point: int = Field(2000, description='Tushare积分')
+    
+    @field_validator('tushare_point')
+    def get_point(cls, v, values):
+        """验证器: 从API获取积分"""
+        # 获取token和url
+        token = values.data.get('tushare_token', '')
+        url = values.data.get('tushare_url', 'https://api.tushare.pro')
+        
+        if token:  # 只有在有token的情况下才去获取积分
+            return get_tushare_point(token, url)
+        return v  # 如果没有token则返回默认值
+    
     tushare_max_concurrent_requests: int | None = Field(
         None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算'
     )
@@ -80,7 +131,7 @@ class TushareIntegrationSettings(BaseSettings):
     feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(..., description='飞书webhook')
 
     parallel_mode: bool = Field(
-        default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任务依赖'
+        default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任依赖'
     )
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
@@ -123,7 +174,7 @@ class TushareIntegrationSettings(BaseSettings):
         description='item管道',
     )
 
-    request_fingerprinter_implementation: str = Field(default='2.7', description='请求指纹实现')
+    request_fingerprinter_implementation: str = Field(default='2.7', description='请求指纹实')
     twisted_reactor: str = Field(
         default='twisted.internet.asyncioreactor.AsyncioSelectorReactor', description='twisted反应堆'
     )

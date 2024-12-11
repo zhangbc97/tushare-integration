@@ -25,13 +25,13 @@ def read_schema_metadata(schema_path: str) -> tuple[list[str], list[str]]:
     """读取schema文件中的元数据"""
     with open(schema_path, 'r', encoding='utf-8') as f:
         schema = yaml.safe_load(f)
-    
+
     # 处理dependencies，只保留路径的最后一部分
     dependencies = schema.get('dependencies', [])
     dependencies = [dep.split('/')[-1] for dep in dependencies] if dependencies else []
-    
+
     primary_key = schema.get('primary_key', [])
-    
+
     return dependencies, primary_key
 
 
@@ -49,7 +49,7 @@ def update_model_file(model_path: str, dependencies: list[str], primary_key: lis
         r'__dependencies__: ClassVar\[List\[str\]\] = \[.*?\]',
         f'__dependencies__: ClassVar[List[str]] = {dependencies}',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # 更新primary_key
@@ -57,7 +57,7 @@ def update_model_file(model_path: str, dependencies: list[str], primary_key: lis
         r'__primary_key__: ClassVar\[List\[str\]\] = \[.*?\]',
         f'__primary_key__: ClassVar[List[str]] = {primary_key}',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     with open(model_path, 'w', encoding='utf-8') as f:
@@ -79,23 +79,23 @@ def main():
     for schema_path in schema_files:
         try:
             print(f"\nProcessing {schema_path}")
-            
+
             # 获取对应的model文件路径
             model_path = get_model_path(schema_path)
-            
+
             # 读取schema元数据
             dependencies, primary_key = read_schema_metadata(schema_path)
-            
+
             # 更新model文件
             update_model_file(model_path, dependencies, primary_key)
-            
+
             print(f"Updated {model_path}")
             print(f"Dependencies: {dependencies}")
             print(f"Primary Key: {primary_key}")
-            
+
         except Exception as e:
             print(f"Error processing {schema_path}: {str(e)}")
 
 
 if __name__ == '__main__':
-    main() 
+    main()

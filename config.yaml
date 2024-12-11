@@ -7,7 +7,7 @@ database:
   # 数据库配置
   db_type: "clickhouse"
   host: "127.0.0.1"
-  port: "8123"
+  port: "9000"
   user: "default"
   password: ""
   db_name: "default"

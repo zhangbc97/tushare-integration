@@ -1,12 +1,21 @@
 import datetime
+from sqlalchemy import select
 
-from tushare_integration.spiders.stock.quotes import StockMonthlySpider, StockWeeklySpider
-from tushare_integration.spiders.tushare import DailySpider
+from tushare_integration.models.daily_info import DailyInfo
+from tushare_integration.models.index_dailybasic import IndexDailybasic
+from tushare_integration.models.index_global import IndexGlobal
+from tushare_integration.models.index_monthly import IndexMonthly
+from tushare_integration.models.index_weekly import IndexWeekly
+from tushare_integration.models.index_weight import IndexWeight
+from tushare_integration.models.sz_daily_info import SzDailyInfo
+from tushare_integration.models.index_daily import IndexDaily
+from tushare_integration.models.index_basic import IndexBasic
+from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class IndexDailySpider(DailySpider):
     name = "index/quotes/index_daily"
-    custom_settings = {"TABLE_NAME": "index_daily", 'BASIC_TABLE': 'index_basic'}
+    __model__: type[IndexDaily] = IndexDaily
 
     def start_requests(self):
         # index_daily需要特殊处理，这个接口不支持按日期获取数据，这意味着需要用ts_code去取
@@ -14,8 +23,10 @@ class IndexDailySpider(DailySpider):
         # 到2024年最多的一年只有257个交易日，我们按一年260个交易日来计算，一次可以取30年的数据
         # 看了一下实际上现在就3000多个指数，全请求一次也就不到8000次，直接全量取吧
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
-        index_list = conn.query_df(f"select * from {db_name}.{self.custom_settings.get('BASIC_TABLE')}")
+
+        # 使用 SQLAlchemy select 获取所有指数
+        query = select(IndexBasic)
+        index_list = conn.query_df(query)
 
         if index_list.empty:
             return
@@ -43,35 +54,36 @@ class IndexDailySpider(DailySpider):
 
 class DailyInfoSpider(DailySpider):
     name = "index/quotes/daily_info"
-    custom_settings = {"TABLE_NAME": "daily_info"}
+    __model__: type[DailyInfo] = DailyInfo
 
 
 # noinspection SpellCheckingInspection
 class IndexDailyBasicSpider(DailySpider):
     name = "index/quotes/index_dailybasic"
-    custom_settings = {"TABLE_NAME": "index_dailybasic"}
+    __model__: type[IndexDailybasic] = IndexDailybasic
 
 
 class IndexGlobalSpider(DailySpider):
     name = "index/quotes/index_global"
-    custom_settings = {"TABLE_NAME": "index_global"}
+    __model__: type[IndexGlobal] = IndexGlobal
 
 
-class IndexMonthlySpider(StockMonthlySpider):
-    name = "index/quotes/index_monthly"
-    custom_settings = {"TABLE_NAME": "index_monthly"}
-
-
-class IndexWeeklySpider(StockWeeklySpider):
+# 创建指数专用的基类
+class IndexWeeklySpider(TushareSpider):
     name = "index/quotes/index_weekly"
-    custom_settings = {"TABLE_NAME": "index_weekly"}
+    __model__: type[IndexWeekly] = IndexWeekly
 
 
-class IndexWeightSpider(StockMonthlySpider):
+class IndexMonthlySpider(IndexWeeklySpider):
+    name = "index/quotes/index_monthly"
+    __model__: type[IndexMonthly] = IndexMonthly
+
+
+class IndexWeightSpider(TushareSpider):
     name = "index/quotes/index_weight"
-    custom_settings = {"TABLE_NAME": "index_weight"}
+    __model__: type[IndexWeight] = IndexWeight
 
 
-class SzDailyInfoSpider(DailySpider):
+class SZDailyInfoSpider(DailySpider):
     name = "index/quotes/sz_daily_info"
-    custom_settings = {"TABLE_NAME": "sz_daily_info", ' MIN_CAL_DATE': '2008-01-02'}
+    __model__: type[SzDailyInfo] = SzDailyInfo

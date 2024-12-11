@@ -1,124 +1,113 @@
-import datetime
-import pandas as pd
+from sqlalchemy import select, not_
 
-from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
-from tushare_integration.items import TushareIntegrationItem
+from tushare_integration.models.hs_const import HsConst
+from tushare_integration.models.namechange import Namechange
+from tushare_integration.models.stk_managers import StkManagers
+from tushare_integration.models.stk_rewards import StkRewards
+from tushare_integration.models.stock_basic import StockBasic
+from tushare_integration.models.stock_company import StockCompany
+from tushare_integration.models.trade_cal import TradeCal
+from tushare_integration.spiders.tushare import TushareSpider
 
 
 class StockBasicSpider(TushareSpider):
     name = "stock/basic/stock_basic"
-    description = '股票列表'
-    api_name = "stock_basic"
+    __model__: type[StockBasic] = StockBasic
 
     def start_requests(self):
-        exchanges = ["SSE", "SZSE"]
-        list_statuses = ["L", "D", "P"]
-
-        for exchange in exchanges:
-            for list_status in list_statuses:
-                params = {"exchange": exchange, "list_status": list_status}
-                yield self.get_scrapy_request(params)
-
-
-class StockNameChangeSpider(TushareSpider):
-    name = "stock/basic/namechange"
-    description = '股票名称变更'
-    api_name = "namechange"
-
-    def start_requests(self):
-        # 不能用start_date和end_date筛选，部分数据没有ann_date导致无法完整同步数据
-        # 每次拉5000条数据
-        request = self.get_scrapy_request(params={'offset': 0, 'limit': 5000})
-        request.meta["offset"] = 0
-        request.meta["limit"] = 5000
-        yield request
-
-    def parse(self, response, **kwargs):
-        first_page = self.parse_response(response, **kwargs)
-        if first_page["data"].empty:
-            return None
-
-        all_data = [first_page["data"]]
-        offset = response.meta["offset"] + response.meta["limit"]
-        limit = response.meta["limit"]
-
-        while True:
-            parsed_data = self.request_with_requests(params={'offset': offset, 'limit': limit})
-            if parsed_data["data"].empty:
-                break
-            all_data.append(parsed_data["data"])
-            offset += limit
-
-        return TushareIntegrationItem(data=pd.concat(all_data, ignore_index=True))
-
-
-class StockHSConstSpider(TushareSpider):
-    name = "stock/basic/hs_const"
-    description = '沪深股通成份股'
-    api_name = "hs_const"
-
-    def start_requests(self):
-        for hs_type in ["SH", "SZ"]:
-            params = {"hs_type": hs_type}
-            yield self.get_scrapy_request(params)
-
-
-class TradeCalSpider(TushareSpider):
-    name = "stock/basic/trade_cal"
-    api_name = "trade_cal"
-    description = '交易日历'
-    custom_settings = {"TABLE_NAME": "trade_cal"}
-
-    def start_requests(self):
-        for exchange in ["SSE", "SZSE", "CFFEX", "DCE", "CZCE", "SHFE", "INE"]:
-            params = {"exchange": exchange}
-            yield self.get_scrapy_request(params)
+        for status in ['L', 'D', 'P']:
+            yield self.get_scrapy_request({"list_status": status})
 
 
 class StockCompanySpider(TushareSpider):
     name = "stock/basic/stock_company"
-    description = '上市公司基本信息'
-    api_name = "stock_company"
+    __model__: type[StockCompany] = StockCompany
 
     def start_requests(self):
-        for exchange in ["SSE", "SZSE"]:
-            params = {"exchange": exchange}
-            yield self.get_scrapy_request(params)
+        conn = self.get_db_engine()
+
+        # 构建子查询
+        subquery = select(self.__model__.ts_code)
+
+        # 构建主查询
+        query = select(StockBasic.ts_code).where(not_(StockBasic.ts_code.in_(subquery)))
+
+        stock_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in stock_codes:
+            yield self.get_scrapy_request({"ts_code": ts_code})
 
 
-class StockManagers(TSCodeSpider):
+class StkManagersSpider(TushareSpider):
     name = "stock/basic/stk_managers"
-    description = '上市公司管理层'
-    api_name = "stk_managers"
-
-
-class StockRewards(TSCodeSpider):
-    name = "stock/basic/stk_rewards"
-    description = '管理层薪酬和持股'
-    api_name = "stk_rewards"
-
-
-class StockNewShareSpider(TushareSpider):
-    name = "stock/basic/new_share"
-    description = 'IPO新股上市'
-    api_name = "new_share"
+    __model__: type[StkManagers] = StkManagers
 
     def start_requests(self):
-        # 用start_date和end_date筛选，每次拉取一年的数据
-        for year in range(1990, datetime.datetime.now().year + 1, 5):
-            params = {"start_date": str(year) + "0101", "end_date": str(year + 5) + "1231"}
-            yield self.get_scrapy_request(params)
+        conn = self.get_db_engine()
+
+        # 构建子查询
+        subquery = select(self.__model__.ts_code)
+
+        # 构建主查询
+        query = select(StockBasic.ts_code).where(not_(StockBasic.ts_code.in_(subquery)))
+
+        stock_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in stock_codes:
+            yield self.get_scrapy_request({"ts_code": ts_code})
 
 
-class StkPremarket(DailySpider):
-    name = "stock/basic/stk_premarket"
-    description = '每日股本(盘前数据)'
-    api_name = "stk_premarket"
-    custom_settings = {"TABLE_NAME": "stk_premarket"}
+class StkRewardsSpider(TushareSpider):
+    name = "stock/basic/stk_rewards"
+    __model__: type[StkRewards] = StkRewards
+
+    def start_requests(self):
+        conn = self.get_db_engine()
+
+        # 构建子查询
+        subquery = select(self.__model__.ts_code)
+
+        # 构建主查询
+        query = select(StockBasic.ts_code).where(not_(StockBasic.ts_code.in_(subquery)))
+
+        stock_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in stock_codes:
+            yield self.get_scrapy_request({"ts_code": ts_code})
 
 
-class StockBakBasicSpider(DailySpider):
-    name = "stock/basic/bak_basic"
-    description = '备用列表'
-    api_name = "bak_basic"
-    custom_settings = {"MIN_CAL_DATE": "2016-08-01"}
+class NameChangeSpider(TushareSpider):
+    name = "stock/basic/namechange"
+    __model__: type[Namechange] = Namechange
+
+    def start_requests(self):
+        conn = self.get_db_engine()
+
+        # 构建子查询
+        subquery = select(self.__model__.ts_code)
+
+        # 构建主查询
+        query = select(StockBasic.ts_code).where(not_(StockBasic.ts_code.in_(subquery)))
+
+        stock_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in stock_codes:
+            yield self.get_scrapy_request({"ts_code": ts_code})
+
+
+class HSConstSpider(TushareSpider):
+    name = "stock/basic/hs_const"
+    __model__: type[HsConst] = HsConst
+
+    def start_requests(self):
+        for hs_type in ['SH', 'SZ']:
+            yield self.get_scrapy_request({"hs_type": hs_type})
+
+
+class TradeCalSpider(TushareSpider):
+    name = "stock/basic/trade_cal"
+    __model__: type[TradeCal] = TradeCal
+
+    def start_requests(self):
+        for exchange in ['SSE', 'SZSE']:
+            yield self.get_scrapy_request({"exchange": exchange})

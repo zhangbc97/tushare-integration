@@ -1,12 +1,22 @@
 import datetime
 
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.models.dc_hot import DcHot
+from tushare_integration.models.hm_detail import HmDetail
+from tushare_integration.models.hm_list import HmList
+from tushare_integration.models.kpl_concept_cons import KplConceptCons
+from tushare_integration.models.kpl_concept import KplConcept
+from tushare_integration.models.kpl_list import KplList
+from tushare_integration.models.limit_cpt_list import LimitCptList
+from tushare_integration.models.limit_list_d import LimitListD
+from tushare_integration.models.limit_list_ths import LimitListThs
+from tushare_integration.models.limit_step import LimitStep
+from tushare_integration.models.ths_hot import ThsHot
 
 
 class DCHotSpider(DailySpider):
     name = "stock/limit/dc_hot"
-    api_name = "dc_hot"
-    custom_settings = {"TABLE_NAME": "dc_hot", 'MIN_CAL_DATE': '2024-03-20'}
+    __model__: type[DcHot] = DcHot
 
     def start_requests(self):
         # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据
@@ -17,62 +27,52 @@ class DCHotSpider(DailySpider):
 
 class HMDetailSpider(DailySpider):
     name = "stock/limit/hm_detail"
-    api_name = "hm_detail"
-    custom_settings = {"TABLE_NAME": "hm_detail", 'MIN_CAL_DATE': '2022-08-01'}
+    __model__: type[HmDetail] = HmDetail
 
 
 class HMListSpider(TushareSpider):
     name = "stock/limit/hm_list"
-    api_name = "hm_list"
-    custom_settings = {"TABLE_NAME": "hm_list"}
+    __model__: type[HmList] = HmList
 
 
 class KplConceptConsSpider(DailySpider):
     name = "stock/limit/kpl_concept_cons"
-    api_name = "kpl_concept_cons"
-    custom_settings = {"TABLE_NAME": "kpl_concept_cons"}
+    __model__: type[KplConceptCons] = KplConceptCons
 
 
 class KplConceptSpider(DailySpider):
     name = "stock/limit/kpl_concept"
-    api_name = "kpl_concept"
-    custom_settings = {"TABLE_NAME": "kpl_concept"}
+    __model__: type[KplConcept] = KplConcept
 
 
 class KplListSpider(DailySpider):
     name = "stock/limit/kpl_list"
-    api_name = "kpl_list"
-    custom_settings = {"TABLE_NAME": "kpl_list"}
+    __model__: type[KplList] = KplList
 
 
 class LimitCptListSpider(DailySpider):
     name = "stock/limit/limit_cpt_list"
-    api_name = "limit_cpt_list"
-    custom_settings = {"TABLE_NAME": "limit_cpt_list"}
+    __model__: type[LimitCptList] = LimitCptList
 
 
 class LimitListDSpider(DailySpider):
     name = "stock/limit/limit_list_d"
-    api_name = "limit_list_d"
-    custom_settings = {"TABLE_NAME": "limit_list_d"}
+    __model__: type[LimitListD] = LimitListD
 
 
 class LimitListTHSSpider(DailySpider):
     name = "stock/limit/limit_list_ths"
-    api_name = "limit_list_ths"
-    custom_settings = {"TABLE_NAME": "limit_list_ths"}
+    __model__: type[LimitListThs] = LimitListThs
 
 
 class LimitStepSpider(DailySpider):
     name = "stock/limit/limit_step"
-    api_name = "limit_step"
-    custom_settings = {"TABLE_NAME": "limit_step"}
+    __model__: type[LimitStep] = LimitStep
 
 
 class THSHotSpider(DailySpider):
     name = "stock/limit/ths_hot"
-    api_name = "ths_hot"
-    custom_settings = {"TABLE_NAME": "ths_hot", "MIN_CAL_DATE": "2020-01-01"}
+    __model__: type[ThsHot] = ThsHot
 
     def start_requests(self):
         # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据

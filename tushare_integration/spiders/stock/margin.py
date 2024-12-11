@@ -1,38 +1,31 @@
+from tushare_integration.models.margin import Margin
+from tushare_integration.models.margin_detail import MarginDetail
+from tushare_integration.models.slb_len_mm import SlbLenMm
+from tushare_integration.models.slb_sec import SlbSec
+from tushare_integration.models.slb_sec_detail import SlbSecDetail
 from tushare_integration.spiders.tushare import DailySpider, FinancialReportSpider, TSCodeSpider, TushareSpider
 
 
 class MarginSpider(DailySpider):
     name = "stock/margin/margin"
-    api_name = "margin"
-    custom_settings = {"TABLE_NAME": "margin", 'MIN_CAL_DATE': '2010-01-01'}
+    __model__: type[Margin] = Margin
 
 
 class MarginDetailSpider(DailySpider):
     name = "stock/margin/margin_detail"
-    api_name = "margin_detail"
-    custom_settings = {"TABLE_NAME": "margin_detail", 'MIN_CAL_DATE': '2010-01-01'}
+    __model__: type[MarginDetail] = MarginDetail
 
 
-class SLBLenMM(DailySpider):
+class SLBLenMMSpider(DailySpider):
     name = "stock/margin/slb_len_mm"
-    api_name = "slb_len_mm"
-    custom_settings = {"TABLE_NAME": "slb_len_mm", 'MIN_CAL_DATE': '2022-11-14'}
+    __model__: type[SlbLenMm] = SlbLenMm
 
 
-class SLBLen(TushareSpider):
-    # 一把梭直接取完就行
-    name = "stock/margin/slb_len"
-    api_name = "slb_len"
-    custom_settings = {"TABLE_NAME": "slb_len"}
-
-
-class SLBSecDetail(DailySpider):
+class SLBSecDetailSpider(DailySpider):
     name = "stock/margin/slb_sec_detail"
-    api_name = "slb_sec_detail"
-    custom_settings = {"TABLE_NAME": "slb_sec_detail", 'MIN_CAL_DATE': '2019-07-22'}
+    __model__: type[SlbSecDetail] = SlbSecDetail
 
 
-class SLBSec(DailySpider):
+class SLBSecSpider(DailySpider):
     name = "stock/margin/slb_sec"
-    api_name = "slb_sec"
-    custom_settings = {"TABLE_NAME": "slb_sec", 'MIN_CAL_DATE': '2013-02-28'}
+    __model__: type[SlbSec] = SlbSec
