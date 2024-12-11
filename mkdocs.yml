@@ -3,6 +3,8 @@ site_name: Tushare Pro Integration
 
 theme:
   name: material
+  features:
+    - navigation.tabs
 
 nav:
   - index.md

@@ -1,5 +1,7 @@
+import ast
 import logging
 import os
+import re
 from typing import Any, Dict, List
 
 import requests
@@ -26,10 +28,10 @@ class {{ table_name|to_camel_case }}(Base):
     __api_path_ids__: ClassVar[List[int]] = {{ api_path_ids }}
     __api_points_required__: ClassVar[int] = {{ api_points_required }}
     __api_special_permission__: ClassVar[bool] = {{ api_special_permission }}
-    __dependencies__: ClassVar[List[str]] = []
+    __dependencies__: ClassVar[List[str]] = {{ dependencies if dependencies is defined else [] }}
     __primary_key__: ClassVar[List[str]] = {{ primary_key }}
-    __start_date__: ClassVar[str | None] = None
-    __end_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = {{ start_date if start_date is defined else None }}
+    __end_date__: ClassVar[str | None] = {{ end_date if end_date is defined else None }}
     __api_params__: ClassVar[Dict[str, Any]] = {{ api_params }}
     
     __mapper_args__ = {'primary_key': __primary_key__}
@@ -100,7 +102,7 @@ def get_api_info(api_id: int):
 
 def escape_quote(text: str | None) -> str:
     """
-    转义字符串中的引号��将中文括号替换为英文括号
+    转���字符串中的引号将中文括号替换为英文括号
 
     Args:
         text: 需要处理的字符串
@@ -193,7 +195,7 @@ def get_column_type(field: Dict[str, Any]) -> str:
         field: 字段信息字典
 
     Returns:
-        SQLAlchemy列类型字��串
+        SQLAlchemy列类型字符串
 
     Raises:
         ValueError: 当字段类型未知时
@@ -366,7 +368,7 @@ def get_api_title_map() -> Dict[int, Dict[str, Any]]:
             print_document_tree(doc_tree)
 
             _API_TITLE_MAP = build_api_title_map(doc_tree)
-            logging.info(f"成功获取 {len(_API_TITLE_MAP)} 个API的标题信息")
+            logging.info(f"成功获取 {len(_API_TITLE_MAP)} 个API的标题��息")
 
             # 打印标题映射结果
             logging.info("API标题映射：")
@@ -379,6 +381,51 @@ def get_api_title_map() -> Dict[int, Dict[str, Any]]:
             _API_TITLE_MAP = {}
 
     return _API_TITLE_MAP
+
+
+def extract_class_attributes(file_path: str) -> Dict[str, Any]:
+    """
+    从现有模型文件中提取类属性值
+
+    Args:
+        file_path: 模型文件路径
+
+    Returns:
+        包含提取出的属性值的字典
+    """
+    if not os.path.exists(file_path):
+        return {}
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # 使用正则表达式匹配类属性定义
+        patterns = {
+            'api_points_required': r'__api_points_required__:\s*ClassVar\[int\]\s*=\s*(\d+)',
+            'api_special_permission': r'__api_special_permission__:\s*ClassVar\[bool\]\s*=\s*(True|False)',
+            'dependencies': r'__dependencies__:\s*ClassVar\[List\[str\]\]\s*=\s*(\[.*?\])',
+            'primary_key': r'__primary_key__:\s*ClassVar\[List\[str\]\]\s*=\s*(\[.*?\])',
+            'start_date': r'__start_date__:\s*ClassVar\[str\s*\|\s*None\]\s*=\s*(\'.*?\'|\".*?\"|None)',
+            'end_date': r'__end_date__:\s*ClassVar\[str\s*\|\s*None\]\s*=\s*(\'.*?\'|\".*?\"|None)',
+        }
+
+        result = {}
+        for attr, pattern in patterns.items():
+            match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
+            if match:
+                value_str = match.group(1)
+                try:
+                    # 使用ast.literal_eval安全地解析Python字面值
+                    result[attr] = ast.literal_eval(value_str)
+                except (ValueError, SyntaxError):
+                    logging.warning(f"无法解析{attr}的值: {value_str}")
+
+        return result
+
+    except Exception as e:
+        logging.error(f"从文件{file_path}提取属性时发生错误: {str(e)}")
+        return {}
 
 
 def generate_model(api_id: int, output_dir: str):
@@ -397,6 +444,10 @@ def generate_model(api_id: int, output_dir: str):
         return
 
     api_name = api_info['data']['name']
+    output_path = os.path.join(output_dir, f"{api_name}.py")
+
+    # 提取现有文件中的属性
+    existing_attrs = extract_class_attributes(output_path)
 
     # 获取API标题和路径信息
     api_info_map = get_api_title_map()
@@ -414,15 +465,12 @@ def generate_model(api_id: int, output_dir: str):
         },
     )
 
-    # 使用 api_name 作为表名和文件名
-    output_path = os.path.join(output_dir, f"{api_name}.py")
-
     fields = get_fields(api_info)
     if fields is None:
         logging.error(f"无法获取API {api_id}的字段信息")
         return
 
-    # 准备模板变量
+    # 准备模板变量时优先使用现有文件中的值
     template_vars = {
         'table_name': api_name,
         'fields': fields,
@@ -433,11 +481,21 @@ def generate_model(api_id: int, output_dir: str):
         'api_info_title': escape_quote(api_info['data']['title']),
         'api_path': tree_info.get('path', [api_info['data']['title']]),
         'api_path_ids': tree_info.get('path_ids', []),
-        'api_points_required': tree_info.get('points_required', 0),
-        'api_special_permission': tree_info.get('special_permission', False),
-        'primary_key': get_primary_key(fields),
+        'api_points_required': existing_attrs.get('api_points_required', tree_info.get('points_required', 0)),
+        'api_special_permission': existing_attrs.get(
+            'api_special_permission', tree_info.get('special_permission', False)
+        ),
+        'primary_key': existing_attrs.get('primary_key', get_primary_key(fields)),
         'api_params': get_api_params(api_info),
     }
+
+    # 添加可选属性（只在存在时添加）
+    if 'dependencies' in existing_attrs:
+        template_vars['dependencies'] = existing_attrs['dependencies']
+    if 'start_date' in existing_attrs:
+        template_vars['start_date'] = repr(existing_attrs['start_date'])  # 使用 repr 确保字符串正确引用
+    if 'end_date' in existing_attrs:
+        template_vars['end_date'] = repr(existing_attrs['end_date'])  # 使用 repr 确保字符串正确引用
 
     # 创建Jinja2环境并添加过滤器
     env = Template.environment_class(undefined=StrictUndefined)
