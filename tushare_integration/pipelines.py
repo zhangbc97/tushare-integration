@@ -8,6 +8,7 @@ import logging
 import pandas as pd
 import yaml
 from scrapy.exceptions import DropItem
+from sqlalchemy import Column
 
 from tushare_integration.db_engine import DatabaseEngineFactory
 from tushare_integration.log_model import TushareIntegrationLog
@@ -29,11 +30,11 @@ class BasePipeline(object):
 
 class TushareIntegrationFillNAPipeline(BasePipeline):
     @staticmethod
-    def get_default_by_data_type(column_type):
-        if column_type is None:
+    def get_default_by_column(column: Column):
+        if column is None:
             raise ValueError("column_type is None")
 
-        type_name = column_type.python_type.__name__
+        type_name = column.type.python_type.__name__
         if type_name == 'str':
             return ""
         elif type_name == 'float':
@@ -47,7 +48,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
         elif type_name == 'dict':
             return '{}'
         else:
-            raise ValueError(f"Unsupported python_type: {type_name} for column_type: {column_type}")
+            raise ValueError(f"Unsupported python_type: {type_name} for column_type: {column}")
 
     def process_item(self, item, spider):
         data: pd.DataFrame = item["data"]
@@ -57,7 +58,7 @@ class TushareIntegrationFillNAPipeline(BasePipeline):
 
         model = spider.__model__
         for column in model.__table__.columns:
-            default = column.default.arg if column.default else self.get_default_by_data_type(column.type)
+            default = column.default.arg if column.default else self.get_default_by_column(column)
             # 需要特殊处理NaT,Pandas的fillna方法不支持NaT
             data[column.name] = data[column.name].replace({pd.NaT: None}).fillna(default)
 

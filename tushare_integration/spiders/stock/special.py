@@ -1,34 +1,35 @@
 import datetime
-from sqlalchemy import select, distinct, and_, not_, text
+
+from sqlalchemy import and_, distinct, not_, select, text
 
 from tushare_integration.models.broker_recommend import BrokerRecommend
 from tushare_integration.models.ccass_hold import CcassHold
 from tushare_integration.models.ccass_hold_detail import CcassHoldDetail
 from tushare_integration.models.cyq_chips import CyqChips
 from tushare_integration.models.cyq_perf import CyqPerf
+from tushare_integration.models.daily import Daily
 from tushare_integration.models.hk_hold import HkHold
 from tushare_integration.models.report_rc import ReportRc
 from tushare_integration.models.stk_factor import StkFactor
 from tushare_integration.models.stk_factor_pro import StkFactorPro
 from tushare_integration.models.stk_surv import StkSurv
 from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.models.daily import Daily
 from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
 
 
 class ReportRCSpider(TSCodeSpider):
-    name = "stock/special/report_rc"
+    __spider_name__ = "stock/special/report_rc"
     __model__: type[ReportRc] = ReportRc
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class CyqPerfSpider(DailySpider):
-    name = "stock/special/cyq_perf"
+    __spider_name__ = "stock/special/cyq_perf"
     __model__: type[CyqPerf] = CyqPerf
 
 
 class CyqChipsSpider(TushareSpider):
-    name = "stock/special/cyq_chips"
+    __spider_name__ = "stock/special/cyq_chips"
     __model__: type[CyqChips] = CyqChips
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
@@ -60,33 +61,33 @@ class CyqChipsSpider(TushareSpider):
 
 
 class StkFactorSpider(DailySpider):
-    name = "stock/special/stk_factor"
+    __spider_name__ = "stock/special/stk_factor"
     __model__: type[StkFactor] = StkFactor
 
 
 class CCASSHoldSpider(DailySpider):
-    name = "stock/special/ccass_hold"
+    __spider_name__ = "stock/special/ccass_hold"
     __model__: type[CcassHold] = CcassHold
 
 
 class CCASSHoldDetailSpider(DailySpider):
-    name = "stock/special/ccass_hold_detail"
+    __spider_name__ = "stock/special/ccass_hold_detail"
     __model__: type[CcassHoldDetail] = CcassHoldDetail
 
 
 class HKHoldSpider(DailySpider):
-    name = "stock/special/hk_hold"
+    __spider_name__ = "stock/special/hk_hold"
     __model__: type[HkHold] = HkHold
 
 
 class StkSurvSpider(TSCodeSpider):
-    name = "stock/special/stk_surv"
+    __spider_name__ = "stock/special/stk_surv"
     __model__: type[StkSurv] = StkSurv
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class BrokerRecommendSpider(TushareSpider):
-    name = "stock/special/broker_recommend"
+    __spider_name__ = "stock/special/broker_recommend"
     __model__: type[BrokerRecommend] = BrokerRecommend
 
     def start_requests(self):
@@ -98,5 +99,5 @@ class BrokerRecommendSpider(TushareSpider):
 
 
 class StkFactorProSpider(DailySpider):
-    name = "stock/special/stk_factor_pro"
+    __spider_name__ = "stock/special/stk_factor_pro"
     __model__: type[StkFactorPro] = StkFactorPro

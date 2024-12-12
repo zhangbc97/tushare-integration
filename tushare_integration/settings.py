@@ -6,15 +6,16 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import functools
+import logging
 import os
 from typing import Annotated, Any, Literal
 
-import yaml
-from pydantic import BeforeValidator, Field, field_validator
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
-import requests
-import logging
 import pandas as pd
+import requests
+import yaml
+from pydantic import BeforeValidator, Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -41,9 +42,10 @@ def env_variable(env_key, case_sensitive=False):
 
 
 class DatabaseConfig(BaseSettings):
-    # 数据库相关配置
-    db_type: Annotated[Literal["clickhouse", "mysql", "doris", "starrocks"], env_variable('DB_TYPE')] = Field(
-        ..., description='数据库类型'
+    # 移除 db_type 字段
+    # 添加 drivername 字段
+    drivername: Annotated[str, env_variable('DB_DRIVER')] = Field(
+        ..., description='数据库驱动名称，例如：clickhouse+native, mysql+pymysql'
     )
 
     host: Annotated[str, env_variable('DB_HOST')] = Field(..., description='数据库主机')
@@ -54,25 +56,17 @@ class DatabaseConfig(BaseSettings):
     db_name: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
     template_params: dict[str, Any] = Field(default={}, description='SQL模板参数')
 
-    @property
-    def drivername(self) -> str:
-        """根据数据库类型返回对应的驱动名称"""
-        if self.db_type == 'clickhouse':
-            return 'clickhouse+native'
-        elif self.db_type in ('mysql', 'doris', 'starrocks'):
-            return 'mysql+pymysql'
-        else:
-            raise ValueError(f"Unsupported db_type: {self.db_type}")
-
+    # 移除 drivername property
     def get_uri(self):
         return f"{self.drivername}://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
     model_config = SettingsConfigDict(extra='ignore')
 
 
+@functools.lru_cache(maxsize=1)
 def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
     """调用Tushare API获取用户积分
-    
+
     Args:
         token: Tushare token
         url: Tushare API地址,默认为官方地址
@@ -83,14 +77,13 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
             json={
                 "api_name": "user",
                 "token": token,
-                "params": {
-                    "token": token
-                },
+                "params": {"token": token},
             },
             headers={
                 "Content-Type": "application/json",
             },
         )
+
         data = response.json()
         if data.get("code") == 0 and data.get("data", {}).get("items"):
             df = pd.DataFrame(data["data"]["items"], columns=data["data"]["fields"])
@@ -99,7 +92,7 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
         logging.warning(f"获取Tushare积分失败,响应数据格式异常: {data}, 使用默认值2000")
         return 2000
     except Exception as e:
-        logging.warning(f"获取Tushare积分失败: {e}, 使用默认值2000")
+        logging.warning(f"获���Tushare积分失败: {e}, 使用默认值2000")
         return 2000
 
 
@@ -107,20 +100,21 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
 class TushareIntegrationSettings(BaseSettings):
     # Tushare相关的配置项
     tushare_token: Annotated[str, env_variable('TUSHARE_TOKEN')] = Field(..., description='Tushare token')
-    tushare_url: str = Field('https://api.tushare.pro', description='Tushare API URL')
-    tushare_point: int = Field(2000, description='Tushare积分')
-    
-    @field_validator('tushare_point')
-    def get_point(cls, v, values):
-        """验证器: 从API获取积分"""
-        # 获取token和url
-        token = values.data.get('tushare_token', '')
-        url = values.data.get('tushare_url', 'https://api.tushare.pro')
-        
-        if token:  # 只有在有token的情况下才去获取积分
-            return get_tushare_point(token, url)
-        return v  # 如果没有token则返回默认值
-    
+    tushare_url: str = Field(default='https://api.tushare.pro', description='Tushare API URL')
+    tushare_point: int = Field(default=2000, description='Tushare积分')
+
+    # 目前接口有频次限制，暂时不从API获取积分，还是让用户手动设置积分
+    # @model_validator(mode='after')
+    # def get_point(self):
+    #     """验证器: 从API获取积分"""
+    #     # 获取token和url
+    #     token = self.tushare_token
+    #     url = self.tushare_url
+
+    #     if token:  # 只有在有token的情况下才去获取积分
+    #         self.tushare_point = get_tushare_point(token, url)
+    #     return self
+
     tushare_max_concurrent_requests: int | None = Field(
         None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算'
     )

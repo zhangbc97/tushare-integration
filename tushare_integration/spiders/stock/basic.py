@@ -1,4 +1,4 @@
-from sqlalchemy import select, not_
+from sqlalchemy import not_, select
 
 from tushare_integration.models.hs_const import HsConst
 from tushare_integration.models.namechange import Namechange
@@ -11,7 +11,7 @@ from tushare_integration.spiders.tushare import TushareSpider
 
 
 class StockBasicSpider(TushareSpider):
-    name = "stock/basic/stock_basic"
+    __spider_name__ = "stock/basic/stock_basic"
     __model__: type[StockBasic] = StockBasic
 
     def start_requests(self):
@@ -20,7 +20,7 @@ class StockBasicSpider(TushareSpider):
 
 
 class StockCompanySpider(TushareSpider):
-    name = "stock/basic/stock_company"
+    __spider_name__ = "stock/basic/stock_company"
     __model__: type[StockCompany] = StockCompany
 
     def start_requests(self):
@@ -39,7 +39,7 @@ class StockCompanySpider(TushareSpider):
 
 
 class StkManagersSpider(TushareSpider):
-    name = "stock/basic/stk_managers"
+    __spider_name__ = "stock/basic/stk_managers"
     __model__: type[StkManagers] = StkManagers
 
     def start_requests(self):
@@ -58,7 +58,7 @@ class StkManagersSpider(TushareSpider):
 
 
 class StkRewardsSpider(TushareSpider):
-    name = "stock/basic/stk_rewards"
+    __spider_name__ = "stock/basic/stk_rewards"
     __model__: type[StkRewards] = StkRewards
 
     def start_requests(self):
@@ -77,7 +77,7 @@ class StkRewardsSpider(TushareSpider):
 
 
 class NameChangeSpider(TushareSpider):
-    name = "stock/basic/namechange"
+    __spider_name__ = "stock/basic/namechange"
     __model__: type[Namechange] = Namechange
 
     def start_requests(self):
@@ -96,7 +96,7 @@ class NameChangeSpider(TushareSpider):
 
 
 class HSConstSpider(TushareSpider):
-    name = "stock/basic/hs_const"
+    __spider_name__ = "stock/basic/hs_const"
     __model__: type[HsConst] = HsConst
 
     def start_requests(self):
@@ -105,7 +105,7 @@ class HSConstSpider(TushareSpider):
 
 
 class TradeCalSpider(TushareSpider):
-    name = "stock/basic/trade_cal"
+    __spider_name__ = "stock/basic/trade_cal"
     __model__: type[TradeCal] = TradeCal
 
     def start_requests(self):

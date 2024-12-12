@@ -7,32 +7,35 @@ import pandas as pd
 import requests
 import scrapy
 import yaml
-from sqlalchemy import select, and_, not_, text
+from sqlalchemy import and_, not_, select, text
 
 from tushare_integration.db_engine import DatabaseEngineFactory, DBEngine
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.core.base import Base
-from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.models.stock_basic import StockBasic
+from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
 
 
 class TushareSpiderMeta(type):
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
-        # 检查是否是TushareSpider的子类（支持多重继承）
-        if bases and 'TushareSpider' in cls.__mro__[1:] and not hasattr(cls, '__model__'):
-            raise ValueError(f"子类 {name} 必须设置 __model__ 属性")
+        if not hasattr(cls, '__model__'):
+            raise ValueError(f"类 {name} 必须设置 __model__ 属性")
+        # 只为非Base的model设置name
+        model = getattr(cls, '__model__')
+        if model is not Base and not hasattr(cls, 'name'):
+            setattr(cls, 'name', model.__api_name__)
         return cls
 
 
 class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
-    name: str
-    __model__: ClassVar[type[Base]]
+    __spider_name__: str
+    __model__: ClassVar[type[Base]] = Base
+    name: ClassVar[str]  # 添加name的类型声明
 
-    spider_settings: TushareIntegrationSettings  # 不能直接叫settings，会覆盖掉scrapy的settings
+    spider_settings: TushareIntegrationSettings
     db_engine: DBEngine
-
     custom_settings: dict = {}
 
     @property
@@ -174,7 +177,7 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
 
 
 class DailySpider(TushareSpider):
-    name: str
+    __model__: type[Base] = Base
     custom_settings: dict[str, str] = {"TRADE_DATE_FIELD": "trade_date"}
 
     def start_requests(self):
@@ -215,7 +218,7 @@ class DailySpider(TushareSpider):
 
 
 class TSCodeSpider(TushareSpider):
-    name: str
+    __model__: type[Base] = Base
     custom_settings: dict[str, str] = {'BASIC_TABLE': 'stock_basic'}
 
     def start_requests(self):
@@ -232,7 +235,7 @@ class TSCodeSpider(TushareSpider):
 
 
 class FinancialReportSpider(TushareSpider):
-    name: str
+    __model__: type[Base] = Base
     _api_name_override: str | None = None  # 新增用于存储覆盖的api_name
 
     @property
@@ -252,7 +255,7 @@ class FinancialReportSpider(TushareSpider):
 
     @staticmethod
     def get_all_period():
-        # ��取所有的period
+        # 取所有的period
         periods = []
         for year in range(1990, datetime.datetime.now().year + 1):
             for end_date in [f"{year}0331", f"{year}0630", f"{year}0930", f"{year}1231"]:

@@ -1,20 +1,21 @@
 import datetime
+
 from sqlalchemy import select
 
 from tushare_integration.models.daily_info import DailyInfo
+from tushare_integration.models.index_basic import IndexBasic
+from tushare_integration.models.index_daily import IndexDaily
 from tushare_integration.models.index_dailybasic import IndexDailybasic
 from tushare_integration.models.index_global import IndexGlobal
 from tushare_integration.models.index_monthly import IndexMonthly
 from tushare_integration.models.index_weekly import IndexWeekly
 from tushare_integration.models.index_weight import IndexWeight
 from tushare_integration.models.sz_daily_info import SzDailyInfo
-from tushare_integration.models.index_daily import IndexDaily
-from tushare_integration.models.index_basic import IndexBasic
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class IndexDailySpider(DailySpider):
-    name = "index/quotes/index_daily"
+    __spider_name__ = "index/quotes/index_daily"
     __model__: type[IndexDaily] = IndexDaily
 
     def start_requests(self):
@@ -53,37 +54,37 @@ class IndexDailySpider(DailySpider):
 
 
 class DailyInfoSpider(DailySpider):
-    name = "index/quotes/daily_info"
+    __spider_name__ = "index/quotes/daily_info"
     __model__: type[DailyInfo] = DailyInfo
 
 
 # noinspection SpellCheckingInspection
 class IndexDailyBasicSpider(DailySpider):
-    name = "index/quotes/index_dailybasic"
+    __spider_name__ = "index/quotes/index_dailybasic"
     __model__: type[IndexDailybasic] = IndexDailybasic
 
 
 class IndexGlobalSpider(DailySpider):
-    name = "index/quotes/index_global"
+    __spider_name__ = "index/quotes/index_global"
     __model__: type[IndexGlobal] = IndexGlobal
 
 
 # 创建指数专用的基类
 class IndexWeeklySpider(TushareSpider):
-    name = "index/quotes/index_weekly"
+    __spider_name__ = "index/quotes/index_weekly"
     __model__: type[IndexWeekly] = IndexWeekly
 
 
 class IndexMonthlySpider(IndexWeeklySpider):
-    name = "index/quotes/index_monthly"
+    __spider_name__ = "index/quotes/index_monthly"
     __model__: type[IndexMonthly] = IndexMonthly
 
 
 class IndexWeightSpider(TushareSpider):
-    name = "index/quotes/index_weight"
+    __spider_name__ = "index/quotes/index_weight"
     __model__: type[IndexWeight] = IndexWeight
 
 
 class SZDailyInfoSpider(DailySpider):
-    name = "index/quotes/sz_daily_info"
+    __spider_name__ = "index/quotes/sz_daily_info"
     __model__: type[SzDailyInfo] = SzDailyInfo

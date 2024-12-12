@@ -14,7 +14,7 @@ from tushare_integration.spiders.tushare import DailySpider
 
 
 class FutDailySpider(DailySpider):
-    name = "future/quotes/fut_daily"
+    __spider_name__ = "future/quotes/fut_daily"
     __model__: type[FutDaily] = FutDaily
 
     def start_requests(self):
@@ -59,7 +59,7 @@ class FutHoldingSpider(DailySpider):
     这个接口的数据量较大，为了保证一致性，针对每个交易所单独按日获取
     """
 
-    name = "future/quotes/fut_holding"
+    __spider_name__ = "future/quotes/fut_holding"
     __model__: type[FutHolding] = FutHolding
 
     def start_requests(self):
@@ -98,22 +98,22 @@ class FutHoldingSpider(DailySpider):
 
 
 class FutSettleSpider(DailySpider):
-    name = "future/quotes/fut_settle"
+    __spider_name__ = "future/quotes/fut_settle"
     __model__: type[FutSettle] = FutSettle
 
 
 class FutMappingSpider(DailySpider):
-    name = "future/quotes/fut_mapping"
+    __spider_name__ = "future/quotes/fut_mapping"
     __model__: type[FutMapping] = FutMapping
 
 
 class FutWSRSpider(DailySpider):
-    name = "future/quotes/fut_wsr"
+    __spider_name__ = "future/quotes/fut_wsr"
     __model__: type[FutWsr] = FutWsr
 
 
 class FutWeeklyDetailSpider(DailySpider):
-    name = "future/quotes/fut_weekly_detail"
+    __spider_name__ = "future/quotes/fut_weekly_detail"
     __model__: type[FutWeeklyDetail] = FutWeeklyDetail
 
     # 这个接口设计比较奇特，使用的是周编号，而不是日期，周编号格式是YYYYWW，比如202001

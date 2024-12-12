@@ -18,19 +18,19 @@ from tushare_integration.models.monthly import Monthly
 from tushare_integration.models.stk_limit import StkLimit
 from tushare_integration.models.stk_mins import StkMins
 from tushare_integration.models.stk_weekly_monthly import StkWeeklyMonthly
+from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.suspend_d import SuspendD
 from tushare_integration.models.weekly import Weekly
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
-from tushare_integration.models.stock_basic import StockBasic
 
 
 class StockDailySpider(DailySpider):
-    name = "stock/quotes/daily"
+    __spider_name__ = "stock/quotes/daily"
     __model__: type[Daily] = Daily
 
 
 class StockWeeklySpider(TushareSpider):
-    name = "stock/quotes/weekly"
+    __spider_name__ = "stock/quotes/weekly"
     __model__: type[Weekly] = Weekly
 
     def start_requests(self):
@@ -79,7 +79,7 @@ class StockWeeklySpider(TushareSpider):
 
 
 class StockMonthlySpider(StockWeeklySpider):
-    name = "stock/quotes/monthly"
+    __spider_name__ = "stock/quotes/monthly"
     __model__: type[Monthly] = Monthly
 
     def start_requests(self):
@@ -94,7 +94,7 @@ class StockMonthlySpider(StockWeeklySpider):
 
 
 class StockWeeklyMonthlySpider(StockWeeklySpider):
-    name = "stock/quotes/stk_weekly_monthly"
+    __spider_name__ = "stock/quotes/stk_weekly_monthly"
     __model__: type[StkWeeklyMonthly] = StkWeeklyMonthly
 
     def get_latest_trade_date(self, conn, db_name, date):
@@ -154,48 +154,48 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
 
 
 class AdjFactorSpider(DailySpider):
-    name = "stock/quotes/adj_factor"
+    __spider_name__ = "stock/quotes/adj_factor"
     __model__: type[AdjFactor] = AdjFactor
 
 
 class SuspendDSpider(DailySpider):
-    name = "stock/quotes/suspend_d"
+    __spider_name__ = "stock/quotes/suspend_d"
     description = '每日停复牌信息'
 
     __model__: type[SuspendD] = SuspendD
 
 
 class HSGTTop10Spider(DailySpider):
-    name = "stock/quotes/hsgt_top10"
+    __spider_name__ = "stock/quotes/hsgt_top10"
     description = '沪深股通十大成交股'
     __model__: type[HsgtTop10] = HsgtTop10
 
 
 class StkLimitSpider(DailySpider):
-    name = "stock/quotes/stk_limit"
+    __spider_name__ = "stock/quotes/stk_limit"
     description = '每日涨跌停价格'
     __model__: type[StkLimit] = StkLimit
 
 
 class DailyBasicSpider(DailySpider):
-    name = "stock/quotes/daily_basic"
+    __spider_name__ = "stock/quotes/daily_basic"
     __model__: type[DailyBasic] = DailyBasic
 
 
 class GGTTop10Spider(DailySpider):
-    name = "stock/quotes/ggt_top10"
+    __spider_name__ = "stock/quotes/ggt_top10"
     description = '港股通十大成交股'
     __model__: type[GgtTop10] = GgtTop10
 
 
 class GGTDailySpider(DailySpider):
-    name = "stock/quotes/ggt_daily"
+    __spider_name__ = "stock/quotes/ggt_daily"
     description = '港股通每日成交统计'
     __model__: type[GgtDaily] = GgtDaily
 
 
 class BakDailySpider(DailySpider):
-    name = "stock/quotes/bak_daily"
+    __spider_name__ = "stock/quotes/bak_daily"
     description = '备用行情'
     __model__: type[BakDaily] = BakDaily
 
@@ -205,7 +205,7 @@ class BakDailySpider(DailySpider):
 
 # noinspection SqlNoDataSourceInspection
 class StockMin(TushareSpider):
-    name = "stock/quotes/stk_mins"
+    __spider_name__ = "stock/quotes/stk_mins"
     __model__: type[StkMins] = StkMins
     custom_settings: dict[str, Any] = {
         "BASIC_TABLE": "stock_basic",

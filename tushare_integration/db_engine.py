@@ -1,5 +1,3 @@
-from typing import Any, Dict, List, Optional, Type
-
 import pandas as pd
 from sqlalchemy import Select, create_engine, text
 from sqlalchemy.engine import URL
@@ -42,42 +40,36 @@ class DBEngine:
         )
 
     def upsert(self, model, data: pd.DataFrame) -> None:
-        """插入或更新数据"""
-        if 'clickhouse' in self.settings.database.drivername:
-            # ClickHouse使用ReplacingMergeTree引擎，直接插入即可
+        """插入或更新数据
+
+        对于MySQL使用ON DUPLICATE KEY UPDATE进行upsert操作
+        对于其他数据库（ClickHouse、StarRocks等）直接使用insert
+        """
+        if 'mysql' not in self.settings.database.drivername:
+            # 非MySQL数据库直接插入
             self.insert(model, data)
             return
 
-        # MySQL和StarRocks使用ON DUPLICATE KEY UPDATE
+        # MySQL使用ON DUPLICATE KEY UPDATE
         table = model.__table__
+
+        # 将DataFrame转换为字典列表，确保键是字符串类型
+        records = [{str(k): v for k, v in record.items()} for record in data.to_dict(orient='records')]
+
+        # 使用SQLAlchemy的insert().on_duplicate_key_update()
+        stmt = table.insert()
+
+        # 获取所有非主键列作为更新列
         primary_key = model.__primary_key__
+        update_columns = {
+            str(col.name): stmt.inserted[col.name] for col in table.columns if col.name not in primary_key
+        }
 
-        # 构建ON DUPLICATE KEY UPDATE子句
-        update_columns = [col.name for col in table.columns if col.name not in primary_key]
-        update_stmt = ", ".join([f"{col} = VALUES({col})" for col in update_columns])
+        # 构建upsert语句
+        upsert_stmt = stmt.on_duplicate_key_update(**update_columns)
 
-        # 构建INSERT语句
-        columns = [col.name for col in table.columns]
-        placeholders = ", ".join([":" + col for col in columns])
-
-        sql = f"""
-            INSERT INTO {self.settings.database.db_name}.{table.name} 
-            ({", ".join(columns)}) 
-            VALUES ({placeholders})
-            ON DUPLICATE KEY UPDATE {update_stmt}
-        """
-
-        # 将DataFrame转换为字典列表，并确保所有值都是字符串
-        records = []
-        for _, row in data.iterrows():
-            record = {}
-            for col in columns:
-                val = row[col]
-                record[col] = str(val) if pd.notnull(val) else None
-            records.append(record)
-
-        # 执行SQL语句
-        self.conn.execute(text(sql), records)
+        # 执行语句
+        self.conn.execute(upsert_stmt, records)
 
     def query_df(self, stmt: Select | str) -> pd.DataFrame:
         """执行查询并返回DataFrame

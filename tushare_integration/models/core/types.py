@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Optional
 
 from clickhouse_sqlalchemy.types import Date32, DateTime64, Float64, Int64
@@ -92,7 +93,7 @@ class Date(TypeDecorator):
 
     @property
     def python_type(self):
-        return str
+        return date
 
 
 class DateTime(TypeDecorator):
@@ -110,4 +111,4 @@ class DateTime(TypeDecorator):
 
     @property
     def python_type(self):
-        return str
+        return datetime

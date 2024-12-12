@@ -1,24 +1,25 @@
 import logging
 from urllib import request
 from venv import logger
-import pandas as pd
-from sqlalchemy import select, distinct
 
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+import pandas as pd
+from sqlalchemy import distinct, select
+
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.index_classify import IndexClassify
 from tushare_integration.models.index_member import IndexMember
 from tushare_integration.models.index_member_all import IndexMemberAll
 from tushare_integration.models.sw_daily import SwDaily
+from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class IndexClassifySpider(TushareSpider):
-    name = "index/sw/index_classify"
+    __spider_name__ = "index/sw/index_classify"
     __model__: type[IndexClassify] = IndexClassify
 
 
 class IndexMemberSpider(TushareSpider):
-    name = "index/sw/index_member"
+    __spider_name__ = "index/sw/index_member"
     __model__: type[IndexMember] = IndexMember
 
     def start_requests(self):
@@ -35,7 +36,7 @@ class IndexMemberSpider(TushareSpider):
 
 
 class IndexMemberAllSpider(TushareSpider):
-    name = "index/sw/index_member_all"
+    __spider_name__ = "index/sw/index_member_all"
     __model__: type[IndexMemberAll] = IndexMemberAll
 
     def start_requests(self):
@@ -65,7 +66,7 @@ class IndexMemberAllSpider(TushareSpider):
 
 
 class SWDailySpider(DailySpider):
-    name = "index/sw/sw_daily"
+    __spider_name__ = "index/sw/sw_daily"
     __model__: type[SwDaily] = SwDaily
 
     def start_requests(self):

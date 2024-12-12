@@ -11,9 +11,9 @@ from scrapy.signalmanager import dispatcher
 from sqlalchemy import select
 
 from tushare_integration.db_engine import DatabaseEngineFactory
+from tushare_integration.log_model import TushareIntegrationLog
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings
-from tushare_integration.log_model import TushareIntegrationLog
 
 
 class CrawlManager(object):
@@ -32,18 +32,33 @@ class CrawlManager(object):
         dispatcher.connect(self.append_signal, signal=scrapy.signals.item_error)
         dispatcher.connect(self.append_signal, signal=scrapy.signals.spider_error)
 
-    def list_spiders(self, spider: str | None = None) -> list[str]:
+    def list_spiders(self, spider: str | None = None) -> list[dict]:
         """
-        列出所有spider
+        列出所有spider的详细信息
         :param spider: 通配符
-        :return: spider列表
+        :return: spider信息列表，每个元素包含api_title、name和api_path
         """
         # 获取spiders列表
-        spiders = self.process.spider_loader.list()
+        spider_names = self.process.spider_loader.list()
         # 过滤
         if spider:
-            spiders = [s for s in spiders if re.fullmatch(spider, s)]
-        return spiders
+            spider_names = [s for s in spider_names if re.fullmatch(spider, s)]
+
+        spider_info_list = []
+        for spider_name in spider_names:
+            # 获取spider类
+            spider_cls = self.process.spider_loader.load(spider_name)
+            # 获取model类
+            model = getattr(spider_cls, '__model__', None)
+
+            info = {
+                'api_title': getattr(model, '__api_title__', ''),
+                'name': spider_name,
+                'api_path': ' > '.join(getattr(model, '__api_path__', [])),
+            }
+            spider_info_list.append(info)
+
+        return spider_info_list
 
     def append_signal(self, signal, sender=None, item=None, response=None, spider=None):
         if not any([s['signal'] == signal and s['spider'] == spider for s in self.signals]):
@@ -71,9 +86,9 @@ class CrawlManager(object):
             jobs = yaml.safe_load(f.read())
         for job in jobs['cronjob']:
             if job['name'] == job_name:
-                return list(
-                    set(list(itertools.chain(*[self.list_spiders(spider['name']) for spider in job['spiders']])))
-                )
+                # 由于list_spiders现在返回dict列表，需要提取name
+                spiders_info = list(itertools.chain(*[self.list_spiders(spider['name']) for spider in job['spiders']]))
+                return list(set([spider['name'] for spider in spiders_info]))
         raise ValueError(f"Job {job_name} not found")
 
     def run_spiders_in_sequence(self, spiders: list[str]):
@@ -105,12 +120,12 @@ class CrawlManager(object):
         self.process.start()
 
         self.report()
-        # 如果有异常就抛出
+        # 如果有异常直接抛出
         self.raise_for_signal()
 
     def get_all_spiders(self, spiders):
         dependencies = [spiders]
-        # 采集服务不是并发安全的，开启依赖解析的情况下可能会导致数据出现重复等问题
+        # 采集服不是并发安全的，开启依赖析的情况下可能会导致数据出现重复等问题
         if not self.settings.parallel_mode:
             while self.get_dependencies(dependencies[-1]):
                 dependencies.append(self.get_dependencies(dependencies[-1]))
