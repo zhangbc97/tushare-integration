@@ -21,7 +21,7 @@ class News(Base):
     __api_path__: ClassVar[List[str]] = ['数据接口', '另类数据', '新闻快讯']
     __api_path_ids__: ClassVar[List[int]] = [2, 142, 143]
     __api_points_required__: ClassVar[int] = 2000
-    __api_special_permission__: ClassVar[bool] = False
+    __api_special_permission__: ClassVar[bool] = True
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['datetime', 'title']
@@ -51,7 +51,7 @@ class News(Base):
         },
     )
 
-    datetime = Column('datetime', String(), nullable=False, default="", server_default=text("''"), comment='���间')
+    datetime = Column('datetime', String(), nullable=False, default="", server_default=text("''"), comment='时间')
     content = Column('content', String(), nullable=False, default="", server_default=text("''"), comment='内容')
     title = Column('title', String(), nullable=False, default="", server_default=text("''"), comment='标题')
     channels = Column('channels', String(), nullable=False, default="", server_default=text("''"), comment='分类')

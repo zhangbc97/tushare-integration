@@ -21,10 +21,10 @@ class AnnsD(Base):
     __api_path__: ClassVar[List[str]] = ['数据接口', '另类数据', '上市公司公告']
     __api_path_ids__: ClassVar[List[int]] = [2, 142, 176]
     __api_points_required__: ClassVar[int] = 2000
-    __api_special_permission__: ClassVar[bool] = False
+    __api_special_permission__: ClassVar[bool] = True
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = ['ts_code', 'ann_date', 'ann_id']
+    __primary_key__: ClassVar[List[str]] = ['ts_code', 'ann_date', 'rec_time']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {

@@ -24,7 +24,7 @@ class Coincap(Base):
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
+    __primary_key__: ClassVar[List[str]] = ['coin', 'trade_date']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
@@ -56,7 +56,7 @@ class Coincap(Base):
         nullable=False,
         default="1970-01-01",
         server_default=text("'1970-01-01'"),
-        comment='交易日期',
+        comment='交易日���',
     )
     coin = Column('coin', String(), nullable=False, default="", server_default=text("''"), comment='货币代码')
     name = Column('name', String(), nullable=False, default="", server_default=text("''"), comment='货币名称')

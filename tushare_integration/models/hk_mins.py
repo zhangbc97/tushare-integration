@@ -21,7 +21,7 @@ class HkMins(Base):
     __api_path__: ClassVar[List[str]] = ['数据接口', '港股', '港股分钟行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 190, 304]
     __api_points_required__: ClassVar[int] = 2000
-    __api_special_permission__: ClassVar[bool] = False
+    __api_special_permission__: ClassVar[bool] = True
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_time']

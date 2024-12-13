@@ -20,7 +20,7 @@ class ShareFloat(Base):
     __api_info_title__: ClassVar[str] = '限售股解禁'
     __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '参考数据', '限售股解禁']
     __api_path_ids__: ClassVar[List[int]] = [2, 14, 17, 160]
-    __api_points_required__: ClassVar[int] = 2000
+    __api_points_required__: ClassVar[int] = 3000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = ['stock_basic']

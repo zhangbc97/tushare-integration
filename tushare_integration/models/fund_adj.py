@@ -20,7 +20,7 @@ class FundAdj(Base):
     __api_info_title__: ClassVar[str] = '基金复权因子'
     __api_path__: ClassVar[List[str]] = ['数据接口', '公募基金', '复权因子']
     __api_path_ids__: ClassVar[List[int]] = [2, 18, 199]
-    __api_points_required__: ClassVar[int] = 2000
+    __api_points_required__: ClassVar[int] = 5000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []

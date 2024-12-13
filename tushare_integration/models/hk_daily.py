@@ -21,7 +21,7 @@ class HkDaily(Base):
     __api_path__: ClassVar[List[str]] = ['数据接口', '港股', '港股日线行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 190, 192]
     __api_points_required__: ClassVar[int] = 2000
-    __api_special_permission__: ClassVar[bool] = False
+    __api_special_permission__: ClassVar[bool] = True
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
@@ -69,4 +69,4 @@ class HkDaily(Base):
     change = Column('change', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌额')
     pct_chg = Column('pct_chg', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌幅')
     vol = Column('vol', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交量')
-    amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交额')
+    amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='���交额')

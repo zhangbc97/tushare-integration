@@ -61,38 +61,6 @@ class CoinPair(Base):
     )
     base_coin = Column('base_coin', String(), nullable=False, default="", server_default=text("''"), comment='')
     price_coin = Column('price_coin', String(), nullable=False, default="", server_default=text("''"), comment='')
-    listing = Column(
-        'listing',
-        DateTime,
-        nullable=False,
-        default="1970-01-01 00:00:00",
-        server_default=text("'1970-01-01 00:00:00'"),
-        comment='',
-    )
-    delivery = Column(
-        'delivery',
-        DateTime,
-        nullable=False,
-        default="1970-01-01 00:00:00",
-        server_default=text("'1970-01-01 00:00:00'"),
-        comment='',
-    )
-    listing = Column(
-        'listing',
-        DateTime,
-        nullable=False,
-        default="1970-01-01 00:00:00",
-        server_default=text("'1970-01-01 00:00:00'"),
-        comment='',
-    )
-    delivery = Column(
-        'delivery',
-        DateTime,
-        nullable=False,
-        default="1970-01-01 00:00:00",
-        server_default=text("'1970-01-01 00:00:00'"),
-        comment='',
-    )
     create_time = Column(
         'create_time',
         DateTime,

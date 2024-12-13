@@ -20,7 +20,7 @@ class OptDaily(Base):
     __api_info_title__: ClassVar[str] = '期权日线行情'
     __api_path__: ClassVar[List[str]] = ['数据接口', '期权', '期权日线行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 157, 159]
-    __api_points_required__: ClassVar[int] = 2000
+    __api_points_required__: ClassVar[int] = 5000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
@@ -45,7 +45,7 @@ class OptDaily(Base):
             'comment': '期权日线行情',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
-            # StarRocks引擎
+            # StarRocks引��
             'starrocks_primary_key': ','.join(__primary_key__),
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
