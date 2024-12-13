@@ -24,7 +24,7 @@ class News(Base):
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = []
+    __primary_key__: ClassVar[List[str]] = ['datetime', 'title']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
@@ -51,7 +51,7 @@ class News(Base):
         },
     )
 
-    datetime = Column('datetime', String(), nullable=False, default="", server_default=text("''"), comment='时间')
+    datetime = Column('datetime', String(), nullable=False, default="", server_default=text("''"), comment='���间')
     content = Column('content', String(), nullable=False, default="", server_default=text("''"), comment='内容')
     title = Column('title', String(), nullable=False, default="", server_default=text("''"), comment='标题')
     channels = Column('channels', String(), nullable=False, default="", server_default=text("''"), comment='分类')

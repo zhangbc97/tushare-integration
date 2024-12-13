@@ -9,7 +9,7 @@ import scrapy
 import yaml
 from sqlalchemy import and_, not_, select, text
 
-from tushare_integration.db_engine import DatabaseEngineFactory, DBEngine
+from tushare_integration.db_engine import  DBEngine
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
@@ -68,7 +68,7 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
 
     def create_table(self):
         logging.info(f"quest {self.name}: create table {self.table_name}")
-        self.db_engine = DatabaseEngineFactory.create(self.spider_settings)
+        self.db_engine = DBEngine(self.spider_settings)
         self.db_engine.create_table(self.__model__)
 
     def start_requests(self):

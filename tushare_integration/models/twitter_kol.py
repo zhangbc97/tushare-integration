@@ -24,7 +24,7 @@ class TwitterKol(Base):
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = []
+    __primary_key__: ClassVar[List[str]] = ['content_id']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
@@ -68,7 +68,7 @@ class TwitterKol(Base):
         'posted_at', Integer, nullable=False, default=0, server_default=text("'0'"), comment='发布时间戳'
     )
     content_translation = Column(
-        'content_translation', String(), nullable=False, default="", server_default=text("''"), comment='内容翻译'
+        'content_translation', String(), nullable=False, default="", server_default=text("''"), comment='��容翻译'
     )
     str_posted_at = Column(
         'str_posted_at',

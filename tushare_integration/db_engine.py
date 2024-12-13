@@ -85,9 +85,3 @@ class DBEngine:
 
         sql = stmt.compile(dialect=self.engine.dialect, compile_kwargs={"literal_binds": True})
         return pd.read_sql(str(sql), self.conn)
-
-
-class DatabaseEngineFactory:
-    @staticmethod
-    def create(settings: TushareIntegrationSettings) -> DBEngine:
-        return DBEngine(settings)

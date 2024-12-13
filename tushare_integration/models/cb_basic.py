@@ -24,7 +24,7 @@ class CbBasic(Base):
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = []
+    __primary_key__: ClassVar[List[str]] = ['ts_code']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
@@ -51,7 +51,7 @@ class CbBasic(Base):
         },
     )
 
-    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='转债代码')
+    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='转��代码')
     bond_full_name = Column(
         'bond_full_name', String(), nullable=False, default="", server_default=text("''"), comment='转债名称'
     )

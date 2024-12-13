@@ -10,7 +10,7 @@ import yaml
 from scrapy.signalmanager import dispatcher
 from sqlalchemy import select
 
-from tushare_integration.db_engine import DatabaseEngineFactory
+from tushare_integration.db_engine import DBEngine
 from tushare_integration.log_model import TushareIntegrationLog
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings
@@ -144,7 +144,7 @@ class CrawlManager(object):
     def get_report_content(self):
         content = f"批次ID：{self.batch_id}\n"
 
-        db_engine = DatabaseEngineFactory.create(self.settings)
+        db_engine = DBEngine(self.settings)
 
         # 使用 SQLAlchemy select 获取日志记录
         query = select(TushareIntegrationLog.description, TushareIntegrationLog.count).where(

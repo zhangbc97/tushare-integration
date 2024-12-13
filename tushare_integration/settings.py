@@ -92,7 +92,7 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
         logging.warning(f"获取Tushare积分失败,响应数据格式异常: {data}, 使用默认值2000")
         return 2000
     except Exception as e:
-        logging.warning(f"获���Tushare积分失败: {e}, 使用默认值2000")
+        logging.warning(f"获取Tushare积分失败: {e}, 使用默认值2000")
         return 2000
 
 

@@ -10,7 +10,7 @@ import yaml
 from scrapy.exceptions import DropItem
 from sqlalchemy import Column
 
-from tushare_integration.db_engine import DatabaseEngineFactory
+from tushare_integration.db_engine import DBEngine
 from tushare_integration.log_model import TushareIntegrationLog
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -93,7 +93,7 @@ class TransformDTypePipeline(BasePipeline):
 class TushareIntegrationDataPipeline(BasePipeline):
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-        self.db_engine = DatabaseEngineFactory.create(self.settings)
+        self.db_engine = DBEngine(self.settings)
         self.table_name: str = ""
         self.truncate: bool = False
 
@@ -120,7 +120,7 @@ class TushareIntegrationDataPipeline(BasePipeline):
 class RecordLogPipeline(BasePipeline):
     def __init__(self, settings, *args, **kwargs) -> None:
         super().__init__(settings, *args, **kwargs)
-        self.db_engine = DatabaseEngineFactory.create(self.settings)
+        self.db_engine = DBEngine(self.settings)
         self.count: int = 0
         self.start_time = datetime.datetime.now()
         self.create_log_table()
