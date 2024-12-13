@@ -1,6 +1,7 @@
 import pandas as pd
 from sqlalchemy import Select, create_engine, text
 from sqlalchemy.engine import URL
+from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
 
 from tushare_integration.settings import TushareIntegrationSettings
@@ -28,6 +29,10 @@ class DBEngine:
         """从模型创建表"""
         create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
         self.conn.execute(text(str(create_stmt)))
+
+    def session(self) -> Session:
+        """创建会话"""
+        return Session(self.engine)
 
     def insert(self, model, data: pd.DataFrame) -> None:
         """插入数据"""

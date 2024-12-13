@@ -13,7 +13,7 @@ spider_app = typer.Typer(
 
 
 @spider_app.command('list', help='列出所有可用爬虫')
-def list_spiders():
+def list_spiders() -> None:
     """列出所有可用的爬虫"""
     manager = CrawlManager()
     spiders_info = manager.list_spiders()
@@ -42,7 +42,7 @@ def list_spiders():
 
 
 @spider_app.command('info', help='查看特定爬虫的详细信息')
-def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称')):
+def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称')) -> None:
     """查看特定爬虫的详细信息"""
     manager = CrawlManager()
     spiders_info = manager.list_spiders(spider_name)

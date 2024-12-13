@@ -1,6 +1,6 @@
 # TUSHARE相关配置
 tushare_url: https://api.tushare.pro
-tushare_point: 2000
+tushare_point: 10000
 tushare_token: ""
 
 database:

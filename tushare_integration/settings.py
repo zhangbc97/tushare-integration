@@ -9,7 +9,9 @@
 import functools
 import logging
 import os
-from typing import Annotated, Any, Literal
+import sys
+from pathlib import Path
+from typing import Annotated, Any, Dict, Literal
 
 import pandas as pd
 import requests
@@ -49,7 +51,7 @@ class DatabaseConfig(BaseSettings):
     )
 
     host: Annotated[str, env_variable('DB_HOST')] = Field(..., description='数据库主机')
-    port: Annotated[int, env_variable('DB_HOST')] = Field(..., description='数据库端口')
+    port: Annotated[int, env_variable('DB_PORT')] = Field(..., description='数据库端口')
     user: Annotated[str, env_variable('DB_USER')] = Field(..., description='数据库用户名')
     password: Annotated[str, env_variable('DB_PASSWORD')] = Field('', description='数据库密码')
 
@@ -140,7 +142,7 @@ class TushareIntegrationSettings(BaseSettings):
     )
     concurrent_items: Annotated[int, env_variable('CONCURRENT_ITEMS')] = Field(default=100, description='并发item数')
 
-    download_delay: float = Field(default=0, description='下载延迟')
+    download_delay: float = Field(default=0, description='下载延')
 
     downloader_middlewares: dict[str, int | None] = Field(
         default={
@@ -207,10 +209,30 @@ class TushareIntegrationSettings(BaseSettings):
         return env_settings, init_settings, file_secret_settings
 
 
-# 保持scrapy兼容
-for key, value in (
-    TushareIntegrationSettings.model_validate(yaml.safe_load(open('config.yaml', 'r', encoding='utf-8').read()))
-    .get_settings()
-    .items()
-):
-    locals()[key] = value
+def load_config(config_file: str | Path = 'config.yaml') -> TushareIntegrationSettings:
+    """
+    从指定的配置文件加载配置，并将配置项设置为全局变量
+
+    Args:
+        config_file: 配置文件路径，默认为 config.yaml
+
+    Returns:
+        配置项字典，所有配置项都已转换为大写
+
+    Raises:
+        SystemExit: 当配置文件无法读取时退出程序
+    """
+    try:
+        with open(config_file, 'r', encoding='utf-8') as f:
+            config_data = yaml.safe_load(f)
+    except Exception as e:
+        logging.error(f"无法读取配置文件 {config_file}: {e}")
+        sys.exit(1)
+
+    # 验证配置并获取设置
+    settings = TushareIntegrationSettings.model_validate(config_data)
+
+    # 将配置项设置为全局变量
+    globals().update(settings.get_settings())
+
+    return settings

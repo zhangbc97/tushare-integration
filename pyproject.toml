@@ -1,10 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "tushare-integration"
-version = "0.2.0"
-description = ""
+dynamic = ["version"]
+description = "Tushare Pro数据集成工具，支持将Tushare数据同步到本地数据库"
 authors = [{ "name" = "zhangbingchen", "email" = "1731259685@qq.com" }]
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["tushare", "finance", "data", "integration", "financial-data"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business :: Financial",
+]
 dependencies = [
     "cryptography==44.0.0",
     "jinja2==3.1.4",
@@ -25,6 +39,9 @@ dependencies = [
     "typing-extensions==4.12.2",
     "zstandard==0.23.0",
 ]
+
+[project.scripts]
+tushare-integration = "tushare_integration.main:main"
 
 [project.optional-dependencies]
 clickhouse = [
@@ -47,6 +64,16 @@ all = [
     "doris-alchemy==0.2.3",
     "starrocks==1.2.0",
 ]
+dev = [
+    "pytest>=7.0",
+    "black",
+    "isort",
+    "build",
+    "twine",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "tushare_integration.__version__"}
 
 [tool.black]
 line-length = 120

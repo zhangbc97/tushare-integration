@@ -9,7 +9,7 @@ import scrapy
 import yaml
 from sqlalchemy import and_, not_, select, text
 
-from tushare_integration.db_engine import  DBEngine
+from tushare_integration.db_engine import DBEngine
 from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
@@ -22,9 +22,9 @@ class TushareSpiderMeta(type):
         cls = super().__new__(mcs, name, bases, attrs)
         if not hasattr(cls, '__model__'):
             raise ValueError(f"类 {name} 必须设置 __model__ 属性")
-        # 只为非Base的model设置name
+        # 为每个非Base的model设置name，即使已经有name属性也要重新设置
         model = getattr(cls, '__model__')
-        if model is not Base and not hasattr(cls, 'name'):
+        if model is not Base:
             setattr(cls, 'name', model.__api_name__)
         return cls
 
@@ -264,7 +264,7 @@ class FinancialReportSpider(TushareSpider):
 
     def request_with_vip(self):
         # 每次全量同步即可，30年的数据只有4*30*12=1440次请求
-        if self.custom_settings.get('HAS_VIP', True):
+        if self.__model__.__has_vip__ is True:
             self.api_name = self.api_name + "_vip"
         for period in self.get_all_period():
             # 三大报表需要按照report_type分别请求

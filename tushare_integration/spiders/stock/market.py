@@ -25,13 +25,11 @@ class MarginSecsSpider(DailySpider):
 class Top10HoldersSpider(FinancialReportSpider):
     __spider_name__ = "stock/market/top10_holders"
     __model__: type[Top10Holders] = Top10Holders
-    custom_settings = {"HAS_VIP": False}
 
 
 class Top10FloatHoldersSpider(FinancialReportSpider):
     __spider_name__ = "stock/market/top10_floatholders"
     __model__: type[Top10Floatholders] = Top10Floatholders
-    custom_settings = {"HAS_VIP": False}
 
 
 class TopListSpider(DailySpider):

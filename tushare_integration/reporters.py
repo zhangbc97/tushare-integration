@@ -3,6 +3,8 @@ import logging
 
 import requests
 
+from tushare_integration.settings import TushareIntegrationSettings
+
 
 class Reporter(object):
     def send_report(self, subject: str, content: str, *args, **kwargs):
@@ -47,9 +49,9 @@ class FeishuWebHookReporter(Reporter):
 
 
 class ReporterLoader(object):
-    def __init__(self, settings: dict):
+    def __init__(self, settings: TushareIntegrationSettings):
         self.settings = settings
-        self.reporters = settings.get('REPORTERS', [])
+        self.reporters = settings.reporters
         logging.info(f'Load reporters: {self.reporters}')
 
     def get_reporters(self):

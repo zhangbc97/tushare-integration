@@ -3,28 +3,116 @@
 - 参考[配置文件](settings.md)编写好配置文件
 - 使用python main.py启动主程序
 
-## 命令
+## 命令行工具
 
-### query
+项目提供了一个功能强大的命令行工具，包含以下主要命令：
 
-#### list 列举spider清单
+### run - 运行命令
 
-`python main.py query list [OPTIONS]`
+#### spider - 运行爬虫
 
-### run
+```bash
+python main.py run spider [OPTIONS] SPIDER_NAME
+```
 
-#### spider 运行爬虫
+该命令用于运行指定的爬虫。SPIDER_NAME支持通配符匹配，例如：
+- `stock/basic/stock_basic` - 运行单个爬虫
+- `stock/basic/*` - 运行stock/basic目录下的所有爬虫
 
-`python main.py run spider [OPTIONS] SPIDER_NAME`
+参数说明：
+- `SPIDER_NAME`: 爬虫名称，支持通配符匹配
 
-该命令将运行对应的spider  
-spider_name基于正则全文匹配，例如stock/basic/*将运行所有stock/basic下的spider
+#### job - 运行任务
 
-#### job 运行任务
+```bash
+python main.py run job [OPTIONS] JOB_NAME
+```
 
-`python main.py run job [OPTIONS] JOB_NAME`
+该命令将从jobs.yaml文件中找到对应的job，然后运行该job下的所有spider。
 
-该命令将从jobs.yaml文件中找到对应的job，然后运行该job下的所有spider
+参数说明：
+- `JOB_NAME`: 任务名称，对应jobs.yaml中定义的任务名
+
+### spider - 爬虫管理
+
+#### list - 列出爬虫
+
+```bash
+python main.py spider list
+```
+
+列出所有可用的爬虫，以表格形式展示：
+- 爬虫名称
+- 接口名称
+- 接口路径
+
+#### info - 查看爬虫详情
+
+```bash
+python main.py spider info [SPIDER_NAME]
+```
+
+查看特定爬虫的详细信息，包括：
+- 爬虫名称
+- 接口信息
+- 数据路径
+- 依赖关系
+
+参数说明：
+- `SPIDER_NAME`: 要查看详情的爬虫名称
+
+### api - API管理
+
+#### info - 查看API详情
+
+```bash
+python main.py api info [API_NAME]
+```
+
+查看特定API的详细信息，包括：
+- API名称和分类
+- 所需积分
+- 是否需要特殊权限
+- 参数列表及说明
+- 依赖关系
+
+参数说明：
+- `API_NAME`: 要查看详情的API名称
+
+## 使用示例
+
+### 1. 运行单个爬虫
+```bash
+# 运行股票基本信息爬虫
+python main.py run spider stock/basic/stock_basic
+```
+
+### 2. 运行一组爬虫
+```bash
+# 运行所有基本信息相关的爬虫
+python main.py run spider stock/basic/*
+```
+
+### 3. 运行预定义任务
+```bash
+# 运行daily_morning任务
+python main.py run job daily_morning
+```
+
+### 4. 查看爬虫信息
+```bash
+# 列出所有可用爬虫
+python main.py spider list
+
+# 查看特定爬虫的详细信息
+python main.py spider info stock/basic/stock_basic
+```
+
+### 5. 查看API信息
+```bash
+# 查看股票基本信息API的详细信息
+python main.py api info stock_basic
+```
 
 ## 使用K8S
 
@@ -215,7 +303,7 @@ docker run -d --net=host -v /data0/tushare-integration/config/jobs.yaml:/code/ap
 
 #### 配置定时任务
 
-配置定时任务时请避免定时任务同时启动，采集服务并发情况下可能会出现采集的数据异常
+配置定时任务时请避免定时任务同时启动，采集服务并��情况下可能会出现采集的数据异常
 
 ```shell
 crontab -e
