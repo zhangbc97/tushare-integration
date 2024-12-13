@@ -56,7 +56,7 @@ class Coincap(Base):
         nullable=False,
         default="1970-01-01",
         server_default=text("'1970-01-01'"),
-        comment='交易日���',
+        comment='交易日期',
     )
     coin = Column('coin', String(), nullable=False, default="", server_default=text("''"), comment='货币代码')
     name = Column('name', String(), nullable=False, default="", server_default=text("''"), comment='货币名称')

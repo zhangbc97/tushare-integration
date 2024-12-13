@@ -45,7 +45,7 @@ class OptDaily(Base):
             'comment': '期权日线行情',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
-            # StarRocks引��
+            # StarRocks引擎
             'starrocks_primary_key': ','.join(__primary_key__),
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎

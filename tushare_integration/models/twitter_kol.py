@@ -68,7 +68,7 @@ class TwitterKol(Base):
         'posted_at', Integer, nullable=False, default=0, server_default=text("'0'"), comment='发布时间戳'
     )
     content_translation = Column(
-        'content_translation', String(), nullable=False, default="", server_default=text("''"), comment='��容翻译'
+        'content_translation', String(), nullable=False, default="", server_default=text("''"), comment='内容翻译'
     )
     str_posted_at = Column(
         'str_posted_at',

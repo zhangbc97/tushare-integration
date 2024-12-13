@@ -69,4 +69,4 @@ class HkDaily(Base):
     change = Column('change', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌额')
     pct_chg = Column('pct_chg', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌幅')
     vol = Column('vol', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交量')
-    amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='���交额')
+    amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交额')

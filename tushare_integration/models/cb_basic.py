@@ -51,7 +51,7 @@ class CbBasic(Base):
         },
     )
 
-    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='转��代码')
+    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='转债代码')
     bond_full_name = Column(
         'bond_full_name', String(), nullable=False, default="", server_default=text("''"), comment='转债名称'
     )
