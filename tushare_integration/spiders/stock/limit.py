@@ -15,7 +15,7 @@ from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class DCHotSpider(DailySpider):
-    __spider_name__ = "stock/limit/dc_hot"
+
     __model__: type[DcHot] = DcHot
 
     def start_requests(self):
@@ -26,52 +26,52 @@ class DCHotSpider(DailySpider):
 
 
 class HMDetailSpider(DailySpider):
-    __spider_name__ = "stock/limit/hm_detail"
+
     __model__: type[HmDetail] = HmDetail
 
 
 class HMListSpider(TushareSpider):
-    __spider_name__ = "stock/limit/hm_list"
+
     __model__: type[HmList] = HmList
 
 
 class KplConceptConsSpider(DailySpider):
-    __spider_name__ = "stock/limit/kpl_concept_cons"
+
     __model__: type[KplConceptCons] = KplConceptCons
 
 
 class KplConceptSpider(DailySpider):
-    __spider_name__ = "stock/limit/kpl_concept"
+
     __model__: type[KplConcept] = KplConcept
 
 
 class KplListSpider(DailySpider):
-    __spider_name__ = "stock/limit/kpl_list"
+
     __model__: type[KplList] = KplList
 
 
 class LimitCptListSpider(DailySpider):
-    __spider_name__ = "stock/limit/limit_cpt_list"
+
     __model__: type[LimitCptList] = LimitCptList
 
 
 class LimitListDSpider(DailySpider):
-    __spider_name__ = "stock/limit/limit_list_d"
+
     __model__: type[LimitListD] = LimitListD
 
 
 class LimitListTHSSpider(DailySpider):
-    __spider_name__ = "stock/limit/limit_list_ths"
+
     __model__: type[LimitListThs] = LimitListThs
 
 
 class LimitStepSpider(DailySpider):
-    __spider_name__ = "stock/limit/limit_step"
+
     __model__: type[LimitStep] = LimitStep
 
 
 class THSHotSpider(DailySpider):
-    __spider_name__ = "stock/limit/ths_hot"
+
     __model__: type[ThsHot] = ThsHot
 
     def start_requests(self):

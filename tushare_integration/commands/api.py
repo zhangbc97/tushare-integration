@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.table import Table
 
 from tushare_integration.models.core import Base
+from tushare_integration.manager import CrawlManager
 
 console = Console()
 api_app = typer.Typer(name='api', help='API管理', no_args_is_help=True)
@@ -63,31 +64,42 @@ def get_api_info() -> Dict[str, Dict]:
     return api_info
 
 
-@api_app.command('list', help='列出所有可用的Tushare API')
+@api_app.command('list', help='列出所有可用API')
 def list_apis() -> None:
-    """列出所有可用的Tushare API"""
-    api_info = get_api_info()
+    """列出所有可用的API"""
+    manager = CrawlManager()
+    spiders_info = manager.list_spiders()
+
+    # 按路径排序
+    spiders_info.sort(key=lambda x: x['api_path'])
 
     # 创建表格
-    table = Table(title="Tushare API列表")
+    table = Table(title="API列表")
 
     # 添加列
-    table.add_column("API名称", style="bright_blue")
-    table.add_column("描述", style="bright_green")
-    table.add_column("路径", style="bright_yellow")
-    table.add_column("积分", style="bright_magenta")
-    table.add_column("需单独开通", style="bright_red")
-    table.add_column("含VIP接口", style="bright_cyan")
+    table.add_column("名称", style="bright_green")
+    table.add_column("接口", style="bright_blue")
+    table.add_column("中文路径", style="bright_yellow")
+    table.add_column("英文路径", style="bright_magenta")
+    table.add_column("所需积分", style="bright_cyan")
+    table.add_column("特殊权限", style="bright_red")
 
     # 添加行
-    for api_name, info in sorted(api_info.items()):
+    for spider in spiders_info:
+        # 获取spider类和model类以获取额外信息
+        spider_cls = manager.process.spider_loader.load(spider['name'])
+        model = getattr(spider_cls, '__model__', None)
+        
+        points = str(getattr(model, '__api_points_required__', '0')) if model else '0'
+        special = '是' if getattr(model, '__api_special_permission__', False) else '否'
+
         table.add_row(
-            api_name,
-            info['title'],
-            ' > '.join(info['path']),
-            str(info['points_required']),
-            "是" if info['special_permission'] else "否",
-            "是" if info['has_vip'] else "否",
+            spider['api_title'],
+            spider['name'],
+            spider['api_path'],
+            spider['api_path_en'],
+            points,
+            special
         )
 
     # 打印表格
@@ -97,13 +109,16 @@ def list_apis() -> None:
 @api_app.command('info', help='查看特定API的详细信息')
 def api_info(api_name: str = typer.Argument(..., help='API名称')) -> None:
     """查看特定API的详细信息"""
-    api_info = get_api_info()
+    manager = CrawlManager()
+    spiders_info = manager.list_spiders(api_name)
 
-    if api_name not in api_info:
+    if not spiders_info:
         console.print(f"[red]未找到API: {api_name}[/red]")
         return
 
-    info = api_info[api_name]
+    spider_info = spiders_info[0]
+    spider_cls = manager.process.spider_loader.load(spider_info['name'])
+    model = getattr(spider_cls, '__model__', None)
 
     # 创建表格
     table = Table(title=f"API详细信息: {api_name}")
@@ -112,33 +127,32 @@ def api_info(api_name: str = typer.Argument(..., help='API名称')) -> None:
     table.add_column("属性", style="bright_blue")
     table.add_column("值", style="bright_green")
 
-    table.add_row("名称", info['title'])
-    table.add_row("分类", info['info_title'])
-    table.add_row("路径", ' > '.join(info['path']))
-    table.add_row("所需积分", str(info['points_required']))
-    table.add_row("需单独开通", "是" if info['special_permission'] else "否")
-    table.add_row("含VIP接口", "是" if info['has_vip'] else "否")
-    table.add_row("对应模型", info['model'])
+    table.add_row("名称", spider_info['api_title'])
+    table.add_row("接口", spider_info['name'])
+    table.add_row("中文路径", spider_info['api_path'])
+    table.add_row("英文路径", spider_info['api_path_en'])
 
-    if info['dependencies']:
-        table.add_row("依赖接口", "\n".join(info['dependencies']))
+    if model:
+        table.add_row("所需积分", str(getattr(model, '__api_points_required__', '0')))
+        table.add_row("特殊权限", '是' if getattr(model, '__api_special_permission__', False) else '否')
+        table.add_row("VIP专享", '是' if getattr(model, '__has_vip__', False) else '否')
 
-    if info['params']:
-        param_table = Table(show_header=True, header_style="bright_blue")
-        param_table.add_column("参数名")
-        param_table.add_column("类型")
-        param_table.add_column("必填")
-        param_table.add_column("描述")
+        # 显示API参数信息
+        api_params = getattr(model, '__api_params__', {})
+        if api_params:
+            params_table = []
+            for param_name, param_info in api_params.items():
+                required = '是' if param_info.get('required', False) else '否'
+                param_type = param_info.get('type', '')
+                description = param_info.get('description', '')
+                params_table.append(f"{param_name} ({param_type})\n  必填: {required}\n  说明: {description}")
+            
+            table.add_row("参数列表", "\n".join(params_table))
 
-        for param_name, param_info in info['params'].items():
-            param_table.add_row(
-                param_name,
-                param_info.get('type', ''),
-                '是' if param_info.get('required', False) else '否',
-                param_info.get('description', ''),
-            )
-
-        table.add_row("参数列表", param_table)
+    # 获取依赖信息
+    dependencies = manager.get_dependencies([spider_info['name']])
+    if dependencies:
+        table.add_row("依赖", "\n".join(dependencies))
 
     # 打印表格
     console.print(table)

@@ -148,4 +148,3 @@ reporters:"""
     console.print(f"\n配置文件位置：")
     console.print(f"1. {config_file} - Tushare和数据库配置")
     console.print(f"2. {jobs_file} - 定时任务配置（可选）")
-

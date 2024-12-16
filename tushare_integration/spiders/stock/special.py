@@ -18,18 +18,18 @@ from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, Tusha
 
 
 class ReportRCSpider(TSCodeSpider):
-    __spider_name__ = "stock/special/report_rc"
+
     __model__: type[ReportRc] = ReportRc
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class CyqPerfSpider(DailySpider):
-    __spider_name__ = "stock/special/cyq_perf"
+
     __model__: type[CyqPerf] = CyqPerf
 
 
 class CyqChipsSpider(TushareSpider):
-    __spider_name__ = "stock/special/cyq_chips"
+
     __model__: type[CyqChips] = CyqChips
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
@@ -61,33 +61,33 @@ class CyqChipsSpider(TushareSpider):
 
 
 class StkFactorSpider(DailySpider):
-    __spider_name__ = "stock/special/stk_factor"
+
     __model__: type[StkFactor] = StkFactor
 
 
 class CCASSHoldSpider(DailySpider):
-    __spider_name__ = "stock/special/ccass_hold"
+
     __model__: type[CcassHold] = CcassHold
 
 
 class CCASSHoldDetailSpider(DailySpider):
-    __spider_name__ = "stock/special/ccass_hold_detail"
+
     __model__: type[CcassHoldDetail] = CcassHoldDetail
 
 
 class HKHoldSpider(DailySpider):
-    __spider_name__ = "stock/special/hk_hold"
+
     __model__: type[HkHold] = HkHold
 
 
 class StkSurvSpider(TSCodeSpider):
-    __spider_name__ = "stock/special/stk_surv"
+
     __model__: type[StkSurv] = StkSurv
     custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class BrokerRecommendSpider(TushareSpider):
-    __spider_name__ = "stock/special/broker_recommend"
+
     __model__: type[BrokerRecommend] = BrokerRecommend
 
     def start_requests(self):
@@ -99,5 +99,5 @@ class BrokerRecommendSpider(TushareSpider):
 
 
 class StkFactorProSpider(DailySpider):
-    __spider_name__ = "stock/special/stk_factor_pro"
+
     __model__: type[StkFactorPro] = StkFactorPro

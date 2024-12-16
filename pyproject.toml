@@ -12,68 +12,53 @@ requires-python = ">=3.11"
 license = { text = "MIT" }
 keywords = ["tushare", "finance", "data", "integration", "financial-data"]
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Office/Business :: Financial",
+"Development Status :: 4 - Beta",
+"Intended Audience :: Developers",
+"License :: OSI Approved :: MIT License",
+"Programming Language :: Python :: 3.11",
+"Topic :: Software Development :: Libraries :: Python Modules",
+"Topic :: Office/Business :: Financial",
 ]
 dependencies = [
-    "cryptography==44.0.0",
-    "jinja2==3.1.4",
-    "lz4==4.3.3",
-    "numpy==2.1.3",
-    "pandas==2.2.3",
-    "pyarrow==18.1.0",
-    "pydantic-settings==2.6.1",
-    "pydantic==2.10.3",
-    "python-dateutil==2.9.0",
-    "pyyaml==6.0.2",
-    "requests==2.32.3",
-    "rich==13.9.4",
-    "scrapy==2.12.0",
-    "setuptools==75.6.0",
-    "sqlalchemy==2.0.36",
-    "typer==0.15.1",
-    "typing-extensions==4.12.2",
-    "zstandard==0.23.0",
+"cryptography==44.0.0",
+"jinja2==3.1.4",
+"lz4==4.3.3",
+"numpy==2.1.3",
+"pandas==2.2.3",
+"pyarrow==18.1.0",
+"pydantic-settings==2.6.1",
+"pydantic==2.10.3",
+"python-dateutil==2.9.0",
+"pyyaml==6.0.2",
+"requests==2.32.3",
+"rich==13.9.4",
+"scrapy==2.12.0",
+"setuptools==75.6.0",
+"sqlalchemy==2.0.36",
+"typer==0.15.1",
+"typing-extensions==4.12.2",
+"zstandard==0.23.0",
 ]
 
 [project.scripts]
 tushare-integration = "tushare_integration.main:main"
 
 [project.optional-dependencies]
-clickhouse = [
-    "clickhouse-connect==0.8.8",
-    "clickhouse-sqlalchemy==0.3.2",
-]
-mysql = [
-    "pymysql==1.1.1",
-]
-doris = [
-    "doris-alchemy==0.2.3",
-]
-starrocks = [
-    "starrocks==1.2.0",
-]
+clickhouse = ["clickhouse-connect==0.8.8", "clickhouse-sqlalchemy==0.3.2"]
+mysql = ["pymysql==1.1.1"]
+doris = ["doris-alchemy==0.2.3"]
+starrocks = ["starrocks==1.2.0"]
 all = [
-    "clickhouse-connect==0.8.8",
-    "clickhouse-sqlalchemy==0.3.2",
-    "pymysql==1.1.1",
-    "doris-alchemy==0.2.3",
-    "starrocks==1.2.0",
+"clickhouse-connect==0.8.8",
+"clickhouse-sqlalchemy==0.3.2",
+"pymysql==1.1.1",
+"doris-alchemy==0.2.3",
+"starrocks==1.2.0",
 ]
-dev = [
-    "pytest>=7.0",
-    "black",
-    "isort",
-    "build",
-    "twine",
-]
+dev = ["pytest>=7.0", "black", "isort", "build", "twine"]
 
 [tool.setuptools.dynamic]
-version = {attr = "tushare_integration.__version__"}
+version = { attr = "tushare_integration.__version__" }
 
 [tool.black]
 line-length = 120
@@ -93,3 +78,7 @@ filterwarnings = ["ignore::pydantic.PydanticDeprecatedSince20"]
 
 [tool.setuptools.packages.find]
 include = ["tushare_integration"]
+
+[[tool.uv.index]]
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true

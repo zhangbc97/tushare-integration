@@ -16,6 +16,7 @@ from tushare_integration.db_engine import DBEngine
 from tushare_integration.log_model import TushareIntegrationLog
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings, load_config
+from tushare_integration.dictionary import API_PATH_DICTIONARY
 
 console = Console()
 
@@ -40,9 +41,8 @@ class CrawlManager(object):
         self.config_file = config_file
         self.batch_id = uuid.uuid1().hex
         self.settings: TushareIntegrationSettings = load_config(config_file)
-
-        self.process = scrapy.crawler.CrawlerProcess(self.get_settings())
         self.db_engine: DBEngine = DBEngine(self.settings)
+        self.process = scrapy.crawler.CrawlerProcess(self.get_settings())
         self.reporter_loader: ReporterLoader = ReporterLoader(self.settings)
 
         # 注册信号处理器
@@ -62,13 +62,16 @@ class CrawlManager(object):
             pattern: 爬虫名称匹配模式
 
         Returns:
-            爬虫信息列表，每个元素包含api_title、name和api_path
+            爬虫信息列表，每个元素包含api_title、name、api_path和api_path_en
         """
         # 获取spiders列表
         spider_names = self.process.spider_loader.list()
         # 过滤
         if pattern:
             spider_names = [s for s in spider_names if re.fullmatch(pattern, s)]
+
+        # 创建中文到英文的映射字典
+        cn_to_en_dict = {k: v for k, v in API_PATH_DICTIONARY.items()}
 
         spider_info_list = []
         for spider_name in spider_names:
@@ -77,13 +80,23 @@ class CrawlManager(object):
             # 获取model类
             model = getattr(spider_cls, '__model__', None)
             if model:
-                spider_info_list.append(
-                    {
-                        'api_title': getattr(model, '__api_title__', ''),
-                        'name': spider_name,
-                        'api_path': ' > '.join(getattr(model, '__api_path__', [])),
-                    }
-                )
+                api_path = getattr(model, '__api_path__', [])
+                # 转换为英文路径，跳过第一个元素
+                api_path_en = []
+                for i, path in enumerate(api_path[1:], 1):  # 从第二个元素开始，保持索引正确
+                    if i == len(api_path) - 1:
+                        # 最后一级使用__api_name__
+                        api_path_en.append(getattr(model, '__api_name__', path))
+                    else:
+                        en_path = cn_to_en_dict.get(path, path)
+                        api_path_en.append(en_path)
+
+                spider_info_list.append({
+                    'api_title': getattr(model, '__api_title__', ''),
+                    'name': spider_name,
+                    'api_path': ' > '.join(api_path),
+                    'api_path_en': '/'.join(api_path_en),
+                })
 
         return spider_info_list
 
@@ -114,12 +127,12 @@ class CrawlManager(object):
             spiders: 爬虫名称列表
 
         Returns:
-            所有需要运行的爬虫名称列表（按依赖顺序排序）
+            所有需要运行的爬虫名称列表（按赖顺序排序）
         """
         # 确保spiders列表中的每个元素都是字符串（spider名称）
         dependencies = [spiders]
 
-        # 采��服不是并行的，开启依赖析的情况下可能会导致数据出现重复等问题
+        # 采服不是并行的，开启依赖析的情况下可能会导致数据出现重复等问题
         if not self.settings.parallel_mode:
             while self.get_dependencies(dependencies[-1]):
                 dependencies.append(self.get_dependencies(dependencies[-1]))
@@ -145,6 +158,9 @@ class CrawlManager(object):
         if not spiders:
             return None
 
+        # 添加开始爬取的日志输出
+        console.print(f"[blue]Start crawling: {spiders[0]}[/blue]")
+
         # 运行第一个爬虫
         deferred = self.process.crawl(spiders[0])
 
@@ -154,16 +170,29 @@ class CrawlManager(object):
 
         return deferred
 
+    def _get_spiders_by_pattern(self, pattern: str) -> List[Dict[str, str]]:
+        """内部方法：根据模式获取爬虫列表
+        
+        Args:
+            pattern: 爬虫名称或API路径模式
+        
+        Returns:
+            匹配的爬虫列表
+        """
+        if '/' in pattern:
+            return self._list_spiders_by_path(pattern)
+        else:
+            return self.list_spiders(pattern)
+
     def run_spider(self, spider: str) -> None:
         """运行指定爬虫
 
         Args:
-            spider: 爬虫名称（支持通配符）
+            spider: 爬虫名称（支持通配符）或API路径模式（如 'stock/basic'）
         """
-        # 获取匹配的爬虫
-        spiders = self.list_spiders(spider)
+        spiders = self._get_spiders_by_pattern(spider)
         if not spiders:
-            console.print(f"[red]未找到匹配的爬虫: {spider}[/red]")
+            console.print(f"[red]No matching spider found: {spider}[/red]")
             return
 
         # 获取所有需要运行的爬虫
@@ -171,7 +200,7 @@ class CrawlManager(object):
         all_spiders = self.get_all_spiders(spider_names)
 
         # 运行爬虫
-        console.print(f"[yellow]运行爬虫: {', '.join(all_spiders)}[/yellow]")
+        console.print(f"[yellow]Running spiders: {', '.join(all_spiders)}[/yellow]")
         self.run_spiders_in_sequence(all_spiders)
         self.process.start()
 
@@ -206,12 +235,23 @@ class CrawlManager(object):
             raise ValueError(f"任务不存在: {job_name}")
 
         # 获取所有需要运行的爬虫
-        spiders = [spider['name'] for spider in job.get('spiders', [])]
-        all_spiders = self.get_all_spiders(spiders)
+        all_spiders = []
+        for spider_pattern in job.get('spiders', []):
+            spiders = self._get_spiders_by_pattern(spider_pattern['name'])
+            if spiders:
+                all_spiders.extend([s['name'] for s in spiders])
+            else:
+                console.print(f"[yellow]Warning: No matching spider found for: {spider_pattern['name']}[/yellow]")
+
+        if not all_spiders:
+            raise ValueError(f"任务中未找到任何匹配的爬虫")
+
+        # 获取所有依赖
+        all_spiders = self.get_all_spiders(all_spiders)
 
         # 运行爬虫
-        console.print(f"[yellow]运行任务: {job_name}[/yellow]")
-        console.print(f"[yellow]运行爬虫: {', '.join(all_spiders)}[/yellow]")
+        console.print(f"[yellow]Running job: {job_name}[/yellow]")
+        console.print(f"[yellow]Running spiders: {', '.join(all_spiders)}[/yellow]")
         self.run_spiders_in_sequence(all_spiders)
         self.process.start()
 
@@ -236,14 +276,21 @@ class CrawlManager(object):
         # 获取所有需要运行的爬虫
         all_spiders = []
         for job in jobs_config.get('jobs', []):
-            spiders = [spider['name'] for spider in job.get('spiders', [])]
-            all_spiders.extend(self.get_all_spiders(spiders))
+            for spider_pattern in job.get('spiders', []):
+                spiders = self._get_spiders_by_pattern(spider_pattern['name'])
+                if spiders:
+                    all_spiders.extend([s['name'] for s in spiders])
+                else:
+                    console.print(f"[yellow]Warning: No matching spider found for: {spider_pattern['name']}[/yellow]")
 
-        # 去重并保持顺序
-        all_spiders = list(dict.fromkeys(all_spiders))
+        if not all_spiders:
+            raise ValueError(f"任务文件中未找到任何匹配的爬虫")
 
-        # 运行��虫
-        console.print(f"[yellow]运行爬虫: {', '.join(all_spiders)}[/yellow]")
+        # 去重并获取所有依赖
+        all_spiders = self.get_all_spiders(list(dict.fromkeys(all_spiders)))
+
+        # 运行爬虫
+        console.print(f"[yellow]Running spiders: {', '.join(all_spiders)}[/yellow]")
         self.run_spiders_in_sequence(all_spiders)
         self.process.start()
 
@@ -254,21 +301,10 @@ class CrawlManager(object):
         self.raise_for_signal()
 
     def get_settings(self) -> Dict[str, Any]:
-        """获取爬虫设置"""
-        settings = {
-            'ROBOTSTXT_OBEY': False,
-            'CONCURRENT_REQUESTS': self.settings.tushare_point // 100,
-            'CONCURRENT_REQUESTS_PER_DOMAIN': self.settings.tushare_point // 100,
-            'CONCURRENT_REQUESTS_PER_IP': self.settings.tushare_point // 100,
-            'DOWNLOAD_DELAY': 0.1,
-            'COOKIES_ENABLED': False,
-            'TELNETCONSOLE_ENABLED': False,
-            'LOG_LEVEL': 'INFO',
-            'TUSHARE_TOKEN': self.settings.tushare_token,
-            'TUSHARE_URL': self.settings.tushare_url,
-            'BATCH_ID': self.batch_id,
-            'DB_ENGINE': self.db_engine,
-        }
+        """获爬虫设置"""
+        settings = self.settings.get_settings()
+        settings['LOG_LEVEL'] = 'INFO'
+        settings['BATCH_ID'] = self.batch_id
         return settings
 
     def append_signal(
@@ -280,7 +316,7 @@ class CrawlManager(object):
         spider: Optional[Any] = None,
         reason: Optional[str] = None,
     ) -> None:
-        """记录���虫信号"""
+        """记录信号"""
         # 记录信号
         if signal in [scrapy.signals.spider_error, scrapy.signals.item_error]:
             if not any(s['signal'] == signal and s['spider'] == spider for s in self.signals):
@@ -318,27 +354,27 @@ class CrawlManager(object):
                 .all()
             )
 
-            content = f"批次ID: {self.batch_id}\n\n"
+            content = f"Batch ID: {self.batch_id}\n\n"
 
             # 添加爬虫运行状态
             for log in logs:
-                content += f"爬虫: {log.spider_name} 数据数量: {log.count}\n"
+                content += f"Spider: {log.spider_name} Count: {log.count}\n"
 
             # 添加警告信息
             if self.signals:
-                content += "警告信息：\n"
+                content += "Warnings:\n"
                 for scrapy_signal in self.signals:
                     if scrapy_signal['signal'] == scrapy.signals.item_error:
-                        content += f"爬虫: {scrapy_signal['spider'].name}\n"
-                        content += "警告: 数据项错误\n"
+                        content += f"Spider: {scrapy_signal['spider'].name}\n"
+                        content += "Warning: Item Error\n"
                         if scrapy_signal.get('reason'):
-                            content += f"原因: {scrapy_signal['reason']}\n"
+                            content += f"Reason: {scrapy_signal['reason']}\n"
                         content += "\n"
                     elif scrapy_signal['signal'] == scrapy.signals.spider_error:
-                        content += f"爬虫: {scrapy_signal['spider'].name}\n"
-                        content += "警告: 爬虫错误\n"
+                        content += f"Spider: {scrapy_signal['spider'].name}\n"
+                        content += "Warning: Spider Error\n"
                         if scrapy_signal.get('reason'):
-                            content += f"原因: {scrapy_signal['reason']}\n"
+                            content += f"Reason: {scrapy_signal['reason']}\n"
                         content += "\n"
 
             return content
@@ -350,6 +386,69 @@ class CrawlManager(object):
 
     def stop(self, signum: int, frame: Any) -> None:
         """停止爬虫"""
-        console.print("[yellow]收到停止信号，正在停止...[/yellow]")
+        console.print("[yellow]Received stop signal, stopping...[/yellow]")
         self.process.stop()
         self.send_report()
+
+    def _list_spiders_by_path(self, path_pattern: str) -> List[Dict[str, str]]:
+        """内部方法：通过API路径模式匹配爬虫
+        
+        Args:
+            path_pattern: API路径匹配模式，如 'stock/basic'
+        
+        Returns:
+            匹配的爬虫列表
+        """
+        path_parts = path_pattern.strip('/').split('/')
+        cn_path_parts = []
+        
+        # 创建反向映射字典
+        reverse_dict = {v: k for k, v in API_PATH_DICTIONARY.items()}
+        
+        for part in path_parts:
+            if part in reverse_dict:
+                cn_path_parts.append(reverse_dict[part])
+            else:
+                cn_path_parts.append(part)
+        
+        spider_names = self.process.spider_loader.list()
+        spider_info_list = []
+        
+        for spider_name in spider_names:
+            spider_cls = self.process.spider_loader.load(spider_name)
+            model = getattr(spider_cls, '__model__', None)
+            
+            if model and hasattr(model, '__api_path__'):
+                api_path = model.__api_path__
+                
+                # 跳过第一个元素进行匹配
+                match = True
+                for i, pattern in enumerate(cn_path_parts):
+                    # 直接从第二个元素开始匹配
+                    api_path_index = i + 1
+                    if api_path_index >= len(api_path):
+                        match = False
+                        break
+                    if not re.fullmatch(pattern, api_path[api_path_index]):
+                        match = False
+                        break
+                
+                if match:
+                    # 转换为英文路径，跳过第一个元素
+                    api_path_en = []
+                    for i, path in enumerate(api_path[1:], 1):  # 从第二个元素开始，保持索引正确
+                        if i == len(api_path) - 1:
+                            # 最后一级使用__api_name__
+                            api_path_en.append(getattr(model, '__api_name__', path))
+                        else:
+                            en_path = reverse_dict.get(path, path)
+                            api_path_en.append(en_path)
+
+                    spider_info_list.append({
+                        'api_title': getattr(model, '__api_title__', ''),
+                        'name': spider_name,
+                        'api_path': ' > '.join(api_path),
+                        'api_path_en': '/'.join(api_path_en),
+                    })
+        
+        return spider_info_list

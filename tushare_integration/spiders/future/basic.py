@@ -3,7 +3,7 @@ from tushare_integration.spiders.tushare import TushareSpider
 
 
 class FutBasicSpider(TushareSpider):
-    __spider_name__ = "future/basic/fut_basic"
+
     __model__: type[FutBasic] = FutBasic
 
     def start_requests(self):

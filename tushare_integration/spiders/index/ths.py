@@ -7,7 +7,7 @@ from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class THSDailySpider(DailySpider):
-    __spider_name__ = "index/ths/ths_daily"
+
     __model__: type[ThsDaily] = ThsDaily
 
     def start_requests(self):
@@ -25,12 +25,12 @@ class THSDailySpider(DailySpider):
 
 
 class THSIndexSpider(TushareSpider):
-    __spider_name__ = "index/ths/ths_index"
+
     __model__: type[ThsIndex] = ThsIndex
 
 
 class THSMember(TushareSpider):
-    __spider_name__ = "index/ths/ths_member"
+
     __model__: type[ThsMember] = ThsMember
 
     def start_requests(self):

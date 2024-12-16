@@ -14,12 +14,12 @@ from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class IndexClassifySpider(TushareSpider):
-    __spider_name__ = "index/sw/index_classify"
+
     __model__: type[IndexClassify] = IndexClassify
 
 
 class IndexMemberSpider(TushareSpider):
-    __spider_name__ = "index/sw/index_member"
+
     __model__: type[IndexMember] = IndexMember
 
     def start_requests(self):
@@ -36,7 +36,7 @@ class IndexMemberSpider(TushareSpider):
 
 
 class IndexMemberAllSpider(TushareSpider):
-    __spider_name__ = "index/sw/index_member_all"
+
     __model__: type[IndexMemberAll] = IndexMemberAll
 
     def start_requests(self):
@@ -66,7 +66,7 @@ class IndexMemberAllSpider(TushareSpider):
 
 
 class SWDailySpider(DailySpider):
-    __spider_name__ = "index/sw/sw_daily"
+
     __model__: type[SwDaily] = SwDaily
 
     def start_requests(self):

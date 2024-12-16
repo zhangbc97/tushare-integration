@@ -19,26 +19,22 @@ query_app = typer.Typer(
 def list_spiders():
     manager = CrawlManager()
     spiders_info = manager.list_spiders()
-    
+
     # 按路径排序
     spiders_info.sort(key=lambda x: x['api_path'])
-    
+
     # 创建表格
     table = Table(title="Spider列表")
-    
+
     # 添加列 - 更新了颜色样式
     table.add_column("名称", style="bright_green")  # 改为亮绿色
-    table.add_column("接口", style="bright_blue")   # 改为亮蓝色
-    table.add_column("路径", style="bright_yellow") # 改为亮黄色
-    
+    table.add_column("接口", style="bright_blue")  # 改为亮蓝色
+    table.add_column("路径", style="bright_yellow")  # 改为亮黄色
+
     # 添加行
     for spider in spiders_info:
-        table.add_row(
-            spider['api_title'],
-            spider['name'],
-            spider['api_path']
-        )
-    
+        table.add_row(spider['api_title'], spider['name'], spider['api_path'])
+
     # 打印表格
     console.print(table)
 
