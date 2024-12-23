@@ -1,5 +1,8 @@
 import datetime
 
+import pandas as pd
+
+from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.spiders.stock.quotes import StockMonthlySpider, StockWeeklySpider
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
@@ -67,73 +70,64 @@ class IndexWeeklySpider(StockWeeklySpider):
     custom_settings = {"TABLE_NAME": "index_weekly"}
 
 
-class IndexWeightSpider(TushareSpider):
+class IndexWeightSpider(DailySpider):
     name = "index/quotes/index_weight"
     custom_settings = {
         "TABLE_NAME": "index_weight",
         "BASIC_TABLE": "index_basic",
+        "MIN_CAL_DATE": "2005-04-08",  # 根据实际数据情况设置合适的起始日期
     }
 
     def start_requests(self):
+        min_cal_date = self.custom_settings.get("MIN_CAL_DATE", '1970-01-01')
         conn = self.get_db_engine()
         db_name = self.spider_settings.database.db_name
-        db_type = self.spider_settings.database.db_type.lower()
-        
-        # 1. 获取所有指数列表
-        index_list = conn.query_df(f"select * from {db_name}.{self.custom_settings.get('BASIC_TABLE')}")
-        if index_list.empty:
-            self.logger.warning("指数基础信息表为空，请先运行 index/basic/index_basic 爬虫")
+
+        cal_dates = conn.query_df(
+            f"""
+                SELECT DISTINCT cal_date
+                FROM {db_name}.trade_cal
+                WHERE cal_date NOT IN (SELECT trade_date FROM {db_name}.{self.get_table_name()})
+                  AND is_open = 1
+                  AND cal_date >= '{min_cal_date}'
+                  AND cal_date <= today()
+                  AND exchange = 'SSE'
+                ORDER BY cal_date
+                """
+        )
+
+        if cal_dates.empty:
             return
 
-        # 2. 根据数据库类型使用不同的日期截断SQL
-        date_trunc_sql = {
-            'mysql': "DATE_FORMAT(trade_date, '%Y-%m-01')",
-            'clickhouse': "toStartOfMonth(trade_date)",
-            'postgresql': "date_trunc('month', trade_date)"
-        }.get(db_type, "date_trunc('month', trade_date)")
+        for cal_date in cal_dates["cal_date"]:
+            request = self.get_scrapy_request(
+                params={'trade_date': cal_date.strftime("%Y%m%d"), 'offset': 0, 'limit': 3000}
+            )
+            request.meta['trade_date'] = cal_date.strftime("%Y%m%d")
+            yield request
 
-        existing_data = conn.query_df(f"""
-            SELECT 
-                index_code,
-                {date_trunc_sql} as month
-            FROM {db_name}.{self.custom_settings.get('TABLE_NAME')}
-            GROUP BY index_code, {date_trunc_sql}
-        """)
-        
-        # 将结果转换为集合，用于快速查找某个指数某月是否有数据
-        existing_months = {
-            (row['index_code'], row['month'].date() if isinstance(row['month'], datetime.datetime) else row['month'])
-            for _, row in existing_data.iterrows()
-        } if not existing_data.empty else set()
+    def parse(self, response, **kwargs):
+        first_page = self.parse_response(response, **kwargs)
+        if first_page["data"].empty:
+            return None
 
-        # 3. 按月生成请求
-        today = datetime.date.today()
-        today = today.replace(day=1)  # 调整到当月第一天
-        
-        for _, row in index_list.iterrows():
-            index_code = row["ts_code"]
-            
-            # 获取该指数的起始日期
-            start_date = row["list_date"].date() if row["list_date"] else row["base_date"].date()
-            start_date = start_date.replace(day=1)  # 调整到月初
-            
-            # 按月生成请求
-            while start_date <= today:
-                # 检查这个月是否已有完整数据
-                if (index_code, start_date) not in existing_months:
-                    end_date = (start_date + datetime.timedelta(days=32)).replace(day=1) - datetime.timedelta(days=1)
-                    
-                    yield self.get_scrapy_request(
-                        params={
-                            "index_code": index_code,
-                            "start_date": start_date.strftime("%Y%m%d"),
-                            "end_date": end_date.strftime("%Y%m%d"),
-                        }
-                    )
-                
-                start_date = (start_date + datetime.timedelta(days=32)).replace(day=1)
+        all_data = [first_page["data"]]
+        trade_date = response.meta['trade_date']
+        offset = 3000
+        limit = 3000
+
+        while True:
+            parsed_data = self.request_with_requests(
+                params={'trade_date': trade_date, 'offset': offset, 'limit': limit}
+            )
+            if parsed_data["data"].empty:
+                break
+            all_data.append(parsed_data["data"])
+            offset += limit
+
+        return TushareIntegrationItem(data=pd.concat(all_data, ignore_index=True))
 
 
 class SzDailyInfoSpider(DailySpider):
     name = "index/quotes/sz_daily_info"
-    custom_settings = {"TABLE_NAME": "sz_daily_info", ' MIN_CAL_DATE': '2008-01-02'}
+    custom_settings = {"TABLE_NAME": "sz_daily_info", "MIN_CAL_DATE": "2008-01-02"}
