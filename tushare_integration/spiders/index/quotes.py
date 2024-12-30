@@ -1,7 +1,10 @@
 import datetime
 
+import pandas as pd
+
+from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.spiders.stock.quotes import StockMonthlySpider, StockWeeklySpider
-from tushare_integration.spiders.tushare import DailySpider
+from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class IndexDailySpider(DailySpider):
@@ -67,11 +70,64 @@ class IndexWeeklySpider(StockWeeklySpider):
     custom_settings = {"TABLE_NAME": "index_weekly"}
 
 
-class IndexWeightSpider(StockMonthlySpider):
+class IndexWeightSpider(DailySpider):
     name = "index/quotes/index_weight"
-    custom_settings = {"TABLE_NAME": "index_weight"}
+    custom_settings = {
+        "TABLE_NAME": "index_weight",
+        "BASIC_TABLE": "index_basic",
+        "MIN_CAL_DATE": "2005-04-08",  # 根据实际数据情况设置合适的起始日期
+    }
+
+    def start_requests(self):
+        min_cal_date = self.custom_settings.get("MIN_CAL_DATE", '1970-01-01')
+        conn = self.get_db_engine()
+        db_name = self.spider_settings.database.db_name
+
+        cal_dates = conn.query_df(
+            f"""
+                SELECT DISTINCT cal_date
+                FROM {db_name}.trade_cal
+                WHERE cal_date NOT IN (SELECT trade_date FROM {db_name}.{self.get_table_name()})
+                  AND is_open = 1
+                  AND cal_date >= '{min_cal_date}'
+                  AND cal_date <= today()
+                  AND exchange = 'SSE'
+                ORDER BY cal_date
+                """
+        )
+
+        if cal_dates.empty:
+            return
+
+        for cal_date in cal_dates["cal_date"]:
+            request = self.get_scrapy_request(
+                params={'trade_date': cal_date.strftime("%Y%m%d"), 'offset': 0, 'limit': 3000}
+            )
+            request.meta['trade_date'] = cal_date.strftime("%Y%m%d")
+            yield request
+
+    def parse(self, response, **kwargs):
+        first_page = self.parse_response(response, **kwargs)
+        if first_page["data"].empty:
+            return None
+
+        all_data = [first_page["data"]]
+        trade_date = response.meta['trade_date']
+        offset = 3000
+        limit = 3000
+
+        while True:
+            parsed_data = self.request_with_requests(
+                params={'trade_date': trade_date, 'offset': offset, 'limit': limit}
+            )
+            if parsed_data["data"].empty:
+                break
+            all_data.append(parsed_data["data"])
+            offset += limit
+
+        return TushareIntegrationItem(data=pd.concat(all_data, ignore_index=True))
 
 
 class SzDailyInfoSpider(DailySpider):
     name = "index/quotes/sz_daily_info"
-    custom_settings = {"TABLE_NAME": "sz_daily_info", ' MIN_CAL_DATE': '2008-01-02'}
+    custom_settings = {"TABLE_NAME": "sz_daily_info", "MIN_CAL_DATE": "2008-01-02"}
