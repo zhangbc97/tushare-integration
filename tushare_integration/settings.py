@@ -16,6 +16,7 @@ from typing import Annotated, Any, Dict, Literal
 import pandas as pd
 import requests
 import yaml
+from attr import frozen
 from pydantic import BeforeValidator, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
@@ -131,26 +132,11 @@ class TushareIntegrationSettings(BaseSettings):
     )
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
-    bot_name: str = Field(default='tushare_integration', description='爬虫名称')
-    spider_modules: list[str] = Field(default=['tushare_integration.spiders'], description='爬虫模块')
-    newspider_module: str = Field(default='tushare_integration.spiders', description='新建爬虫目录')
-
-    robotstxt_obey: bool = Field(default=False, description='是否遵守robots.txt')
-
     concurrent_requests: Annotated[int, env_variable('CONCURRENT_REQUESTS')] = Field(
         default=1, description='并发请求数'
     )
-    concurrent_items: Annotated[int, env_variable('CONCURRENT_ITEMS')] = Field(default=100, description='并发item数')
 
-    download_delay: float = Field(default=0, description='下载延')
-
-    downloader_middlewares: dict[str, int | None] = Field(
-        default={
-            "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-            "tushare_integration.middlewares.TushareRetryDownloaderMiddleware": 543,
-        },
-        description='下载中间件',
-    )
+    download_delay: float = Field(default=0, description='下载延迟')
 
     retry_enabled: bool = Field(default=True, description='是否开启重试')
     retry_times: int = Field(default=10, description='重试次数')
@@ -160,24 +146,11 @@ class TushareIntegrationSettings(BaseSettings):
         default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "spiders/templates"), description='模板目录'
     )
 
-    item_pipelines: dict[str, int] = Field(
-        default={
-            "tushare_integration.pipelines.TushareIntegrationFillNAPipeline": 298,
-            "tushare_integration.pipelines.TransformDTypePipeline": 299,
-            "tushare_integration.pipelines.TushareIntegrationDataPipeline": 300,
-            "tushare_integration.pipelines.RecordLogPipeline": 301,
-        },
-        description='item管道',
+    timeout: int = Field(default=30, description="请求超时时间(秒)", gt=0)
+    headers: Dict[str, str] = Field(
+        default_factory=lambda: {"User-Agent": "tushare-integration"},
+        description="请求头",
     )
-
-    request_fingerprinter_implementation: str = Field(default='2.7', description='请求指纹实')
-    twisted_reactor: str = Field(
-        default='twisted.internet.asyncioreactor.AsyncioSelectorReactor', description='twisted反应堆'
-    )
-    reactor_threadpool_maxsize: int = Field(default=1, description='reactor线程池最大数量')
-    feed_export_encoding: str = Field(default='utf-8', description='导出编码')
-
-    closespider_errorcount: int = Field(default=1, description='错误数量')
 
     model_config = SettingsConfigDict(extra='ignore')
 

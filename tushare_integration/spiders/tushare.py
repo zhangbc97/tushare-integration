@@ -15,6 +15,7 @@ from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
+from tushare_integration.spiders.base import BaseSpider
 
 
 class TushareSpiderMeta(type):
@@ -67,7 +68,7 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
         return spider
 
     def create_table(self):
-        logging.info(f"quest {self.name}: create table {self.table_name}")
+        """创建数据表"""
         self.db_engine = DBEngine(self.spider_settings)
         self.db_engine.create_table(self.__model__)
 
