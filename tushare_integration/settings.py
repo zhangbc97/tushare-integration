@@ -11,13 +11,13 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Annotated, Any, Dict, Literal
+from typing import Annotated, Any, Dict, Literal, Optional
 
 import pandas as pd
 import requests
 import yaml
 from attr import frozen
-from pydantic import BeforeValidator, Field, field_validator, model_validator
+from pydantic import BaseModel, BeforeValidator, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 point_frequency = [
@@ -137,7 +137,8 @@ class TushareIntegrationSettings(BaseSettings):
     )
 
     download_delay: float = Field(default=0, description='下载延迟')
-
+    
+    max_requests_per_minute: int = Field(default=60, description='每分钟最大请求数')
     retry_enabled: bool = Field(default=True, description='是否开启重试')
     retry_times: int = Field(default=10, description='重试次数')
     retry_delay: int = Field(default=10, description='重试延迟')

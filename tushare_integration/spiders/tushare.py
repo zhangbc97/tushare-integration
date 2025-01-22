@@ -15,7 +15,6 @@ from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
-from tushare_integration.spiders.base import BaseSpider
 
 
 class TushareSpiderMeta(type):
