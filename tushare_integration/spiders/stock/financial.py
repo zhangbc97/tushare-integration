@@ -55,4 +55,4 @@ class DisclosureDateSpider(FinancialReportSpider):
     def start_requests(self):
         periods = self.get_all_period()
         for period in periods:
-            yield self.get_scrapy_request(params={"end_date": period})
+            yield self.get_httpx_request(params={"end_date": period})

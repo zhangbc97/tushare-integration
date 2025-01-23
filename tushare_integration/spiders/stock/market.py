@@ -83,7 +83,7 @@ class ConceptDetailSpider(TSCodeSpider):
         codes = conn.query_df(query)['code']
 
         for code in codes:
-            yield self.get_scrapy_request(params={'id': code})
+            yield self.get_httpx_request(params={'id': code})
 
 
 class BlockTradeSpider(DailySpider):

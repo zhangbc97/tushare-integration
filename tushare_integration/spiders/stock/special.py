@@ -57,7 +57,7 @@ class CyqChipsSpider(TushareSpider):
                 continue
 
             for trade_date in trade_dates['trade_date'].dt.date:
-                yield self.get_scrapy_request({"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")})
+                yield self.get_httpx_request({"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")})
 
 
 class StkFactorSpider(DailySpider):
@@ -95,7 +95,7 @@ class BrokerRecommendSpider(TushareSpider):
         month_list = []
         for year in range(2020, datetime.datetime.now().year + 1):
             for month in range(1, 13):
-                yield self.get_scrapy_request({"month": f"{year}{month:02d}"})
+                yield self.get_httpx_request({"month": f"{year}{month:02d}"})
 
 
 class StkFactorProSpider(DailySpider):

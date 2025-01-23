@@ -20,7 +20,7 @@ class DCHotSpider(DailySpider):
 
     def start_requests(self):
         # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据
-        yield self.get_scrapy_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
+        yield self.get_httpx_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
         for req in super().start_requests():
             yield req
 
@@ -76,6 +76,6 @@ class THSHotSpider(DailySpider):
 
     def start_requests(self):
         # 每次都先更新当天的，直接忽略历史数据，然后更新历史数据
-        yield self.get_scrapy_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
+        yield self.get_httpx_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
         for req in super().start_requests():
             yield req

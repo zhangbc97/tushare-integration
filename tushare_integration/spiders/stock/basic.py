@@ -17,7 +17,7 @@ class StockBasicSpider(TushareSpider):
 
     def start_requests(self):
         for status in ['L', 'D', 'P']:
-            yield self.get_scrapy_request({"list_status": status})
+            yield self.get_httpx_request({"list_status": status})
 
 
 class StockCompanySpider(TushareSpider):
@@ -26,7 +26,7 @@ class StockCompanySpider(TushareSpider):
     def start_requests(self):
         for exchange in ["SSE", "SZSE"]:
             params = {"exchange": exchange}
-            yield self.get_scrapy_request(params)
+            yield self.get_httpx_request(params)
 
 
 class StkManagersSpider(TushareSpider):
@@ -43,7 +43,7 @@ class NameChangeSpider(TushareSpider):
     def start_requests(self):
         # 不能用start_date和end_date筛选，部分数据没有ann_date导致无法完整同步数据
         # 每次拉5000条数据
-        request = self.get_scrapy_request(params={'offset': 0, 'limit': 5000})
+        request = self.get_httpx_request(params={'offset': 0, 'limit': 5000})
         request.meta["offset"] = 0
         request.meta["limit"] = 5000
         yield request
@@ -72,7 +72,7 @@ class HSConstSpider(TushareSpider):
 
     def start_requests(self):
         for hs_type in ['SH', 'SZ']:
-            yield self.get_scrapy_request({"hs_type": hs_type})
+            yield self.get_httpx_request({"hs_type": hs_type})
 
 
 class TradeCalSpider(TushareSpider):
@@ -81,4 +81,4 @@ class TradeCalSpider(TushareSpider):
     def start_requests(self):
         for exchange in ["SSE", "SZSE", "CFFEX", "DCE", "CZCE", "SHFE", "INE"]:
             params = {"exchange": exchange}
-            yield self.get_scrapy_request(params)
+            yield self.get_httpx_request(params)

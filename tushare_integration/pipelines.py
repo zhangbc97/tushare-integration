@@ -11,7 +11,7 @@ from scrapy.exceptions import DropItem
 from sqlalchemy import Column
 
 from tushare_integration.db_engine import DBEngine
-from tushare_integration.log_model import TushareIntegrationLog
+from tushare_integration.log_model import TushareIntegrationLog # type: ignore
 from tushare_integration.settings import TushareIntegrationSettings
 
 

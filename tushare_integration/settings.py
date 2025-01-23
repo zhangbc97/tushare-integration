@@ -1,23 +1,14 @@
-# Scrapy settings for tushare_integration project
-#
-# For simplicity, this file contains only settings considered important or
-# commonly used. You can find more settings consulting the documentation:
-#
-#     https://docs.scrapy.org/en/latest/topics/settings.html
-#     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 import functools
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Annotated, Any, Dict, Literal, Optional
+from typing import Annotated, Any, Dict
 
 import pandas as pd
 import requests
 import yaml
-from attr import frozen
-from pydantic import BaseModel, BeforeValidator, Field, field_validator, model_validator
+from pydantic import BeforeValidator, Field
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 point_frequency = [
@@ -106,18 +97,6 @@ class TushareIntegrationSettings(BaseSettings):
     tushare_url: str = Field(default='https://api.tushare.pro', description='Tushare API URL')
     tushare_point: int = Field(default=2000, description='Tushare积分')
 
-    # 目前接口有频次限制，暂时不从API获取积分，还是让用户手动设置积分
-    # @model_validator(mode='after')
-    # def get_point(self):
-    #     """验证器: 从API获取积分"""
-    #     # 获取token和url
-    #     token = self.tushare_token
-    #     url = self.tushare_url
-
-    #     if token:  # 只有在有token的情况下才去获取积分
-    #         self.tushare_point = get_tushare_point(token, url)
-    #     return self
-
     tushare_max_concurrent_requests: int | None = Field(
         None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算'
     )
@@ -125,31 +104,25 @@ class TushareIntegrationSettings(BaseSettings):
     database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
-    feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(..., description='飞书webhook')
+    feishu_webhook: Annotated[str, env_variable('FEISHU_WEBHOOK')] = Field(default='', description='飞书webhook')
 
     parallel_mode: bool = Field(
         default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任依赖'
     )
     batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
 
-    concurrent_requests: Annotated[int, env_variable('CONCURRENT_REQUESTS')] = Field(
-        default=1, description='并发请求数'
-    )
+    concurrent_spiders: Annotated[int, env_variable('CONCURRENT_SPIDERS')] = Field(default=1, description='并发爬虫数')
 
     download_delay: float = Field(default=0, description='下载延迟')
-    
+
     max_requests_per_minute: int = Field(default=60, description='每分钟最大请求数')
     retry_enabled: bool = Field(default=True, description='是否开启重试')
     retry_times: int = Field(default=10, description='重试次数')
     retry_delay: int = Field(default=10, description='重试延迟')
 
-    templates_dir: str = Field(
-        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "spiders/templates"), description='模板目录'
-    )
-
     timeout: int = Field(default=30, description="请求超时时间(秒)", gt=0)
     headers: Dict[str, str] = Field(
-        default_factory=lambda: {"User-Agent": "tushare-integration"},
+        default={"User-Agent": "tushare-integration"},
         description="请求头",
     )
 
@@ -205,8 +178,5 @@ def load_config(config_file: str | Path = 'config.yaml') -> TushareIntegrationSe
 
     # 验证配置并获取设置
     settings = TushareIntegrationSettings.model_validate(config_data)
-
-    # 将配置项设置为全局变量
-    globals().update(settings.get_settings())
 
     return settings

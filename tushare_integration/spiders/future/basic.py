@@ -9,4 +9,4 @@ class FutBasicSpider(TushareSpider):
     def start_requests(self):
         for exchange in ["CFFEX", "DCE", "CZCE", "SHFE", "INE", "GFEX"]:
             params = {"exchange": exchange}
-            yield self.get_scrapy_request(params)
+            yield self.get_httpx_request(params)

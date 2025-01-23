@@ -41,7 +41,7 @@ class StockWeeklySpider(TushareSpider):
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
 
         for trade_date in trade_dates['cal_date']:
-            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
 
     def get_trade_dates(self, conn, db_name, table_name, period):
         from tushare_integration.models.trade_cal import TradeCal
@@ -90,7 +90,7 @@ class StockMonthlySpider(StockWeeklySpider):
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
 
         for trade_date in trade_dates['cal_date']:
-            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
 
 
 class StockWeeklyMonthlySpider(StockWeeklySpider):
@@ -150,7 +150,7 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
         trade_dates = pd.concat([weekly_trade_dates, monthly_trade_dates], ignore_index=True)
 
         for trade_date, freq in trade_dates[['cal_date', 'freq']].itertuples(index=False):
-            yield self.get_scrapy_request(params={"trade_date": trade_date.strftime("%Y%m%d"), "freq": freq})
+            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d"), "freq": freq})
 
 
 class AdjFactorSpider(DailySpider):
@@ -256,7 +256,7 @@ class StockMin(TushareSpider):
                     continue
 
                 # 符合条件直接拉取接下来40天的数据
-                yield self.get_scrapy_request(
+                yield self.get_httpx_request(
                     params={
                         "ts_code": ts_code,
                         "start_date": trade_date.strftime("%Y-%m-%d") + " 09:00:00",

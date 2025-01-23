@@ -28,7 +28,7 @@ class IndexMemberSpider(TushareSpider):
         df = self.get_db_engine().query_df(query)
 
         for index_code in df["index_code"]:
-            yield self.get_scrapy_request(
+            yield self.get_httpx_request(
                 params={
                     'index_code': index_code,
                 }
@@ -41,7 +41,7 @@ class IndexMemberAllSpider(TushareSpider):
 
     def start_requests(self):
         # 通过LIMIT+OFFSET的方取数据
-        request = self.get_scrapy_request(params={'offset': 0, 'limit': 3000})
+        request = self.get_httpx_request(params={'offset': 0, 'limit': 3000})
         request.meta["offset"] = 0
         request.meta["limit"] = 3000
         yield request
@@ -80,4 +80,4 @@ class SWDailySpider(DailySpider):
             return
 
         for index_code in df['index_code']:
-            yield self.get_scrapy_request(params={"index_code": index_code})
+            yield self.get_httpx_request(params={"index_code": index_code})

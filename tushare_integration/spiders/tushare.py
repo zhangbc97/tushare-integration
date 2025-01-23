@@ -3,40 +3,24 @@ import json
 import logging
 from typing import ClassVar
 
+import httpx
 import pandas as pd
 import requests
 import scrapy
 import yaml
 from sqlalchemy import and_, not_, select, text
 
+from tushare_integration.crawler.spider import Spider
 from tushare_integration.db_engine import DBEngine
-from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
 
 
-class TushareSpiderMeta(type):
-    def __new__(mcs, name, bases, attrs):
-        cls = super().__new__(mcs, name, bases, attrs)
-        if not hasattr(cls, '__model__'):
-            raise ValueError(f"类 {name} 必须设置 __model__ 属性")
-        # 为每个非Base的model设置name，即使已经有name属性也要重新设置
-        model = getattr(cls, '__model__')
-        if model is not Base:
-            setattr(cls, 'name', model.__api_name__)
-        return cls
-
-
-class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
+class TushareSpider(Spider):
     __spider_name__: str
     __model__: ClassVar[type[Base]] = Base
-    name: ClassVar[str]  # 添加name的类型声明
-
-    spider_settings: TushareIntegrationSettings
-    db_engine: DBEngine
-    custom_settings: dict = {}
 
     @property
     def api_name(self) -> str:
@@ -54,30 +38,13 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
     def fields(self) -> str:
         return ",".join([column.name for column in self.__model__.__table__.columns])
 
-    def __init__(self, name=None, **kwargs):
-        super().__init__(name, **kwargs)
-
-    @classmethod
-    def from_crawler(cls, crawler, *args, **kwargs):
-        spider = super().from_crawler(crawler, *args, **kwargs)
-        spider.spider_settings = TushareIntegrationSettings.model_validate(
-            yaml.safe_load(open('config.yaml', 'r', encoding='utf8').read())
-        )
-        spider.create_table()
-        return spider
-
-    def create_table(self):
-        """创建数据表"""
-        self.db_engine = DBEngine(self.spider_settings)
-        self.db_engine.create_table(self.__model__)
-
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
         start_date = self.start_date or '19900101'
 
         # 构建子查询
-        trade_date_field = self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date')
+        trade_date_field = 'trade_date'
         subquery = select(text(f"`{trade_date_field}`")).select_from(text(f"{db_name}.{self.table_name}"))
 
         # 构建主查询
@@ -103,7 +70,7 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
         trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 
         for trade_date in trade_dates:
-            yield self.get_scrapy_request(
+            yield self.get_httpx_request(
                 params={self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date'): trade_date}
             )
 
@@ -122,12 +89,12 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
             logging.error(f"Request {self.api_name} failed: {resp['msg']}")
             raise RuntimeError(resp['msg'])
 
-        return TushareIntegrationItem(data=pd.DataFrame(data=resp["data"]["items"], columns=resp["data"]["fields"]))
+        return pd.DataFrame(data=resp["data"]["items"], columns=resp["data"]["fields"])
 
     def get_db_engine(self):
         return self.db_engine
 
-    def get_scrapy_request(self, params: dict | None = None, meta: dict | None = None):
+    def get_httpx_request(self, params: dict | None = None, meta: dict | None = None):
         if not params:
             params = {}
 
@@ -136,21 +103,19 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
 
         logging.info(f"Requesting {self.api_name} with params: {params}")
 
-        return scrapy.Request(
+        return httpx.Request(
             url=self.spider_settings.tushare_url,
             method="POST",
-            body=json.dumps(
-                {
-                    "api_name": self.api_name,
-                    "token": self.spider_settings.tushare_token,
-                    "params": params,
-                    "fields": self.fields,
-                }
-            ),
+            json={
+                "api_name": self.api_name,
+                "token": self.spider_settings.tushare_token,
+                "params": params,
+                "fields": self.fields,
+            },
             headers={
                 "Content-Type": "application/json",
             },
-            meta={
+            extensions={
                 'api_name': self.api_name,
                 'params': params,
             }
@@ -158,7 +123,7 @@ class TushareSpider(scrapy.Spider, metaclass=TushareSpiderMeta):
         )
 
     # 搞个函数，直接使用requests发起请求
-    def request_with_requests(self, params: dict | None = None, meta: dict | None = None) -> TushareIntegrationItem:
+    def request_with_requests(self, params: dict | None = None, meta: dict | None = None):
         logging.info(f"Requesting {self.api_name} with params: {params}")
         response = requests.post(
             url=self.spider_settings.tushare_url,
@@ -212,7 +177,7 @@ class DailySpider(TushareSpider):
         trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 
         for trade_date in trade_dates:
-            yield self.get_scrapy_request(
+            yield self.get_httpx_request(
                 params={self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date'): trade_date}
             )
 
@@ -231,7 +196,7 @@ class TSCodeSpider(TushareSpider):
         ts_codes = conn.query_df(query)
 
         for ts_code in ts_codes['ts_code']:
-            yield self.get_scrapy_request(params={"ts_code": ts_code})
+            yield self.get_httpx_request(params={"ts_code": ts_code})
 
 
 class FinancialReportSpider(TushareSpider):
@@ -271,11 +236,11 @@ class FinancialReportSpider(TushareSpider):
             if self.api_name.startswith(("income", "balance", "cashflow")):
                 for report_type in range(1, 13):
                     params = {"period": period, "report_type": str(report_type)}
-                    yield self.get_scrapy_request(params)
+                    yield self.get_httpx_request(params)
             else:
                 # 其他报表只需按period请求即可
                 params = {"period": period}
-                yield self.get_scrapy_request(params)
+                yield self.get_httpx_request(params)
 
     def request_with_ts_code(self):
         # 按ts_code取数据，每次取一个股票的全量，几千次请求
@@ -287,4 +252,4 @@ class FinancialReportSpider(TushareSpider):
 
         for ts_code in ts_codes:
             params = {"ts_code": ts_code, "limit": 2000}
-            yield self.get_scrapy_request(params)
+            yield self.get_httpx_request(params)

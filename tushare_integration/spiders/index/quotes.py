@@ -41,7 +41,7 @@ class IndexDailySpider(DailySpider):
                 if start_date > datetime.date.today():
                     break
 
-                yield self.get_scrapy_request(
+                yield self.get_httpx_request(
                     params={
                         "ts_code": ts_code,
                         "start_date": start_date.strftime("%Y%m%d"),

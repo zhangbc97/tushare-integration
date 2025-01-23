@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from tushare_integration.crawler.spider import SpiderMeta
 from tushare_integration.manager import CrawlManager
 
 console = Console()
@@ -17,8 +18,21 @@ query_app = typer.Typer(
 
 @query_app.command('list', help="List spiders")
 def list_spiders():
-    manager = CrawlManager()
-    spiders_info = manager.list_spiders()
+    # 直接从 SpiderMeta 获取所有爬虫
+    spiders = SpiderMeta.get_all_spiders()
+    spiders_info = []
+
+    for spider_name, spider_cls in spiders.items():
+        # 获取model类
+        model = getattr(spider_cls, '__model__', None)
+        if model:
+            spiders_info.append(
+                {
+                    'api_title': getattr(model, '__api_title__', ''),
+                    'name': spider_name,
+                    'api_path': ' > '.join(getattr(model, '__api_path__', [])),
+                }
+            )
 
     # 按路径排序
     spiders_info.sort(key=lambda x: x['api_path'])

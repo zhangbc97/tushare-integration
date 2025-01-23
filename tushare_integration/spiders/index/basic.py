@@ -10,4 +10,4 @@ class IndexBasicSpider(TushareSpider):
 
         for market in markets:
             params = {"market": market}
-            yield self.get_scrapy_request(params)
+            yield self.get_httpx_request(params)

@@ -50,7 +50,7 @@ class FutDailySpider(DailySpider):
             trade_dates = [d.strftime('%Y%m%d') for d in conn.query_df(query)['cal_date']]
 
             for trade_date in trade_dates:
-                yield self.get_scrapy_request(params={"trade_date": trade_date, "exchange": exchange})
+                yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
 class FutHoldingSpider(DailySpider):
@@ -93,7 +93,7 @@ class FutHoldingSpider(DailySpider):
             ]
 
             for trade_date in trade_dates:
-                yield self.get_scrapy_request(params={"trade_date": trade_date, "exchange": exchange})
+                yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
 class FutSettleSpider(DailySpider):
@@ -131,4 +131,4 @@ class FutWeeklyDetailSpider(DailySpider):
         weeks = list(set(weeks) - set(df['week'].tolist()))
         # 生成请求
         for week in weeks:
-            yield self.get_scrapy_request(params={"week": week})
+            yield self.get_httpx_request(params={"week": week})

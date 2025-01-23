@@ -21,7 +21,7 @@ class THSDailySpider(DailySpider):
             return
 
         for ts_code in df['ts_code']:
-            yield self.get_scrapy_request(params={"ts_code": ts_code})
+            yield self.get_httpx_request(params={"ts_code": ts_code})
 
 
 class THSIndexSpider(TushareSpider):
@@ -39,7 +39,7 @@ class THSMember(TushareSpider):
         df = self.get_db_engine().query_df(query)
 
         for ts_code in df["ts_code"]:
-            yield self.get_scrapy_request(
+            yield self.get_httpx_request(
                 params={
                     'ts_code': ts_code,
                 }

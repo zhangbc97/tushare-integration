@@ -1,13 +1,15 @@
 import datetime
 import logging
 from abc import ABC, abstractmethod
+from typing import ClassVar, List
 
 import pandas as pd
-from sqlalchemy import Column
+from clickhouse_sqlalchemy import engines
+from sqlalchemy import Column, DateTime, Integer, String, Text
 
 from tushare_integration.crawler.abc import BaseSpider
 from tushare_integration.db_engine import DBEngine
-from tushare_integration.log_model import TushareIntegrationLog
+from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
 
@@ -106,6 +108,8 @@ class DataPipeline(Pipeline):
         super().__init__(settings, spider)
         self.db_engine = DBEngine(settings)
         self.table_name: str = spider.__model__.__tablename__
+        # 在初始化时创建表
+        self.db_engine.create_table(spider.__model__)
 
     def process_item(self, item: pd.DataFrame) -> pd.DataFrame | None:
         if item.empty:
@@ -120,6 +124,35 @@ class DataPipeline(Pipeline):
             self.db_engine.insert(model, data=item)
 
         return item
+
+
+class TushareIntegrationLog(Base):
+    __tablename__ = 'tushare_integration_log'
+    __table_args__ = {'comment': '数据集成日志表'}
+    __primary_key__: ClassVar[List[str]] = ['batch_id']
+
+    __mapper_args__ = {'primary_key': __primary_key__}
+    __table_args__ = (
+        # ClickHouse引擎
+        engines.ReplacingMergeTree(order_by=__primary_key__),
+        {
+            'comment': '数据集成日志表',
+            # MySQL引擎
+            'mysql_engine': 'InnoDB',
+            # StarRocks引擎
+            'starrocks_primary_key': ','.join(__primary_key__),
+            'starrocks_order_by': ','.join(__primary_key__),
+            # Apache Doris引擎
+            'doris_unique_key': __primary_key__,
+        },
+    )
+
+    batch_id = Column(String(64), primary_key=True, comment='批次ID')
+    spider_name = Column(String(64), nullable=False, comment='爬虫名称')
+    description = Column(Text, nullable=False, comment='描述')
+    count = Column(Integer, nullable=False, default=0, comment='数量')
+    start_time = Column(DateTime, nullable=False, default=datetime.datetime.now, comment='开始时间')
+    end_time = Column(DateTime, nullable=False, default=datetime.datetime.now, comment='结束时间')
 
 
 class RecordLogPipeline(Pipeline):
