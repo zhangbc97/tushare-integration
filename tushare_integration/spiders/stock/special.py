@@ -18,9 +18,7 @@ from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, Tusha
 
 
 class ReportRCSpider(TSCodeSpider):
-
     __model__: type[ReportRc] = ReportRc
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class CyqPerfSpider(DailySpider):
@@ -29,9 +27,7 @@ class CyqPerfSpider(DailySpider):
 
 
 class CyqChipsSpider(TushareSpider):
-
     __model__: type[CyqChips] = CyqChips
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
     def start_requests(self):
         conn = self.get_db_engine()
@@ -61,33 +57,26 @@ class CyqChipsSpider(TushareSpider):
 
 
 class StkFactorSpider(DailySpider):
-
     __model__: type[StkFactor] = StkFactor
 
 
 class CCASSHoldSpider(DailySpider):
-
     __model__: type[CcassHold] = CcassHold
 
 
 class CCASSHoldDetailSpider(DailySpider):
-
     __model__: type[CcassHoldDetail] = CcassHoldDetail
 
 
 class HKHoldSpider(DailySpider):
-
     __model__: type[HkHold] = HkHold
 
 
 class StkSurvSpider(TSCodeSpider):
-
     __model__: type[StkSurv] = StkSurv
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class BrokerRecommendSpider(TushareSpider):
-
     __model__: type[BrokerRecommend] = BrokerRecommend
 
     def start_requests(self):
@@ -99,5 +88,4 @@ class BrokerRecommendSpider(TushareSpider):
 
 
 class StkFactorProSpider(DailySpider):
-
     __model__: type[StkFactorPro] = StkFactorPro

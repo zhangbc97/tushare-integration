@@ -33,7 +33,6 @@ class ForeCastSpider(FinancialReportSpider):
 
 class DividendSpider(TSCodeSpider):
     __model__: type[Dividend] = Dividend
-    custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaIndicatorSpider(FinancialReportSpider):
@@ -42,7 +41,6 @@ class FinaIndicatorSpider(FinancialReportSpider):
 
 class FinaAuditSpider(TSCodeSpider):
     __model__: type[FinaAudit] = FinaAudit
-    custom_settings = {'BASIC_TABLE': 'stock_basic'}
 
 
 class FinaMainBZSpider(FinancialReportSpider):

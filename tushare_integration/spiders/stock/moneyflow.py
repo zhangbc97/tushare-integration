@@ -9,35 +9,28 @@ from tushare_integration.spiders.tushare import DailySpider
 
 
 class MoneyFlowSpider(DailySpider):
-
     __model__: type[Moneyflow] = Moneyflow
 
 
 class MoneyFlowHSGTSpider(DailySpider):
-
     __model__: type[MoneyflowHsgt] = MoneyflowHsgt
 
 
 class MoneyFlowDCSpider(DailySpider):
-
     __model__: type[MoneyflowDc] = MoneyflowDc
 
 
 class MoneyFlowIndDCSpider(DailySpider):
-
     __model__: type[MoneyflowIndDc] = MoneyflowIndDc
 
 
 class MoneyFlowIndTHSSpider(DailySpider):
-
     __model__: type[MoneyflowIndThs] = MoneyflowIndThs
 
 
 class MoneyFlowMktDCSpider(DailySpider):
-
     __model__: type[MoneyflowMktDc] = MoneyflowMktDc
 
 
 class MoneyFlowTHSSpider(DailySpider):
-
     __model__: type[MoneyflowThs] = MoneyflowThs

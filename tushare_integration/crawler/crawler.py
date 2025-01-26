@@ -2,7 +2,7 @@ import re
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from graphlib import TopologicalSorter
-from typing import Dict, List, Set, Type
+from typing import Any, Dict, List, Set, Type
 
 from tushare_integration.crawler.spider import Spider, SpiderMeta
 from tushare_integration.settings import TushareIntegrationSettings
@@ -21,6 +21,8 @@ class Crawler(object):
         self._running_spiders: List[Spider] = []
         self.max_workers = settings.concurrent_spiders
         self._lock = threading.Lock()
+        # 修改存储结构
+        self._results: List[Dict[str, Any]] = []
 
     def _build_dependency_graph(self, pattern: str) -> tuple[Dict[str, Set[str]], Dict[str, Type[Spider]]]:
         """构建依赖图
@@ -101,10 +103,17 @@ class Crawler(object):
     def _run_spider(self, spider_class: Type[Spider]) -> None:
         """运行单个爬虫"""
         spider = spider_class(self.settings)
+        spider_name = spider_class.__name__
         with self._lock:
             self._running_spiders.append(spider)
         try:
             spider.start()
+            with self._lock:
+                self._results.append({"spider_name": spider_name, "success": True, "err_msg": ""})
+        except Exception as e:
+            with self._lock:
+                self._results.append({"spider_name": spider_name, "success": False, "err_msg": str(e)})
+            raise
         finally:
             with self._lock:
                 spider.close()
@@ -116,3 +125,15 @@ class Crawler(object):
             for spider in self._running_spiders:
                 spider.close()
             self._running_spiders.clear()
+
+    def get_results(self) -> List[Dict[str, Any]]:
+        """获取所有爬虫的运行结果
+
+        Returns:
+            List[Dict[str, Any]]: 包含每个爬虫运行结果的字典列表
+            每个字典包含以下字段:
+            - spider_name: 爬虫名称
+            - success: 是否运行成功
+            - err_msg: 错误信息(如果失败)
+        """
+        return self._results.copy()

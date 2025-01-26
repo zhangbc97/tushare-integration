@@ -6,8 +6,6 @@ from typing import ClassVar
 import httpx
 import pandas as pd
 import requests
-import scrapy
-import yaml
 from sqlalchemy import and_, not_, select, text
 
 from tushare_integration.crawler.spider import Spider
@@ -21,6 +19,11 @@ from tushare_integration.settings import TushareIntegrationSettings
 class TushareSpider(Spider):
     __spider_name__: str
     __model__: ClassVar[type[Base]] = Base
+    __trade_date_field__: str = 'trade_date'
+
+    def __init__(self, settings: TushareIntegrationSettings):
+        super().__init__(settings)
+        self.db_engine: DBEngine = DBEngine(settings)
 
     @property
     def api_name(self) -> str:
@@ -44,8 +47,7 @@ class TushareSpider(Spider):
         start_date = self.start_date or '19900101'
 
         # 构建子查询
-        trade_date_field = 'trade_date'
-        subquery = select(text(f"`{trade_date_field}`")).select_from(text(f"{db_name}.{self.table_name}"))
+        subquery = select(text(f"`{self.__trade_date_field__}`")).select_from(text(f"{db_name}.{self.table_name}"))
 
         # 构建主查询
         query = (
@@ -70,9 +72,7 @@ class TushareSpider(Spider):
         trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 
         for trade_date in trade_dates:
-            yield self.get_httpx_request(
-                params={self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date'): trade_date}
-            )
+            yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
 
     def parse(self, response, **kwargs):
         item = self.parse_response(response, **kwargs)
@@ -104,11 +104,11 @@ class TushareSpider(Spider):
         logging.info(f"Requesting {self.api_name} with params: {params}")
 
         return httpx.Request(
-            url=self.spider_settings.tushare_url,
+            url=self.settings.tushare_url,
             method="POST",
             json={
                 "api_name": self.api_name,
-                "token": self.spider_settings.tushare_token,
+                "token": self.settings.tushare_token,
                 "params": params,
                 "fields": self.fields,
             },
@@ -126,10 +126,10 @@ class TushareSpider(Spider):
     def request_with_requests(self, params: dict | None = None, meta: dict | None = None):
         logging.info(f"Requesting {self.api_name} with params: {params}")
         response = requests.post(
-            url=self.spider_settings.tushare_url,
+            url=self.settings.tushare_url,
             json={
                 "api_name": self.api_name,
-                "token": self.spider_settings.tushare_token,
+                "token": self.settings.tushare_token,
                 "params": params,
                 "fields": self.fields,
             },
@@ -143,16 +143,14 @@ class TushareSpider(Spider):
 
 class DailySpider(TushareSpider):
     __model__: type[Base] = Base
-    custom_settings: dict[str, str] = {"TRADE_DATE_FIELD": "trade_date"}
 
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
         start_date = self.start_date or '1990-01-01'
 
         # 构建子查询
-        trade_date_field = self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date')
-        subquery = select(text(f"`{trade_date_field}`")).select_from(text(f"{db_name}.{self.table_name}"))
+        subquery = select(text(f"`{self.__trade_date_field__}`")).select_from(text(f"{db_name}.{self.table_name}"))
 
         # 构建主查询
         query = (
@@ -177,19 +175,17 @@ class DailySpider(TushareSpider):
         trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 
         for trade_date in trade_dates:
-            yield self.get_httpx_request(
-                params={self.custom_settings.get('TRADE_DATE_FIELD', 'trade_date'): trade_date}
-            )
+            yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
 
 
 class TSCodeSpider(TushareSpider):
     __model__: type[Base] = Base
-    custom_settings: dict[str, str] = {'BASIC_TABLE': 'stock_basic'}
+    __basic_table__: str = 'stock_basic'
 
     def start_requests(self):
-        table_name = self.custom_settings.get('BASIC_TABLE')
+        table_name = self.__basic_table__
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
 
         # 使用 SQLAlchemy select
         query = select(text('ts_code')).select_from(text(f"{db_name}.{table_name}"))
@@ -213,7 +209,7 @@ class FinancialReportSpider(TushareSpider):
 
     def start_requests(self):
         # 如果积分大于5000，使用vip接口
-        if self.spider_settings.tushare_point >= 5000:
+        if self.settings.tushare_point >= 5000:
             return self.request_with_vip()
         else:
             return self.request_with_ts_code()

@@ -6,8 +6,9 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from tushare_integration.commands.spider import list_spiders_info
+from tushare_integration.crawler.spider import SpiderMeta
 from tushare_integration.models.core import Base
-from tushare_integration.manager import CrawlManager
 
 console = Console()
 api_app = typer.Typer(name='api', help='API管理', no_args_is_help=True)
@@ -67,9 +68,7 @@ def get_api_info() -> Dict[str, Dict]:
 @api_app.command('list', help='列出所有可用API')
 def list_apis() -> None:
     """列出所有可用的API"""
-    manager = CrawlManager()
-    spiders_info = manager.list_spiders()
-
+    spiders_info = list_spiders_info()
     # 按路径排序
     spiders_info.sort(key=lambda x: x['api_path'])
 
@@ -87,20 +86,13 @@ def list_apis() -> None:
     # 添加行
     for spider in spiders_info:
         # 获取spider类和model类以获取额外信息
-        spider_cls = manager.process.spider_loader.load(spider['name'])
+        spider_cls = SpiderMeta.get(spider['name'])
         model = getattr(spider_cls, '__model__', None)
-        
+
         points = str(getattr(model, '__api_points_required__', '0')) if model else '0'
         special = '是' if getattr(model, '__api_special_permission__', False) else '否'
 
-        table.add_row(
-            spider['api_title'],
-            spider['name'],
-            spider['api_path'],
-            spider['api_path_en'],
-            points,
-            special
-        )
+        table.add_row(spider['api_title'], spider['name'], spider['api_path'], spider['api_path_en'], points, special)
 
     # 打印表格
     console.print(table)
@@ -109,15 +101,14 @@ def list_apis() -> None:
 @api_app.command('info', help='查看特定API的详细信息')
 def api_info(api_name: str = typer.Argument(..., help='API名称')) -> None:
     """查看特定API的详细信息"""
-    manager = CrawlManager()
-    spiders_info = manager.list_spiders(api_name)
+    spiders_info = list_spiders_info(api_name)
 
     if not spiders_info:
         console.print(f"[red]未找到API: {api_name}[/red]")
         return
 
     spider_info = spiders_info[0]
-    spider_cls = manager.process.spider_loader.load(spider_info['name'])
+    spider_cls = SpiderMeta.get(spider_info['name'])
     model = getattr(spider_cls, '__model__', None)
 
     # 创建表格
@@ -146,11 +137,11 @@ def api_info(api_name: str = typer.Argument(..., help='API名称')) -> None:
                 param_type = param_info.get('type', '')
                 description = param_info.get('description', '')
                 params_table.append(f"{param_name} ({param_type})\n  必填: {required}\n  说明: {description}")
-            
+
             table.add_row("参数列表", "\n".join(params_table))
 
     # 获取依赖信息
-    dependencies = manager.get_dependencies([spider_info['name']])
+    dependencies = SpiderMeta.get(spider_info['name']).__model__.__dependencies__
     if dependencies:
         table.add_row("依赖", "\n".join(dependencies))
 

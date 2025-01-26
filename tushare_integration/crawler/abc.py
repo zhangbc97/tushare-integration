@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Generator, Iterator
+from typing import ClassVar, Generator, Iterator
 
 import httpx
 import pandas as pd

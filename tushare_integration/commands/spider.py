@@ -1,21 +1,80 @@
+from typing import Dict, List, Optional, Type
+
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from tushare_integration.manager import CrawlManager
+from tushare_integration.crawler.spider import Spider, SpiderMeta
+from tushare_integration.dictionary import API_PATH_DICTIONARY
 
 console = Console()
 spider_app = typer.Typer(name='spider', help='爬虫管理', no_args_is_help=True)
 
 
-@spider_app.command('list', help='列出所有可用爬虫')
-def list_spiders() -> None:
-    """列出所有可用的爬虫"""
-    manager = CrawlManager()
-    spiders_info = manager.list_spiders()
+def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
+    """将爬虫类转换为信息字典
 
-    # 按路径排序
+    Args:
+        spider_cls: 爬虫类
+
+    Returns:
+        包含爬虫信息的字典，包括api_title、name、api_path和api_path_en
+    """
+    model = spider_cls.__model__
+    api_path = getattr(model, '__api_path__', [])
+
+    # 转换为英文路径，跳过第一个元素
+    api_path_en = []
+    for i, path in enumerate(api_path[1:], 1):  # 从第二个元素开始，保持索引正确
+        if i == len(api_path) - 1:
+            # 最后一级使用__api_name__
+            api_path_en.append(getattr(model, '__api_name__', path))
+        else:
+            en_path = API_PATH_DICTIONARY.get(path, path)
+            api_path_en.append(en_path)
+
+    return {
+        'api_title': getattr(model, '__api_title__', ''),
+        'name': spider_cls.__name__,
+        'api_path': ' > '.join(api_path),
+        'api_path_en': '/'.join(api_path_en),
+    }
+
+
+def list_spiders_info(pattern: Optional[str] = None) -> List[Dict[str, str]]:
+    """获取爬虫信息列表
+
+    Args:
+        pattern: 可选的匹配模式，支持两种格式：
+            1. 爬虫名称匹配模式，如 "stock_basic"
+            2. API路径匹配模式，如 "stock/basic"
+
+    Returns:
+        爬虫信息列表，每个元素包含api_title、name、api_path和api_path_en
+    """
+    # 根据pattern格式选择不同的查找方式
+    if pattern and '/' in pattern:
+        # 如果包含/，则按路径匹配
+        spiders = SpiderMeta.list_spiders_by_path(pattern)
+    else:
+        # 否则按名称匹配
+        spiders = SpiderMeta.list_spiders(pattern)
+
+    spiders_info = [_convert_spider_to_info(spider_cls) for spider_cls in spiders]
     spiders_info.sort(key=lambda x: x['api_path'])
+    return spiders_info
+
+
+@spider_app.command('list', help='列出所有可用爬虫')
+def cmd_list_spiders(pattern: Optional[str] = None) -> None:
+    """列出所有可用的爬虫
+
+    Args:
+        pattern: 可选的匹配模式，支持两种格式：
+            1. 爬虫名称匹配模式，如 "stock_basic"
+            2. API路径匹配模式，如 "stock/basic"
+    """
+    spiders_info = list_spiders_info(pattern)
 
     # 创建表格
     table = Table(title="爬虫列表")
@@ -28,22 +87,22 @@ def list_spiders() -> None:
 
     # 添加行
     for spider in spiders_info:
-        table.add_row(
-            spider['api_title'],
-            spider['name'],
-            spider['api_path'],
-            spider['api_path_en']
-        )
+        table.add_row(spider['api_title'], spider['name'], spider['api_path'], spider['api_path_en'])
 
     # 打印表格
     console.print(table)
 
 
 @spider_app.command('info', help='查看特定爬虫的详细信息')
-def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称')) -> None:
-    """查看特定爬虫的详细信息"""
-    manager = CrawlManager()
-    spiders_info = manager.list_spiders(spider_name)
+def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称或路径')) -> None:
+    """查看特定爬虫的详细信息
+
+    Args:
+        spider_name: 爬虫名称或路径，支持两种格式：
+            1. 爬虫名称，如 "stock_basic"
+            2. API路径，如 "stock/basic"
+    """
+    spiders_info = list_spiders_info(spider_name)
 
     if not spiders_info:
         console.print(f"[red]未找到爬虫: {spider_name}[/red]")
@@ -64,7 +123,7 @@ def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称')) -> 
     table.add_row("英文路径", spider_info['api_path_en'])
 
     # 获取依赖信息
-    dependencies = manager.get_dependencies([spider_name])
+    dependencies = SpiderMeta.get(spider_name).__model__.__dependencies__
     if dependencies:
         table.add_row("依赖", "\n".join(dependencies))
 

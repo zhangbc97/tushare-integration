@@ -1,3 +1,4 @@
+import re
 from abc import ABCMeta, abstractmethod
 from collections import deque
 from typing import ClassVar, Deque, Dict, Generator, Iterator, List, Optional, Type
@@ -14,6 +15,7 @@ from tushare_integration.crawler.pipeline import (
     RecordLogPipeline,
     TransformDTypePipeline,
 )
+from tushare_integration.dictionary import API_PATH_DICTIONARY
 from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -30,11 +32,16 @@ class SpiderMeta(ABCMeta):
         # 创建类
         cls = super().__new__(mcs, name, bases, attrs)
 
-        # 获取spider_name
-        spider_name = attrs.get('__spider_name__', '')
+        # 获取spider_name，在__model__中的__api_name__
+        model = attrs.get('__model__', {})
+
+        if not hasattr(model, '__api_name__'):
+            return cls
+
+        spider_name = model.__api_name__
 
         # 只注册非空spider_name的爬虫类,且不注册基类Spider
-        if spider_name and name != 'Spider':
+        if spider_name:
             if spider_name in mcs._registry:
                 raise ValueError(f'重复的爬虫名称: {spider_name}')
             mcs._registry[spider_name] = cls
@@ -47,9 +54,74 @@ class SpiderMeta(ABCMeta):
         return cls._registry.copy()
 
     @classmethod
-    def get(cls, spider_name: str) -> Optional[Type["Spider"]]:
+    def get(cls, spider_name: str) -> Type["Spider"]:
         """获取指定名称的爬虫类"""
-        return cls._registry.get(spider_name)
+        if spider := cls._registry.get(spider_name):
+            return spider
+        raise ValueError(f"未找到爬虫: {spider_name}")
+
+    @classmethod
+    def list_spiders(cls, pattern: Optional[str] = None) -> List[Type["Spider"]]:
+        """获取所有注册的爬虫类
+
+        Args:
+            pattern: 可选的爬虫名称匹配模式
+
+        Returns:
+            匹配的爬虫类列表
+        """
+        spiders = cls._registry.values()
+        if pattern:
+            return [spider_cls for spider_cls in spiders if re.match(pattern, spider_cls.__name__)]
+        return list(spiders)
+
+    @classmethod
+    def list_spiders_by_path(cls, path_pattern: str) -> List[Type["Spider"]]:
+        """通过API路径模式匹配爬虫
+
+        Args:
+            path_pattern: API路径匹配模式，如 'stock/basic'
+
+        Returns:
+            匹配的爬虫类列表
+        """
+        path_parts = path_pattern.strip('/').split('/')
+        cn_path_parts = []
+
+        # 创建反向映射字典
+        reverse_dict = {v: k for k, v in API_PATH_DICTIONARY.items()}
+
+        # 转换路径部分为中文
+        for part in path_parts:
+            if part in reverse_dict:
+                cn_path_parts.append(reverse_dict[part])
+            else:
+                cn_path_parts.append(part)
+
+        matched_spiders = []
+        for spider_name, spider_cls in cls._registry.items():
+            model = getattr(spider_cls, '__model__', None)
+            if not (model and hasattr(model, '__api_path__')):
+                continue
+
+            api_path = model.__api_path__
+
+            # 跳过第一个元素进行匹配
+            match = True
+            for i, pattern in enumerate(cn_path_parts):
+                # 直接从第二个元素开始匹配
+                api_path_index = i + 1
+                if api_path_index >= len(api_path):
+                    match = False
+                    break
+                if not re.fullmatch(pattern, api_path[api_path_index]):
+                    match = False
+                    break
+
+            if match:
+                matched_spiders.append(spider_cls)
+
+        return matched_spiders
 
 
 class Spider(BaseSpider, metaclass=SpiderMeta):

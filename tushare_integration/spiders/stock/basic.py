@@ -1,7 +1,6 @@
+import httpx
 import pandas as pd
-from sqlalchemy import not_, select
 
-from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.hs_const import HsConst
 from tushare_integration.models.namechange import Namechange
 from tushare_integration.models.stk_managers import StkManagers
@@ -44,18 +43,18 @@ class NameChangeSpider(TushareSpider):
         # 不能用start_date和end_date筛选，部分数据没有ann_date导致无法完整同步数据
         # 每次拉5000条数据
         request = self.get_httpx_request(params={'offset': 0, 'limit': 5000})
-        request.meta["offset"] = 0
-        request.meta["limit"] = 5000
+        request.extensions["offset"] = 0
+        request.extensions["limit"] = 5000
         yield request
 
-    def parse(self, response, **kwargs):
+    def parse(self, response:httpx.Response, **kwargs):
         first_page = self.parse_response(response, **kwargs)
         if first_page["data"].empty:
             return None
 
         all_data = [first_page["data"]]
-        offset = response.meta["offset"] + response.meta["limit"]
-        limit = response.meta["limit"]
+        offset = response.request.extensions["offset"] + response.request.extensions["limit"]
+        limit = response.request.extensions["limit"]
 
         while True:
             parsed_data = self.request_with_requests(params={'offset': offset, 'limit': limit})
@@ -64,7 +63,7 @@ class NameChangeSpider(TushareSpider):
             all_data.append(parsed_data["data"])
             offset += limit
 
-        return TushareIntegrationItem(data=pd.concat(all_data, ignore_index=True))
+        return pd.concat(all_data, ignore_index=True)
 
 
 class HSConstSpider(TushareSpider):

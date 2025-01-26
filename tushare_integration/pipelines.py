@@ -1,7 +1,3 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import datetime
 import logging
 
@@ -11,7 +7,7 @@ from scrapy.exceptions import DropItem
 from sqlalchemy import Column
 
 from tushare_integration.db_engine import DBEngine
-from tushare_integration.log_model import TushareIntegrationLog # type: ignore
+from tushare_integration.log_model import TushareIntegrationLog  # type: ignore
 from tushare_integration.settings import TushareIntegrationSettings
 
 

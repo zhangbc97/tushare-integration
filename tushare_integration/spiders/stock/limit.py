@@ -15,7 +15,6 @@ from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
 
 class DCHotSpider(DailySpider):
-
     __model__: type[DcHot] = DcHot
 
     def start_requests(self):
@@ -26,52 +25,42 @@ class DCHotSpider(DailySpider):
 
 
 class HMDetailSpider(DailySpider):
-
     __model__: type[HmDetail] = HmDetail
 
 
 class HMListSpider(TushareSpider):
-
     __model__: type[HmList] = HmList
 
 
 class KplConceptConsSpider(DailySpider):
-
     __model__: type[KplConceptCons] = KplConceptCons
 
 
 class KplConceptSpider(DailySpider):
-
     __model__: type[KplConcept] = KplConcept
 
 
 class KplListSpider(DailySpider):
-
     __model__: type[KplList] = KplList
 
 
 class LimitCptListSpider(DailySpider):
-
     __model__: type[LimitCptList] = LimitCptList
 
 
 class LimitListDSpider(DailySpider):
-
     __model__: type[LimitListD] = LimitListD
 
 
 class LimitListTHSSpider(DailySpider):
-
     __model__: type[LimitListThs] = LimitListThs
 
 
 class LimitStepSpider(DailySpider):
-
     __model__: type[LimitStep] = LimitStep
 
 
 class THSHotSpider(DailySpider):
-
     __model__: type[ThsHot] = ThsHot
 
     def start_requests(self):

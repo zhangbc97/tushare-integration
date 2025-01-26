@@ -3,10 +3,10 @@ import datetime
 import logging
 from typing import Any
 
+import httpx
 import pandas as pd
 from sqlalchemy import and_, func, select, text
 
-from tushare_integration.items import TushareIntegrationItem
 from tushare_integration.models.adj_factor import AdjFactor
 from tushare_integration.models.bak_daily import BakDaily
 from tushare_integration.models.daily import Daily
@@ -35,7 +35,7 @@ class StockWeeklySpider(TushareSpider):
 
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
         table_name = self.table_name
 
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
@@ -84,7 +84,7 @@ class StockMonthlySpider(StockWeeklySpider):
 
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
         table_name = self.table_name
 
         trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
@@ -120,19 +120,17 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
             return today
         sunday = (today + datetime.timedelta(days=6 - weekday)).strftime("%Y-%m-%d")
 
-        return self.get_latest_trade_date(self.get_db_engine(), self.spider_settings.database.db_name, sunday)
+        return self.get_latest_trade_date(self.get_db_engine(), self.settings.database.db_name, sunday)
 
     def get_end_of_month(self):
         today = datetime.date.today()
         end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1]).strftime("%Y-%m-%d")
 
-        return self.get_latest_trade_date(
-            self.get_db_engine(), self.spider_settings.database.db_name, end_date_of_month
-        )
+        return self.get_latest_trade_date(self.get_db_engine(), self.settings.database.db_name, end_date_of_month)
 
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.spider_settings.database.db_name
+        db_name = self.settings.database.db_name
         table_name = self.table_name
 
         weekly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
@@ -235,7 +233,7 @@ class StockMin(TushareSpider):
             trade_dates = self.get_db_engine().query_df(
                 f"""
                     SELECT DISTINCT trade_date 
-                    FROM {self.spider_settings.database.db_name}.{self.custom_settings.get("DAILY_TABLE")}
+                    FROM {self.settings.database.db_name}.{self.custom_settings.get("DAILY_TABLE")}
                     WHERE ts_code = '{ts_code}' AND trade_date >= '{self.__model__.__start_date__}'
                     ORDER BY trade_date"""
             )
@@ -270,12 +268,11 @@ class StockMin(TushareSpider):
                 # 把last_end_date更新为当前trade_date + 40天
                 last_end_date = trade_date + datetime.timedelta(days=40)
 
-    def parse(self, response, **kwargs):
-        exists_date = response.meta['exists_date']
-        item = self.parse_response(response)
+    def parse(self, response: httpx.Response, **kwargs):
+        exists_date = response.request.extensions['exists_date']
         # 一次采集多天的数据，需要逐判断长度是否是241，如果是则写入数据库，否则报日志并且丢弃
         # start_requests中已经保证单个任务中不会重复采集，断当前的交易日是否在exists_date中即可，不需要关心是否在本次采集中重复采集
-        data: pd.DataFrame = item['data']
+        data: pd.DataFrame = self.parse_response(response)
 
         if len(data) == 0:
             return
@@ -293,9 +290,9 @@ class StockMin(TushareSpider):
                 continue
             # 如果不在exists_date中，那么就需要判断长度是否是241，如果不是241，那么就报错并且丢弃
             if len(values) != 241:
-                logging.error(f"length of data is not 241, params: {response.meta['params']}")
+                logging.error(f"length of data is not 241, params: {response.request.extensions['params']}")
                 continue
 
             pipe_item = pd.concat([pipe_item, values])
         # 减少写入次数
-        yield TushareIntegrationItem(data=pipe_item)
+        yield pipe_item
