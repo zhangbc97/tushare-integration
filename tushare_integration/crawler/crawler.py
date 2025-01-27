@@ -18,35 +18,32 @@ class Crawler(object):
             settings: 配置对象
         """
         self.settings = settings
-        self._running_spiders: List[Spider] = []
         self.max_workers = settings.concurrent_spiders
         self._lock = threading.Lock()
-        # 修改存储结构
+        self._running_spiders: List[Spider] = []
         self._results: List[Dict[str, Any]] = []
+        self._running = True
 
-    def _build_dependency_graph(self, pattern: str) -> tuple[Dict[str, Set[str]], Dict[str, Type[Spider]]]:
+    def _build_dependency_graph(self, pattern: str) -> Dict[str, Set[str]]:
         """构建依赖图
 
         Args:
             pattern: Spider名称匹配模式
 
         Returns:
-            tuple: (依赖关系字典, spider类字典)
-                - 依赖关系字典: {spider_name -> {dependency_names}}
-                - spider类字典: {spider_name -> spider_class}
+            Dict[str, Set[str]]: 依赖关系字典 {spider_name -> {dependency_names}}
         """
         # 获取匹配的爬虫和依赖图
         graph = {}
-        spider_classes = {}  # name -> class 映射
 
         # 收集匹配的爬虫
         for spider_name, spider_class in SpiderMeta.get_all_spiders().items():
             if re.match(pattern, spider_name):
-                spider_classes[spider_name] = spider_class
                 graph[spider_name] = set()
 
         # 添加依赖关系
-        for spider_name, spider_class in spider_classes.items():
+        for spider_name in list(graph.keys()):
+            spider_class = SpiderMeta.get(spider_name)
             if hasattr(spider_class.__model__, '__dependencies__'):
                 for dep_name in spider_class.__model__.__dependencies__:
                     dep_class = SpiderMeta.get(dep_name)
@@ -55,11 +52,10 @@ class Crawler(object):
                     # 确保依赖的爬虫也在图中
                     if dep_name not in graph:
                         graph[dep_name] = set()
-                        spider_classes[dep_name] = dep_class
                     # 添加依赖关系
                     graph[spider_name].add(dep_name)
 
-        return graph, spider_classes
+        return graph
 
     def crawl(self, pattern: str) -> None:
         """并发运行爬虫
@@ -67,8 +63,9 @@ class Crawler(object):
         Args:
             pattern: 爬虫名称匹配模式
         """
+        self._running = True  # 重置运行状态
         # 构建依赖图
-        graph, spider_classes = self._build_dependency_graph(pattern)
+        graph = self._build_dependency_graph(pattern)
         if not graph:
             return
 
@@ -81,10 +78,10 @@ class Crawler(object):
             # 跟踪运行中的任务
             running_tasks = {}  # future -> spider_name 映射
 
-            while sorter.is_active():
+            while sorter.is_active() and self._running:  # 检查运行状态
                 # 提交新的准备好的任务
                 for spider_name in sorter.get_ready():
-                    spider_class = spider_classes[spider_name]
+                    spider_class = SpiderMeta.get(spider_name)
                     future = executor.submit(self._run_spider, spider_class)
                     running_tasks[future] = spider_name
 
@@ -121,6 +118,7 @@ class Crawler(object):
 
     def stop(self) -> None:
         """停止所有运行中的爬虫"""
+        self._running = False  # 设置停止标志
         with self._lock:
             for spider in self._running_spiders:
                 spider.close()

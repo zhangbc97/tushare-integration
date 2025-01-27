@@ -46,20 +46,22 @@ class IndexMemberAllSpider(TushareSpider):
         request.extensions["limit"] = 3000
         yield request
 
-    def parse(self, response:httpx.Response, **kwargs):
+    def parse(self, response: httpx.Response, **kwargs):
         first_page = self.parse_response(response, **kwargs)
-        if first_page["data"].empty:
+        if first_page.empty:
             return None
 
-        all_data = [first_page["data"]]
+        all_data = [first_page]
         offset = response.request.extensions["offset"] + response.request.extensions["limit"]
         limit = response.request.extensions["limit"]
 
         while True:
-            parsed_data = self.request_with_requests(params={'offset': offset, 'limit': limit})
-            if parsed_data["data"].empty:
+            parsed_data = self.parse_response(
+                self._process_request(self.get_httpx_request(extensions={'offset': offset, 'limit': limit}))
+            )
+            if parsed_data.empty:
                 break
-            all_data.append(parsed_data["data"])
+            all_data.append(parsed_data)
             offset += limit
 
         return pd.concat(all_data, ignore_index=True)

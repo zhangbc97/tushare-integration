@@ -25,4 +25,4 @@ class TushareModelMixin(object):
 class Base(DeclarativeBase, TushareModelMixin):
     """SQLAlchemy 声明性基类，包含了 Tushare 相关的所有属性"""
 
-    pass
+    ...

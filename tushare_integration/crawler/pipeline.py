@@ -38,6 +38,11 @@ class Pipeline(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def close(self):
+        """关闭管道"""
+        ...
+
 
 class FillNAPipeline(Pipeline):
     """填充空值管道"""

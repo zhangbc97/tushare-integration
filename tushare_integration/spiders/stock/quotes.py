@@ -261,7 +261,7 @@ class StockMin(TushareSpider):
                         "end_date": (trade_date + datetime.timedelta(days=40)).strftime("%Y-%m-%d") + " 16:00:00",
                         "freq": "1min",
                     },
-                    meta={
+                    extensions={
                         'exists_date': exists_date,
                     },
                 )

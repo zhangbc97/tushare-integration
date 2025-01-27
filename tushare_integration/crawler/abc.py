@@ -14,12 +14,6 @@ class BaseSpider(ABC):
     __spider_name__: str = ""
     __model__: ClassVar[type[Base]] = Base  # 数据模型类
 
-    @property
-    @abstractmethod
-    def settings(self) -> TushareIntegrationSettings:
-        """获取爬虫配置"""
-        pass
-
     @abstractmethod
     def schedule_request(self, request: httpx.Request, first: bool = False) -> None:
         """调度请求到队列

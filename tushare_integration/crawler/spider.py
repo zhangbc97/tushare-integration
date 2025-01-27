@@ -72,7 +72,7 @@ class SpiderMeta(ABCMeta):
         """
         spiders = cls._registry.values()
         if pattern:
-            return [spider_cls for spider_cls in spiders if re.match(pattern, spider_cls.__name__)]
+            return [spider_cls for spider_cls in spiders if re.match(pattern, spider_cls.__spider_name__)]
         return list(spiders)
 
     @classmethod
@@ -146,7 +146,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
     ]
 
     def __init__(self, settings: TushareIntegrationSettings):
-        self._settings = settings
+        self.settings = settings
         # 将spider_name作为实例属性
         self._spider_name = self.__class__.__spider_name__
         self.client = httpx.Client(
@@ -162,15 +162,6 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
         # 初始化管道
         self.pipelines = [pipeline_cls(settings=settings, spider=self) for pipeline_cls in self.pipeline_classes]
-
-    @property
-    def settings(self) -> TushareIntegrationSettings:
-        return self._settings
-
-    @property
-    def spider_name(self) -> str:
-        """获取爬虫名称"""
-        return self._spider_name
 
     def start(self) -> None:
         """启动爬虫"""
@@ -272,6 +263,10 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
     def close(self) -> None:
         """关闭爬虫，清理资源"""
+        # 关闭所有pipeline
+        for pipeline in self.pipelines:
+            pipeline.close()
+
         self._request_queue.clear()
         self.client.close()
 

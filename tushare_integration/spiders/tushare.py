@@ -5,7 +5,6 @@ from typing import ClassVar
 
 import httpx
 import pandas as pd
-import requests
 from sqlalchemy import and_, not_, select, text
 
 from tushare_integration.crawler.spider import Spider
@@ -74,15 +73,15 @@ class TushareSpider(Spider):
         for trade_date in trade_dates:
             yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
 
-    def parse(self, response, **kwargs):
-        item = self.parse_response(response, **kwargs)
+    def parse(self, response: httpx.Response, **kwargs):
+        data = self.parse_response(response, **kwargs)
 
-        if item['data'] is None or len(item['data']) == 0:
+        if data is None or data.empty:
             return
 
-        return item
+        return data
 
-    def parse_response(self, response, **kwargs):
+    def parse_response(self, response, **kwargs) -> pd.DataFrame:
         resp = json.loads(response.text)
 
         if resp["code"] != 0:
@@ -94,12 +93,12 @@ class TushareSpider(Spider):
     def get_db_engine(self):
         return self.db_engine
 
-    def get_httpx_request(self, params: dict | None = None, meta: dict | None = None):
+    def get_httpx_request(self, params: dict | None = None, extensions: dict | None = None):
         if not params:
             params = {}
 
-        if not meta:
-            meta = {}
+        if not extensions:
+            extensions = {}
 
         logging.info(f"Requesting {self.api_name} with params: {params}")
 
@@ -119,26 +118,8 @@ class TushareSpider(Spider):
                 'api_name': self.api_name,
                 'params': params,
             }
-            | meta,
+            | extensions,
         )
-
-    # 搞个函数，直接使用requests发起请求
-    def request_with_requests(self, params: dict | None = None, meta: dict | None = None):
-        logging.info(f"Requesting {self.api_name} with params: {params}")
-        response = requests.post(
-            url=self.settings.tushare_url,
-            json={
-                "api_name": self.api_name,
-                "token": self.settings.tushare_token,
-                "params": params,
-                "fields": self.fields,
-            },
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
-
-        return self.parse_response(response)
 
 
 class DailySpider(TushareSpider):
