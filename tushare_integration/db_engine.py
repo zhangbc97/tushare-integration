@@ -5,11 +5,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
 
 from tushare_integration.settings import TushareIntegrationSettings
+from tushare_integration.logger import get_logger
 
+logger = get_logger()
 
 class DBEngine:
     def __init__(self, settings: TushareIntegrationSettings) -> None:
         self.settings = settings
+        logger.info("Initializing database engine...")
         self.engine = self._create_engine()
         self.conn = self.engine.connect()
 

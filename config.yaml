@@ -1,46 +1,38 @@
-# TUSHARE相关配置
-tushare_url: https://api.tushare.pro
-tushare_point: 10000
-tushare_token: ""
+# Tushare API配置
+tushare_token: "" # 必填，可通过环境变量 TUSHARE_TOKEN 设置
+tushare_url: "https://api.tushare.pro"
+tushare_point: 2000 # 默认积分
+tushare_max_concurrent_requests: null # 不指定时会根据积分自动计算
 
+# 数据库配置
 database:
-  # 数据库配置
-  drivername: "clickhouse+http"
-  host: "127.0.0.1"
-  port: "8123"
-  user: "default"
-  password: ""
-  db_name: "default"
-  template_params: {}
+  drivername: "clickhouse+http" # 必填，可通过环境变量 DB_DRIVER 设置
+  host: "127.0.0.1" # 必填，可通过环境变量 DB_HOST 设置
+  port: 8123 # 必填，可通过环境变量 DB_PORT 设置
+  user: "default" # 必填，可通过环境变量 DB_USER 设置
+  password: "" # 可选，可通过环境变量 DB_PASSWORD 设置
+  db_name: "default" # 必填，可通过环境变量 DB_NAME 设置
+  template_params: {} # 可选，SQL模板参数
 
-reporters: []
-#  - "tushare_integration.reporters.FeishuWebHookReporter"
+# 报告配置
+reporters: [] # 可选，报告模块列表
+# - "tushare_integration.reporters.FeishuWebHookReporter"
+feishu_webhook: "" # 可选，可通过环境变量 FEISHU_WEBHOOK 设置
 
-# 飞书Webhook配置
-feishu_webhook: ""
+# 爬虫配置
+parallel_mode: false # 可选，是否开启并行模式
+batch_id: "" # 可选，可通过环境变量 BATCH_ID 设置
+concurrent_spiders: 1 # 可选，可通过环境变量 CONCURRENT_SPIDERS 设置
 
-# Scrapy配置
-bot_name: tushare_integration
-concurrent_requests: 1
-concurrent_items: 100
+# 请求配置
+download_delay: 0.0 # 可选，下载延迟
+max_requests_per_minute: 60 # 可选，每分钟最大请求数
+retry_enabled: true # 可选，是否开启重试
+retry_times: 10 # 可选，重试次数
+retry_delay: 10 # 可选，重试延迟(秒)
 
-downloader_middlewares:
-  scrapy.downloadermiddlewares.retry.RetryMiddleware: null
-  tushare_integration.middlewares.TushareRetryDownloaderMiddleware: 543
+# HTTP配置
+timeout: 30 # 可选，请求超时时间(秒)
+headers: # 可选，请求头
+  User-Agent: "tushare-integration"
 
-item_pipelines:
-  tushare_integration.pipelines.TushareIntegrationFillNAPipeline: 298
-  tushare_integration.pipelines.TransformDTypePipeline: 299
-  tushare_integration.pipelines.TushareIntegrationDataPipeline: 300
-  tushare_integration.pipelines.RecordLogPipeline: 301
-
-# 重试配置
-# Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
-retry_enabled: true
-retry_delay: 60
-retry_times: 3
-
-spider_modules:
-  - "tushare_integration.spiders"
-
-closespider_errorcount: 1

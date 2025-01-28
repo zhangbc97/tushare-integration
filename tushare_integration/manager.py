@@ -1,21 +1,22 @@
+import logging
 import signal
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from rich.console import Console
 from sqlalchemy import select
 
+from tushare_integration.crawler.crawler import Crawler
 from tushare_integration.crawler.pipeline import TushareIntegrationLog
 from tushare_integration.db_engine import DBEngine
+from tushare_integration.logger import get_logger
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings, load_config
 
-console = Console()
+logger = get_logger()
 
 
-class CrawlManager(object):
-    """爬虫管理器"""
+class TushareIntegrationManager(object):
 
     def __init__(self, config_file: Optional[Path] = None) -> None:
         """初始化爬虫管理器
@@ -36,12 +37,17 @@ class CrawlManager(object):
         self.settings: TushareIntegrationSettings = load_config(config_file)
         self.db_engine: DBEngine = DBEngine(self.settings)
         self.reporter_loader: ReporterLoader = ReporterLoader(self.settings)
+        logger.info(f"Load reporters: {self.reporter_loader.get_reporters()}")
+
+        self.crawler: Crawler | None = None
 
         # 注册系统信号处理器
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
 
-    def run_spider(self, pattern: str) -> None: ...
+    def run_spider(self, pattern: str) -> None:
+        self.crawler = Crawler(self.settings)
+        self.crawler.crawl(pattern)
 
     def run_job(self, job_file: str, job_name: str) -> None: ...
 
@@ -78,5 +84,7 @@ class CrawlManager(object):
 
     def stop(self, signum: int, frame: Any) -> None:
         """停止爬虫"""
-        console.print("[yellow]Received stop signal, stopping...[/yellow]")
+        logger.warning("Received stop signal, stopping...")
+        if self.crawler:
+            self.crawler.stop()
         self.send_report()

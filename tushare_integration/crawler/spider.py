@@ -16,8 +16,11 @@ from tushare_integration.crawler.pipeline import (
     TransformDTypePipeline,
 )
 from tushare_integration.dictionary import API_PATH_DICTIONARY
+from tushare_integration.logger import get_logger
 from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
+
+logger = get_logger()
 
 
 class SpiderMeta(ABCMeta):
@@ -167,14 +170,24 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         """启动爬虫"""
         try:
             # 初始化请求队列
+            logger.debug(f"Spider {self._spider_name} initializing request queue")
             for request in self.start_requests():
                 self.schedule_request(request)
+
+            logger.debug(f"Spider {self._spider_name} has {len(self._request_queue)} requests queued")
 
             # 处理队列中的请求直到队列为空
             while self._request_queue:
                 request = self._request_queue.popleft()
+                logger.debug(f"Spider {self._spider_name} processing request: {request.url}")
                 if response := self._process_request(request):
+                    logger.debug(f"Spider {self._spider_name} got response, processing data")
                     self._process_data(response)
+                else:
+                    logger.warning(f"Spider {self._spider_name} got no response for request")
+        except Exception as e:
+            logger.exception(f"Spider {self._spider_name} encountered error: {str(e)}")
+            raise
         finally:
             self.close()
 
@@ -219,29 +232,26 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             return None
 
     def _process_data(self, response: httpx.Response) -> None:
-        """处理响应数据
-
-        Args:
-            response: 响应对象
-        """
+        """处理响应数据"""
         try:
+            logger.debug(f"Spider {self._spider_name} parsing response")
             # 解析响应并处理数据
             for item in self.parse(response):
+                logger.debug(f"Spider {self._spider_name} processing item with shape {item.shape}")
                 self._process_item(item)
-        except Exception:
-            # 数据处理异常不触发中间件
+            logger.debug(f"Spider {self._spider_name} finished processing response")
+        except Exception as e:
+            logger.exception(f"Spider {self._spider_name} failed to process data: {str(e)}")
             raise
 
     def _process_item(self, item: pd.DataFrame) -> None:
-        """处理数据项
-
-        Args:
-            item: 数据项(DataFrame)
-        """
+        """处理数据项"""
         processed_item: pd.DataFrame | None = item
         for pipeline in self.pipelines:
+            logger.debug(f"Spider {self._spider_name} running pipeline {pipeline.__class__.__name__}")
             processed_item = pipeline.process_item(processed_item)
             if processed_item is None:
+                logger.debug(f"Pipeline {pipeline.__class__.__name__} dropped item")
                 break
 
     @abstractmethod

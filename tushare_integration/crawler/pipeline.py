@@ -38,10 +38,9 @@ class Pipeline(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def close(self):
-        """关闭管道"""
-        ...
+        """关闭管道（可选实现）"""
+        pass
 
 
 class FillNAPipeline(Pipeline):

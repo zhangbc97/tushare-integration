@@ -1,4 +1,8 @@
+import logging
+
 from tushare_integration.commands import app
+
+logging.basicConfig(level=logging.INFO)
 
 
 def main():

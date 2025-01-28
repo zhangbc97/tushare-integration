@@ -32,10 +32,9 @@ def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
         else:
             en_path = API_PATH_DICTIONARY.get(path, path)
             api_path_en.append(en_path)
-
     return {
         'api_title': getattr(model, '__api_title__', ''),
-        'name': spider_cls.__name__,
+        'name': spider_cls.__model__.__api_name__,
         'api_path': ' > '.join(api_path),
         'api_path_en': '/'.join(api_path_en),
     }

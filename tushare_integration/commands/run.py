@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from tushare_integration.manager import CrawlManager
+from tushare_integration.manager import TushareIntegrationManager
 
 console = Console()
 run_app = typer.Typer(name='run', help='运行爬虫或任务', no_args_is_help=True)
@@ -29,7 +29,7 @@ def run_job(
     ),
 ) -> None:
     """运行预定义任务，需要指定任务配置文件路径，可选指定具体任务名称"""
-    manager = CrawlManager(config_file=config)
+    manager = TushareIntegrationManager(config_file=config)
     manager.run_job(job_file=job_file.as_posix(), job_name=job_name)
 
 
@@ -47,5 +47,5 @@ def run_spider(
     ),
 ) -> None:
     """运行指定爬虫，支持通配符匹配多个爬虫"""
-    manager = CrawlManager(config_file=config)
+    manager = TushareIntegrationManager(config_file=config)
     manager.run_spider(spider)
