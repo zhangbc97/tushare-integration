@@ -4,7 +4,7 @@ import os
 import sys
 import uuid
 from pathlib import Path
-from typing import Annotated, Any, Dict
+from typing import Annotated, Any, Dict, Literal
 
 import pandas as pd
 import requests
@@ -130,6 +130,11 @@ class TushareIntegrationSettings(BaseSettings):
         description="请求头",
     )
 
+    # 日志配置
+    log_level: Annotated[Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'], env_variable('LOG_LEVEL')] = Field(
+        default='INFO', description='日志级别(DEBUG/INFO/WARNING/ERROR)'
+    )
+
     model_config = SettingsConfigDict(extra='ignore')
 
     def get_frequency(self):
@@ -139,14 +144,6 @@ class TushareIntegrationSettings(BaseSettings):
                 frequency = freq['frequency']
 
         return frequency
-
-    def get_settings(self):
-        if not self.tushare_max_concurrent_requests:
-            self.tushare_max_concurrent_requests = self.get_frequency()
-        # 将所有key转为大写
-        settings = {k.upper(): v for k, v in self.model_dump().items()}
-        settings['DOWNLOAD_DELAY'] = 60 / settings["TUSHARE_MAX_CONCURRENT_REQUESTS"]
-        return settings
 
     @classmethod
     def settings_customise_sources(
@@ -163,28 +160,28 @@ class TushareIntegrationSettings(BaseSettings):
     def validate_batch_id(cls, v: str) -> str:
         return v if v else uuid.uuid1().hex
 
+    @classmethod
+    def load_config(cls, config_file: str | Path = 'config.yaml') -> 'TushareIntegrationSettings':
+        """
+        从指定的配置文件加载配置，并将配置项设置为全局变量
 
-def load_config(config_file: str | Path = 'config.yaml') -> TushareIntegrationSettings:
-    """
-    从指定的配置文件加载配置，并将配置项设置为全局变量
+        Args:
+            config_file: 配置文件路径，默认为 config.yaml
 
-    Args:
-        config_file: 配置文件路径，默认为 config.yaml
+        Returns:
+            配置项字典，所有配置项都已转换为大写
 
-    Returns:
-        配置项字典，所有配置项都已转换为大写
+        Raises:
+            SystemExit: 当配置文件无法读取时退出程序
+        """
+        try:
+            with open(config_file, 'r', encoding='utf-8') as f:
+                config_data = yaml.safe_load(f)
+        except Exception as e:
+            logging.error(f"无法读取配置文件 {config_file}: {e}")
+            sys.exit(1)
 
-    Raises:
-        SystemExit: 当配置文件无法读取时退出程序
-    """
-    try:
-        with open(config_file, 'r', encoding='utf-8') as f:
-            config_data = yaml.safe_load(f)
-    except Exception as e:
-        logging.error(f"无法读取配置文件 {config_file}: {e}")
-        sys.exit(1)
+        # 验证配置并获取设置
+        settings = cls.model_validate(config_data)
 
-    # 验证配置并获取设置
-    settings = TushareIntegrationSettings.model_validate(config_data)
-
-    return settings
+        return settings

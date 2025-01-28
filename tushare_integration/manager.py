@@ -1,8 +1,7 @@
-import logging
 import signal
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from sqlalchemy import select
 
@@ -11,7 +10,7 @@ from tushare_integration.crawler.pipeline import TushareIntegrationLog
 from tushare_integration.db_engine import DBEngine
 from tushare_integration.logger import get_logger
 from tushare_integration.reporters import ReporterLoader
-from tushare_integration.settings import TushareIntegrationSettings, load_config
+from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
 
@@ -34,7 +33,7 @@ class TushareIntegrationManager(object):
         # 加载配置
         self.config_file = config_file
         self.batch_id = uuid.uuid1().hex
-        self.settings: TushareIntegrationSettings = load_config(config_file)
+        self.settings: TushareIntegrationSettings = TushareIntegrationSettings.load_config(config_file)
         self.db_engine: DBEngine = DBEngine(self.settings)
         self.reporter_loader: ReporterLoader = ReporterLoader(self.settings)
         logger.info(f"Load reporters: {self.reporter_loader.get_reporters()}")
@@ -49,14 +48,7 @@ class TushareIntegrationManager(object):
         self.crawler = Crawler(self.settings)
         self.crawler.crawl(pattern)
 
-    def run_job(self, job_file: str, job_name: str) -> None: ...
-
-    def get_settings(self) -> Dict[str, Any]:
-        """获爬虫设置"""
-        settings = self.settings.get_settings()
-        settings['LOG_LEVEL'] = 'INFO'
-        settings['BATCH_ID'] = self.batch_id
-        return settings
+    def run_job(self, job_file: Path, job_name: str | None = None) -> None: ...
 
     def send_report(self) -> None:
         """发送报告"""

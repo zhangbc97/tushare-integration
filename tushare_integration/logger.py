@@ -1,8 +1,7 @@
 import logging
-from typing import Optional
 
 
-def init_logger(level: Optional[int] = None) -> None:
+def init_logger(level: int = logging.INFO) -> None:
     """初始化日志配置
 
     Args:
@@ -14,18 +13,21 @@ def init_logger(level: Optional[int] = None) -> None:
     # 阻止日志传递给父记录器
     logger.propagate = False
 
-    if level is not None:
-        logger.setLevel(level)
-    else:
-        logger.setLevel(logging.INFO)
+    # 设置日志级别
+    logger.setLevel(level)
+    # 同时设置根日志记录器的级别
+    logging.getLogger().setLevel(level)
 
     # 如果已经有处理器，不重复添加
     if logger.handlers:
+        # 更新现有处理器的日志级别
+        for handler in logger.handlers:
+            handler.setLevel(level)
         return
 
     # 创建控制台处理器
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
+    console_handler.setLevel(level)
 
     # 设置日志格式
     formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')

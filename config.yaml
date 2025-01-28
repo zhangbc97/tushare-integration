@@ -4,6 +4,9 @@ tushare_url: "https://api.tushare.pro"
 tushare_point: 10000 # 默认积分
 tushare_max_concurrent_requests: null # 不指定时会根据积分自动计算
 
+# 日志配置
+log_level: "INFO" # 可选，日志级别(DEBUG/INFO/WARNING/ERROR)，可通过环境变量 LOG_LEVEL 设置
+
 # 数据库配置
 database:
   drivername: "clickhouse+http" # 必填，可通过环境变量 DB_DRIVER 设置
@@ -33,6 +36,3 @@ retry_delay: 10 # 可选，重试延迟(秒)
 
 # HTTP配置
 timeout: 30 # 可选，请求超时时间(秒)
-headers: # 可选，请求头
-  User-Agent: "tushare-integration"
-

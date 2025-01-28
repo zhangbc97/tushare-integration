@@ -4,10 +4,11 @@ from sqlalchemy.engine import URL
 from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
 
-from tushare_integration.settings import TushareIntegrationSettings
 from tushare_integration.logger import get_logger
+from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
+
 
 class DBEngine:
     def __init__(self, settings: TushareIntegrationSettings) -> None:
@@ -91,5 +92,6 @@ class DBEngine:
         if isinstance(stmt, str):
             return pd.read_sql(text(stmt), self.conn)
 
-        sql = stmt.compile(dialect=self.engine.dialect, compile_kwargs={"literal_binds": True})
+        sql = stmt.compile(dialect=self.engine.dialect)
+        logger.debug(f"Executing SQL: {str(sql)}")
         return pd.read_sql(str(sql), self.conn)

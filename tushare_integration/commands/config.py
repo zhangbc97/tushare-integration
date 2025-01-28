@@ -5,8 +5,15 @@ import typer
 from rich.console import Console
 from rich.prompt import Confirm, IntPrompt, Prompt
 
+from tushare_integration.commands.base import VerboseOption, app_callback
+
 console = Console()
-config_app = typer.Typer(name='config', help='配置管理', no_args_is_help=True)
+config_app = typer.Typer(
+    name='config',
+    help='配置管理',
+    no_args_is_help=True,
+    callback=app_callback,  # 添加callback
+)
 
 
 def get_db_template_params(db_type: str) -> Dict:
@@ -38,7 +45,7 @@ def generate_jobs_config() -> str:
 jobs:
   # 每日更新任务
   - name: daily_update  # 任务名称
-    cron_expr: "0 17 * * 1-5"  # cron表���式，每个交易日下午5点执行
+    cron_expr: "0 17 * * 1-5"  # cron表达式，每个交易日下午5点执行
     spiders:  # 需要执行的爬虫列表
       - name: stock/basic/trade_cal  # 交易日历
       - name: stock/quotes/daily  # 日线行情
@@ -53,7 +60,9 @@ jobs:
 
 
 @config_app.command('init', help='交互式初始化配置')
-def init_config() -> None:
+def init_config(
+    verbose: bool = VerboseOption,  # 添加verbose选项
+) -> None:
     """交互式初始化配置文件"""
     # 直接使用当前目录
     config_dir = Path('.')

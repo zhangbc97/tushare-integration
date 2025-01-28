@@ -6,12 +6,18 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from tushare_integration.commands.base import VerboseOption, app_callback
 from tushare_integration.commands.spider import list_spiders_info
 from tushare_integration.crawler.spider import SpiderMeta
 from tushare_integration.models.core import Base
 
 console = Console()
-api_app = typer.Typer(name='api', help='API管理', no_args_is_help=True)
+api_app = typer.Typer(
+    name='api',
+    help='API管理',
+    no_args_is_help=True,
+    callback=app_callback,
+)
 
 
 def load_all_models() -> List[Type[Base]]:
@@ -66,7 +72,9 @@ def get_api_info() -> Dict[str, Dict]:
 
 
 @api_app.command('list', help='列出所有可用API')
-def list_apis() -> None:
+def list_apis(
+    verbose: bool = VerboseOption,
+) -> None:
     """列出所有可用的API"""
     spiders_info = list_spiders_info()
     # 按路径排序
@@ -99,7 +107,7 @@ def list_apis() -> None:
 
 
 @api_app.command('info', help='查看特定API的详细信息')
-def api_info(api_name: str = typer.Argument(..., help='API名称')) -> None:
+def api_info(verbose: bool = VerboseOption, api_name: str = typer.Argument(..., help='API名称')) -> None:
     """查看特定API的详细信息"""
     spiders_info = list_spiders_info(api_name)
 

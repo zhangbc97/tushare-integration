@@ -1,5 +1,6 @@
 import re
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from graphlib import TopologicalSorter
 from typing import Any, Dict, List, Set, Type
@@ -28,7 +29,7 @@ class Crawler(object):
         self._results: List[Dict[str, Any]] = []
         self._running = True
 
-    def _build_dependency_graph(self, pattern: str) -> Dict[str, Set[str]]:
+    def _build_dependency_graph(self, pattern: str | None = None) -> Dict[str, Set[str]]:
         """构建依赖图
 
         Args:
@@ -40,11 +41,11 @@ class Crawler(object):
         # 获取匹配的爬虫和依赖图
         graph = {}
 
-        # 收集匹配的爬虫
-        for spider_name, spider_class in SpiderMeta.get_all_spiders().items():
-            if re.match(pattern, spider_name):
-                graph[spider_name] = set()
-                logger.info(f"Found matching spider: {spider_name}")
+        # 直接使用pattern获取匹配的爬虫
+        matched_spiders = SpiderMeta.list_spiders(pattern)
+        for spider_class in matched_spiders:
+            graph[spider_class.__spider_name__] = set()
+            logger.info(f"Found matching spider: {spider_class.__spider_name__}")
 
         if not graph:
             logger.warning(f"No matching spiders found for pattern: {pattern}")
@@ -73,7 +74,7 @@ class Crawler(object):
 
         return graph
 
-    def crawl(self, pattern: str) -> None:
+    def crawl(self, pattern: str | None = None) -> None:
         """并发运行爬虫"""
         logger.info(f"Starting crawl with pattern: {pattern}")
         self._running = True  # 重置运行状态
@@ -113,16 +114,23 @@ class Crawler(object):
 
                 # 等待任意任务完成
                 if running_tasks:
-                    done, _ = next(as_completed(running_tasks)), None
-                    spider_name = running_tasks.pop(done)
                     try:
-                        done.result()  # 检查是否有异常
-                        sorter.done(spider_name)  # 标记任务完成
-                        logger.info(f"Spider {spider_name} marked as done in dependency graph")
-                    except Exception as e:
-                        logger.error(f"Spider {spider_name} failed in thread pool with error: {str(e)}")
-                        self.stop()
-                        raise
+                        # 设置1秒超时，避免长时间阻塞
+                        done_tasks = set(as_completed(running_tasks, timeout=1))
+                        for done in done_tasks:
+                            spider_name = running_tasks.pop(done)
+                            try:
+                                done.result()  # 检查是否有异常
+                                sorter.done(spider_name)  # 标记任务完成
+                                logger.info(f"Spider {spider_name} marked as done in dependency graph")
+                            except Exception as e:
+                                logger.error(f"Spider {spider_name} failed in thread pool with error: {str(e)}")
+                                self.stop()
+                                raise
+                    except TimeoutError:
+                        # 超时后sleep一小段时间，避免频繁检查
+                        time.sleep(0.5)
+                        continue
                 elif not ready_nodes:  # 如果没有运行中的任务且没有准备好的节点
                     break
 

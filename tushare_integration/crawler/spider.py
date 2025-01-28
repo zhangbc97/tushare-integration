@@ -66,23 +66,33 @@ class SpiderMeta(ABCMeta):
             return spider
         raise ValueError(f"未找到爬虫: {spider_name}")
 
+
     @classmethod
-    def list_spiders(cls, pattern: Optional[str] = None) -> List[Type["Spider"]]:
-        """获取所有注册的爬虫类
+    def list_spiders(cls, pattern: str | None = None) -> List[Type['Spider']]:
+        """列出所有爬虫或匹配模式的爬虫
 
         Args:
-            pattern: 可选的爬虫名称匹配模式
+            pattern: 匹配模式，可以是爬虫名称模式或路径模式。
+                    如果包含'/'，则按路径匹配；否则按名称匹配。
+                    不传则返回所有爬虫。
 
         Returns:
-            匹配的爬虫类列表
+            List[Type['Spider']]: 爬虫类列表
         """
-        spiders = cls._registry.values()
-        if pattern:
-            return [spider_cls for spider_cls in spiders if re.match(pattern, spider_cls.__spider_name__)]
-        return list(spiders)
+        if pattern is None:
+            return list(cls._registry.values())
+
+        if '/' in pattern:
+            return cls._list_spiders_by_path(pattern)
+
+        matched_spiders = []
+        for spider_class in cls._registry.values():
+            if re.fullmatch(pattern, spider_class.__spider_name__):
+                matched_spiders.append(spider_class)
+        return matched_spiders
 
     @classmethod
-    def list_spiders_by_path(cls, path_pattern: str) -> List[Type["Spider"]]:
+    def _list_spiders_by_path(cls, path_pattern: str) -> List[Type["Spider"]]:
         """通过API路径模式匹配爬虫
 
         Args:

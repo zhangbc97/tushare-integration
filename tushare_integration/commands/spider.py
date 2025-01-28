@@ -4,11 +4,17 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from tushare_integration.commands.base import VerboseOption, app_callback
 from tushare_integration.crawler.spider import Spider, SpiderMeta
 from tushare_integration.dictionary import API_PATH_DICTIONARY
 
 console = Console()
-spider_app = typer.Typer(name='spider', help='爬虫管理', no_args_is_help=True)
+spider_app = typer.Typer(
+    name='spider',
+    help='爬虫管理',
+    no_args_is_help=True,
+    callback=app_callback,
+)
 
 
 def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
@@ -52,20 +58,14 @@ def list_spiders_info(pattern: Optional[str] = None) -> List[Dict[str, str]]:
         爬虫信息列表，每个元素包含api_title、name、api_path和api_path_en
     """
     # 根据pattern格式选择不同的查找方式
-    if pattern and '/' in pattern:
-        # 如果包含/，则按路径匹配
-        spiders = SpiderMeta.list_spiders_by_path(pattern)
-    else:
-        # 否则按名称匹配
-        spiders = SpiderMeta.list_spiders(pattern)
-
+    spiders = SpiderMeta.list_spiders(pattern)
     spiders_info = [_convert_spider_to_info(spider_cls) for spider_cls in spiders]
     spiders_info.sort(key=lambda x: x['api_path'])
     return spiders_info
 
 
 @spider_app.command('list', help='列出所有可用爬虫')
-def cmd_list_spiders(pattern: Optional[str] = None) -> None:
+def cmd_list_spiders(verbose: bool = VerboseOption, pattern: Optional[str] = None) -> None:
     """列出所有可用的爬虫
 
     Args:
@@ -93,7 +93,7 @@ def cmd_list_spiders(pattern: Optional[str] = None) -> None:
 
 
 @spider_app.command('info', help='查看特定爬虫的详细信息')
-def spider_info(spider_name: str = typer.Argument(..., help='爬虫名称或路径')) -> None:
+def spider_info(verbose: bool = VerboseOption, spider_name: str = typer.Argument(..., help='爬虫名称或路径')) -> None:
     """查看特定爬虫的详细信息
 
     Args:
