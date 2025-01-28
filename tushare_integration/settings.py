@@ -2,13 +2,14 @@ import functools
 import logging
 import os
 import sys
+import uuid
 from pathlib import Path
 from typing import Annotated, Any, Dict
 
 import pandas as pd
 import requests
 import yaml
-from pydantic import BeforeValidator, Field
+from pydantic import BeforeValidator, Field, field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 point_frequency = [
@@ -109,7 +110,10 @@ class TushareIntegrationSettings(BaseSettings):
     parallel_mode: bool = Field(
         default=False, title='是否开启并行模式', description='并行模式下将会关闭自动依赖解析，用户需要自行处理任依赖'
     )
-    batch_id: Annotated[str, env_variable('BATCH_ID')] = Field('', description='批次ID')
+
+    batch_id: Annotated[str, env_variable('BATCH_ID')] = Field(
+        default_factory=lambda: uuid.uuid1().hex, description='批次ID'
+    )
 
     concurrent_spiders: Annotated[int, env_variable('CONCURRENT_SPIDERS')] = Field(default=1, description='并发爬虫数')
 
@@ -154,6 +158,10 @@ class TushareIntegrationSettings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ):
         return env_settings, init_settings, file_secret_settings
+
+    @field_validator('batch_id')
+    def validate_batch_id(cls, v: str) -> str:
+        return v if v else uuid.uuid1().hex
 
 
 def load_config(config_file: str | Path = 'config.yaml') -> TushareIntegrationSettings:

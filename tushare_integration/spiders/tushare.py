@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-from typing import ClassVar
+from typing import ClassVar, Generator
 
 import httpx
 import pandas as pd
@@ -73,13 +73,13 @@ class TushareSpider(Spider):
         for trade_date in trade_dates:
             yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
 
-    def parse(self, response: httpx.Response, **kwargs):
+    def parse(self, response: httpx.Response, **kwargs) -> Generator[pd.DataFrame, None, None]:
         data = self.parse_response(response, **kwargs)
 
         if data is None or data.empty:
             return
 
-        return data
+        yield data
 
     def parse_response(self, response, **kwargs) -> pd.DataFrame:
         resp = json.loads(response.text)

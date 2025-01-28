@@ -11,17 +11,12 @@ from tushare_integration.settings import TushareIntegrationSettings
 class BaseSpider(ABC):
     """爬虫抽象基类"""
 
-    __spider_name__: str = ""
     __model__: ClassVar[type[Base]] = Base  # 数据模型类
+    __spider_name__: str = ""  # 爬虫名称
 
     @abstractmethod
     def schedule_request(self, request: httpx.Request, first: bool = False) -> None:
-        """调度请求到队列
-
-        Args:
-            request: 要调度的请求
-            first: 是否添加到队列头部，默认False（添加到队列尾部）
-        """
+        """调度请求到队列"""
         pass
 
     @abstractmethod
@@ -31,20 +26,10 @@ class BaseSpider(ABC):
 
     @abstractmethod
     def parse(self, response: httpx.Response) -> Generator[pd.DataFrame, None, None]:
-        """解析响应
-
-        Args:
-            response: 响应对象
-
-        Returns:
-            生成器，生成 DataFrame 数据
-        """
+        """解析响应"""
         pass
 
     @abstractmethod
     def close(self) -> None:
-        """关闭爬虫，清理资源
-
-        在爬虫结束时调用，用于清理资源，如关闭网络连接等。
-        """
+        """关闭爬虫，清理资源"""
         pass

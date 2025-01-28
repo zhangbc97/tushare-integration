@@ -1,4 +1,5 @@
 import re
+import threading
 from abc import ABCMeta, abstractmethod
 from collections import deque
 from typing import ClassVar, Deque, Dict, Generator, Iterator, List, Optional, Type
@@ -47,6 +48,8 @@ class SpiderMeta(ABCMeta):
         if spider_name:
             if spider_name in mcs._registry:
                 raise ValueError(f'重复的爬虫名称: {spider_name}')
+            # 设置类的 __spider_name__ 属性
+            setattr(cls, '__spider_name__', spider_name)
             mcs._registry[spider_name] = cls
 
         return cls
@@ -135,13 +138,12 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         当前的middleware和pipeline可能存在线程安全问题，贸然使用多线程可能导致数据不一致或竞态条件。
     """
 
-    __spider_name__: str = ""  # 类属性
     __model__: ClassVar[type[Base]] = Base
     middleware_classes: List[Type[Middleware]] = [
         RetryMiddleware,
         ThrottleMiddleware,
-    ]  # 默认启用重试和限流中间件
-    pipeline_classes: List[Type[Pipeline]] = [  # 默认启用的管道
+    ]
+    pipeline_classes: List[Type[Pipeline]] = [
         FillNAPipeline,
         TransformDTypePipeline,
         DataPipeline,
@@ -150,8 +152,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
     def __init__(self, settings: TushareIntegrationSettings):
         self.settings = settings
-        # 将spider_name作为实例属性
-        self._spider_name = self.__class__.__spider_name__
+
         self.client = httpx.Client(
             timeout=settings.timeout,
             headers=settings.headers,
@@ -166,27 +167,35 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         # 初始化管道
         self.pipelines = [pipeline_cls(settings=settings, spider=self) for pipeline_cls in self.pipeline_classes]
 
+        # 添加运行状态控制
+        self._running = False
+        self._lock = threading.Lock()
+
     def start(self) -> None:
         """启动爬虫"""
+        with self._lock:
+            if self._running:
+                logger.warning(f"Spider {self.__spider_name__} is already running")
+                return
+            self._running = True
+
         try:
-            # 初始化请求队列
-            logger.debug(f"Spider {self._spider_name} initializing request queue")
+            logger.debug(f"Spider {self.__spider_name__} initializing request queue")
             for request in self.start_requests():
                 self.schedule_request(request)
 
-            logger.debug(f"Spider {self._spider_name} has {len(self._request_queue)} requests queued")
+            logger.debug(f"Spider {self.__spider_name__} has {len(self._request_queue)} requests queued")
 
-            # 处理队列中的请求直到队列为空
             while self._request_queue:
                 request = self._request_queue.popleft()
-                logger.debug(f"Spider {self._spider_name} processing request: {request.url}")
+                logger.debug(f"Spider {self.__spider_name__} processing request: {request.url}")
                 if response := self._process_request(request):
-                    logger.debug(f"Spider {self._spider_name} got response, processing data")
+                    logger.debug(f"Spider {self.__spider_name__} got response, processing data")
                     self._process_data(response)
                 else:
-                    logger.warning(f"Spider {self._spider_name} got no response for request")
+                    logger.warning(f"Spider {self.__spider_name__} got no response for request")
         except Exception as e:
-            logger.exception(f"Spider {self._spider_name} encountered error: {str(e)}")
+            logger.exception(f"Spider {self.__spider_name__} encountered error: {str(e)}")
             raise
         finally:
             self.close()
@@ -234,21 +243,27 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
     def _process_data(self, response: httpx.Response) -> None:
         """处理响应数据"""
         try:
-            logger.debug(f"Spider {self._spider_name} parsing response")
+            logger.debug(f"Spider {self.__spider_name__} parsing response")
             # 解析响应并处理数据
             for item in self.parse(response):
-                logger.debug(f"Spider {self._spider_name} processing item with shape {item.shape}")
+                if not isinstance(item, pd.DataFrame):
+                    raise TypeError(
+                        f"Spider {self.__spider_name__} parse() method returned {type(item)}, "
+                        f"expected pandas.DataFrame"
+                    )
+
+                logger.debug(f"Spider {self.__spider_name__} processing item with shape {item.shape}")
                 self._process_item(item)
-            logger.debug(f"Spider {self._spider_name} finished processing response")
+            logger.debug(f"Spider {self.__spider_name__} finished processing response")
         except Exception as e:
-            logger.exception(f"Spider {self._spider_name} failed to process data: {str(e)}")
+            logger.exception(f"Spider {self.__spider_name__} failed to process data: {str(e)}")
             raise
 
     def _process_item(self, item: pd.DataFrame) -> None:
         """处理数据项"""
         processed_item: pd.DataFrame | None = item
         for pipeline in self.pipelines:
-            logger.debug(f"Spider {self._spider_name} running pipeline {pipeline.__class__.__name__}")
+            logger.debug(f"Spider {self.__spider_name__} running pipeline {pipeline.__class__.__name__}")
             processed_item = pipeline.process_item(processed_item)
             if processed_item is None:
                 logger.debug(f"Pipeline {pipeline.__class__.__name__} dropped item")
@@ -273,23 +288,30 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
     def close(self) -> None:
         """关闭爬虫，清理资源"""
-        # 关闭所有pipeline
-        for pipeline in self.pipelines:
-            pipeline.close()
+        with self._lock:
+            if not self._running:  # 如果未运行，直接返回
+                return
+            self._running = False
 
-        self._request_queue.clear()
-        self.client.close()
+            logger.debug(f"Spider {self.__spider_name__} closing...")
+            # 关闭所有pipeline
+            for pipeline in self.pipelines:
+                pipeline.close()
+
+            self._request_queue.clear()
+            self.client.close()
+            logger.debug(f"Spider {self.__spider_name__} closed")
 
     def __hash__(self) -> int:
         """使用spider_name作为哈希值"""
-        return hash(self._spider_name)
+        return hash(self.__spider_name__)
 
     def __eq__(self, other: object) -> bool:
         """通过spider_name判断相等性"""
         if not isinstance(other, Spider):
             return NotImplemented
-        return self._spider_name == other._spider_name
+        return self.__spider_name__ == other.__spider_name__
 
     def __repr__(self) -> str:
         """返回spider的字符串表示"""
-        return f"<Spider {self._spider_name}>"
+        return f"<Spider {self.__spider_name__}>"

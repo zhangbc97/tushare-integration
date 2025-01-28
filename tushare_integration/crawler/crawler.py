@@ -46,6 +46,15 @@ class Crawler(object):
                 graph[spider_name] = set()
                 logger.info(f"Found matching spider: {spider_name}")
 
+        if not graph:
+            logger.warning(f"No matching spiders found for pattern: {pattern}")
+            return {}
+
+        # 并行模式下不解析依赖关系
+        if self.settings.parallel_mode:
+            logger.info("Running in parallel mode, dependencies will be ignored")
+            return graph
+
         # 添加依赖关系
         for spider_name in list(graph.keys()):
             spider_class = SpiderMeta.get(spider_name)

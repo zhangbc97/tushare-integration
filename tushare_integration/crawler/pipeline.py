@@ -167,9 +167,6 @@ class RecordLogPipeline(Pipeline):
         self.db_engine = DBEngine(settings)
         self.count: int = 0
         self.start_time = datetime.datetime.now()
-        self.create_log_table()
-
-    def create_log_table(self):
         self.db_engine.create_table(TushareIntegrationLog)
 
     def process_item(self, item: pd.DataFrame) -> pd.DataFrame | None:
@@ -178,12 +175,10 @@ class RecordLogPipeline(Pipeline):
 
     def close(self):
         """关闭管道时记录日志"""
-        description = self.spider.__spider_name__
-
         log_entry = TushareIntegrationLog(
             batch_id=self.settings.batch_id,
             spider_name=self.spider.__spider_name__,
-            description=description,
+            description=self.spider.__model__.__api_title__,
             count=self.count,
             start_time=self.start_time,
             end_time=datetime.datetime.now(),

@@ -1,7 +1,7 @@
 # Tushare API配置
 tushare_token: "" # 必填，可通过环境变量 TUSHARE_TOKEN 设置
 tushare_url: "https://api.tushare.pro"
-tushare_point: 2000 # 默认积分
+tushare_point: 10000 # 默认积分
 tushare_max_concurrent_requests: null # 不指定时会根据积分自动计算
 
 # 数据库配置
