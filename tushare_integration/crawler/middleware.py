@@ -6,8 +6,8 @@ from typing import Set
 import httpx
 
 from tushare_integration.crawler.abc import BaseSpider
-from tushare_integration.settings import TushareIntegrationSettings
 from tushare_integration.logger import get_logger
+from tushare_integration.settings import TushareIntegrationSettings
 
 
 class Middleware(ABC):
@@ -145,42 +145,46 @@ class RetryMiddleware(Middleware):
 
                 if retry_count < self.settings.retry_times:
                     request.extensions["retry_count"] = retry_count + 1
-                    retry_msg = f"API error code {code} - {data.get('msg', 'Unknown error')}"
+                    retry_msg = "API error code %d - %s" % (code, data.get('msg', 'Unknown error'))
 
                     self.logger.warning(
-                        f"Request failed (attempt {retry_count + 1}/{self.settings.retry_times}): {retry_msg}\n"
-                        f"URL: {request.url}\n"
-                        f"Method: {request.method}\n"
-                        f"Will retry in {self.settings.retry_delay} seconds"
+                        "Request failed (attempt %d/%d): %s\n" "URL: %s\n" "Method: %s\n" "Will retry in %d seconds",
+                        retry_count + 1,
+                        self.settings.retry_times,
+                        retry_msg,
+                        request.url,
+                        request.method,
+                        self.settings.retry_delay,
                     )
 
-                    # 等待指定时间后重试
                     time.sleep(self.settings.retry_delay)
-                    # 将请求重新加入队列
                     self.spider.schedule_request(request, first=True)
-                    raise Exception(f"Retrying {request.url} ({retry_msg}, attempt {retry_count + 1})")
+                    raise Exception("Retrying %s (%s, attempt %d)", request.url, retry_msg, retry_count + 1)
                 else:
                     self.logger.error(
-                        f"Request failed after {retry_count} retries: {data.get('msg', 'Unknown error')}\n"
-                        f"URL: {request.url}\n"
-                        f"Method: {request.method}\n"
-                        f"Error Code: {code}"
+                        "Request failed after %d retries: %s\n" "URL: %s\n" "Method: %s\n" "Error Code: %d",
+                        retry_count,
+                        data.get('msg', 'Unknown error'),
+                        request.url,
+                        request.method,
+                        code,
                     )
             elif code != 0:
-                # 非 402XX 的错误码，记录错误但不重试
                 self.logger.error(
-                    f"Request failed with non-retryable error code {code}: {data.get('msg', 'Unknown error')}\n"
-                    f"URL: {response.request.url}\n"
-                    f"Method: {response.request.method}"
+                    "Request failed with non-retryable error code %d: %s\n" "URL: %s\n" "Method: %s",
+                    code,
+                    data.get('msg', 'Unknown error'),
+                    response.request.url,
+                    response.request.method,
                 )
 
         except ValueError:
-            # JSON 解析失败，检查 HTTP 状态码
             if response.status_code in self.RETRY_HTTP_STATUS_CODES:
                 self.logger.warning(
-                    f"Request failed with HTTP status {response.status_code}\n"
-                    f"URL: {response.request.url}\n"
-                    f"Method: {response.request.method}"
+                    "Request failed with HTTP status %d\n" "URL: %s\n" "Method: %s",
+                    response.status_code,
+                    response.request.url,
+                    response.request.method,
                 )
 
         return response
@@ -198,19 +202,22 @@ class RetryMiddleware(Middleware):
                 request.extensions["retry_count"] = retry_count + 1
 
                 self.logger.warning(
-                    f"Network error (attempt {retry_count + 1}/{self.settings.retry_times}): {str(exception)}\n"
-                    f"URL: {request.url}\n"
-                    f"Method: {request.method}\n"
-                    f"Will retry in {self.settings.retry_delay} seconds"
+                    "Network error (attempt %d/%d): %s\n" "URL: %s\n" "Method: %s\n" "Will retry in %d seconds",
+                    retry_count + 1,
+                    self.settings.retry_times,
+                    str(exception),
+                    request.url,
+                    request.method,
+                    self.settings.retry_delay,
                 )
 
-                # 等待指定时间后重试
                 time.sleep(self.settings.retry_delay)
-                # 将请求重新加入队列
                 self.spider.schedule_request(request, first=True)
             else:
                 self.logger.error(
-                    f"Network error after {retry_count} retries: {str(exception)}\n"
-                    f"URL: {request.url}\n"
-                    f"Method: {request.method}"
+                    "Network error after %d retries: %s\n" "URL: %s\n" "Method: %s",
+                    retry_count,
+                    str(exception),
+                    request.url,
+                    request.method,
                 )

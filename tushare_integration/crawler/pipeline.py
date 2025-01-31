@@ -74,7 +74,8 @@ class FillNAPipeline(Pipeline):
         model = self.spider.__model__
         for column in model.__table__.columns:
             default = column.default.arg if column.default else self.get_default_by_column(column)  # type: ignore
-            item[column.name] = item[column.name].replace({pd.NaT: None}).fillna(default)
+            with pd.option_context('future.no_silent_downcasting', True):
+                item[column.name] = item[column.name].replace({pd.NaT: None}).fillna(default)
 
         return item
 

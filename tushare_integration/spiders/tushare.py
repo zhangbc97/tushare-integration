@@ -41,37 +41,7 @@ class TushareSpider(Spider):
         return ",".join([column.name for column in self.__model__.__table__.columns])
 
     def start_requests(self):
-        conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
-        start_date = self.start_date or '19900101'
-
-        # 构建子查询
-        subquery = select(text(f"`{self.__trade_date_field__}`")).select_from(text(f"{db_name}.{self.table_name}"))
-
-        # 构建主查询
-        query = (
-            select(TradeCal.cal_date.distinct())
-            .where(
-                and_(
-                    not_(TradeCal.cal_date.in_(subquery)),
-                    TradeCal.is_open == 1,
-                    TradeCal.cal_date >= start_date,
-                    TradeCal.cal_date <= datetime.datetime.now().strftime("%Y%m%d"),
-                    TradeCal.exchange == 'SSE',
-                )
-            )
-            .order_by(TradeCal.cal_date)
-        )
-
-        cal_dates = conn.query_df(query)
-
-        if cal_dates.empty:
-            return
-
-        trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
-
-        for trade_date in trade_dates:
-            yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
+        yield self.get_httpx_request()
 
     def parse(self, response: httpx.Response, **kwargs) -> Generator[pd.DataFrame, None, None]:
         data = self.parse_response(response, **kwargs)
@@ -85,7 +55,7 @@ class TushareSpider(Spider):
         resp = json.loads(response.text)
 
         if resp["code"] != 0:
-            logging.error(f"Request {self.api_name} failed: {resp['msg']}")
+            logging.error("Request %s failed: %s", self.api_name, resp['msg'])
             raise RuntimeError(resp['msg'])
 
         return pd.DataFrame(data=resp["data"]["items"], columns=resp["data"]["fields"])
@@ -100,7 +70,7 @@ class TushareSpider(Spider):
         if not extensions:
             extensions = {}
 
-        logging.info(f"Requesting {self.api_name} with params: {params}")
+        logging.debug("Build Request for %s with params: %s", self.api_name, params)
 
         return httpx.Request(
             url=self.settings.tushare_url,
@@ -128,7 +98,7 @@ class DailySpider(TushareSpider):
     def start_requests(self):
         conn = self.get_db_engine()
         db_name = self.settings.database.db_name
-        start_date = self.start_date or '1990-01-01'
+        start_date = self.start_date or datetime.date(1990, 1, 1)
 
         # 构建子查询
         subquery = select(text(f"`{self.__trade_date_field__}`")).select_from(text(f"{db_name}.{self.table_name}"))
@@ -139,9 +109,9 @@ class DailySpider(TushareSpider):
             .where(
                 and_(
                     not_(TradeCal.cal_date.in_(subquery)),
-                    TradeCal.is_open == 1,
+                    TradeCal.is_open == '1',
                     TradeCal.cal_date >= start_date,
-                    TradeCal.cal_date <= datetime.datetime.now().strftime("%Y%m%d"),
+                    TradeCal.cal_date <= datetime.date.today(),
                     TradeCal.exchange == 'SSE',
                 )
             )
@@ -152,6 +122,8 @@ class DailySpider(TushareSpider):
 
         if cal_dates.empty:
             return
+
+        cal_dates["cal_date"] = pd.to_datetime(cal_dates["cal_date"])
 
         trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
 

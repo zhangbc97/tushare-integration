@@ -1,3 +1,4 @@
+import json
 import re
 import threading
 from abc import ABCMeta, abstractmethod
@@ -65,7 +66,6 @@ class SpiderMeta(ABCMeta):
         if spider := cls._registry.get(spider_name):
             return spider
         raise ValueError(f"未找到爬虫: {spider_name}")
-
 
     @classmethod
     def list_spiders(cls, pattern: str | None = None) -> List[Type['Spider']]:
@@ -185,27 +185,27 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         """启动爬虫"""
         with self._lock:
             if self._running:
-                logger.warning(f"Spider {self.__spider_name__} is already running")
+                logger.warning("Spider %s is already running", self.__spider_name__)
                 return
             self._running = True
 
         try:
-            logger.debug(f"Spider {self.__spider_name__} initializing request queue")
+            logger.debug("Spider %s initializing request queue", self.__spider_name__)
             for request in self.start_requests():
                 self.schedule_request(request)
 
-            logger.debug(f"Spider {self.__spider_name__} has {len(self._request_queue)} requests queued")
+            logger.debug("Spider %s has %d requests queued", self.__spider_name__, len(self._request_queue))
 
             while self._request_queue:
                 request = self._request_queue.popleft()
-                logger.debug(f"Spider {self.__spider_name__} processing request: {request.url}")
+                logger.debug("Spider %s processing request: %s", self.__spider_name__, request.url)
                 if response := self._process_request(request):
-                    logger.debug(f"Spider {self.__spider_name__} got response, processing data")
+                    logger.debug("Spider %s got response, processing data", self.__spider_name__)
                     self._process_data(response)
                 else:
-                    logger.warning(f"Spider {self.__spider_name__} got no response for request")
+                    logger.warning("Spider %s got no response for request", self.__spider_name__)
         except Exception as e:
-            logger.exception(f"Spider {self.__spider_name__} encountered error: {str(e)}")
+            logger.exception("Spider %s encountered error: %s", self.__spider_name__, str(e))
             raise
         finally:
             self.close()
@@ -236,6 +236,8 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             for middleware in self.middlewares:
                 request = middleware.process_request(request)
 
+            # 修改日志输出格式
+            logger.info("Request %s with params: %s", self.__spider_name__, json.loads(request.content)['params'])
             # 发送请求
             response = self.client.send(request)
 
@@ -253,30 +255,31 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
     def _process_data(self, response: httpx.Response) -> None:
         """处理响应数据"""
         try:
-            logger.debug(f"Spider {self.__spider_name__} parsing response")
+            logger.debug("Spider %s parsing response", self.__spider_name__)
             # 解析响应并处理数据
             for item in self.parse(response):
                 if not isinstance(item, pd.DataFrame):
                     raise TypeError(
-                        f"Spider {self.__spider_name__} parse() method returned {type(item)}, "
-                        f"expected pandas.DataFrame"
+                        "Spider %s parse() method returned %s, expected pandas.DataFrame",
+                        self.__spider_name__,
+                        type(item),
                     )
 
-                logger.debug(f"Spider {self.__spider_name__} processing item with shape {item.shape}")
+                logger.debug("Spider %s processing item with shape %s", self.__spider_name__, item.shape)
                 self._process_item(item)
-            logger.debug(f"Spider {self.__spider_name__} finished processing response")
+            logger.debug("Spider %s finished processing response", self.__spider_name__)
         except Exception as e:
-            logger.exception(f"Spider {self.__spider_name__} failed to process data: {str(e)}")
+            logger.exception("Spider %s failed to process data: %s", self.__spider_name__, str(e))
             raise
 
     def _process_item(self, item: pd.DataFrame) -> None:
         """处理数据项"""
         processed_item: pd.DataFrame | None = item
         for pipeline in self.pipelines:
-            logger.debug(f"Spider {self.__spider_name__} running pipeline {pipeline.__class__.__name__}")
+            logger.debug("Spider %s running pipeline %s", self.__spider_name__, pipeline.__class__.__name__)
             processed_item = pipeline.process_item(processed_item)
             if processed_item is None:
-                logger.debug(f"Pipeline {pipeline.__class__.__name__} dropped item")
+                logger.debug("Pipeline %s dropped item", pipeline.__class__.__name__)
                 break
 
     @abstractmethod
@@ -303,14 +306,14 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
                 return
             self._running = False
 
-            logger.debug(f"Spider {self.__spider_name__} closing...")
+            logger.debug("Spider %s closing...", self.__spider_name__)
             # 关闭所有pipeline
             for pipeline in self.pipelines:
                 pipeline.close()
 
             self._request_queue.clear()
             self.client.close()
-            logger.debug(f"Spider {self.__spider_name__} closed")
+            logger.debug("Spider %s closed", self.__spider_name__)
 
     def __hash__(self) -> int:
         """使用spider_name作为哈希值"""

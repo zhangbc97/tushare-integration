@@ -92,6 +92,6 @@ class DBEngine:
         if isinstance(stmt, str):
             return pd.read_sql(text(stmt), self.conn)
 
-        sql = stmt.compile(dialect=self.engine.dialect)
+        sql = stmt.compile(dialect=self.engine.dialect, compile_kwargs={"literal_binds": True})
         logger.debug(f"Executing SQL: {str(sql)}")
         return pd.read_sql(str(sql), self.conn)
