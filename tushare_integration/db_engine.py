@@ -10,7 +10,7 @@ from tushare_integration.settings import TushareIntegrationSettings
 logger = get_logger()
 
 
-class DBEngine:
+class DBEngine(object):
     def __init__(self, settings: TushareIntegrationSettings) -> None:
         self.settings = settings
         logger.info("Initializing database engine...")

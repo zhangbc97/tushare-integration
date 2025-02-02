@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 from typing import ClassVar, Generator
 
 import httpx
@@ -9,11 +8,13 @@ from sqlalchemy import and_, not_, select, text
 
 from tushare_integration.crawler.spider import Spider
 from tushare_integration.db_engine import DBEngine
+from tushare_integration.logger import get_logger
 from tushare_integration.models.core.base import Base
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
 
+logger = get_logger()
 
 class TushareSpider(Spider):
     __spider_name__: str
@@ -55,7 +56,7 @@ class TushareSpider(Spider):
         resp = json.loads(response.text)
 
         if resp["code"] != 0:
-            logging.error("Request %s failed: %s", self.api_name, resp['msg'])
+            logger.error("Request %s failed: %s", self.api_name, resp['msg'])
             raise RuntimeError(resp['msg'])
 
         return pd.DataFrame(data=resp["data"]["items"], columns=resp["data"]["fields"])
@@ -70,7 +71,7 @@ class TushareSpider(Spider):
         if not extensions:
             extensions = {}
 
-        logging.debug("Build Request for %s with params: %s", self.api_name, params)
+        logger.debug("Build Request for %s with params: %s", self.api_name, params)
 
         return httpx.Request(
             url=self.settings.tushare_url,
@@ -97,13 +98,11 @@ class DailySpider(TushareSpider):
 
     def start_requests(self):
         conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
         start_date = self.start_date or datetime.date(1990, 1, 1)
 
-        # 构建子查询
-        subquery = select(text(f"`{self.__trade_date_field__}`")).select_from(text(f"{db_name}.{self.table_name}"))
+        # 重构后：直接使用 ORM 模型属性构造查询
+        subquery = select(getattr(self.__model__, self.__trade_date_field__)).select_from(self.__model__)
 
-        # 构建主查询
         query = (
             select(TradeCal.cal_date.distinct())
             .where(
@@ -133,15 +132,16 @@ class DailySpider(TushareSpider):
 
 class TSCodeSpider(TushareSpider):
     __model__: type[Base] = Base
-    __basic_table__: str = 'stock_basic'
+    __basic_table__: type[Base] = StockBasic
 
     def start_requests(self):
-        table_name = self.__basic_table__
         conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
+        # 使用ORM模型构造查询，从动态引用的 __basic_table__ 中获取 ts_code 字段
 
-        # 使用 SQLAlchemy select
-        query = select(text('ts_code')).select_from(text(f"{db_name}.{table_name}"))
+        if not hasattr(self.__basic_table__, 'ts_code'):
+            raise AttributeError("The model does not have a 'ts_code' attribute.")
+
+        query = select(getattr(self.__basic_table__, 'ts_code'))
         ts_codes = conn.query_df(query)
 
         for ts_code in ts_codes['ts_code']:

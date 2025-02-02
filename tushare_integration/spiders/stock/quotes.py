@@ -1,12 +1,11 @@
 import calendar
 import datetime
-import logging
-from typing import Any
 
 import httpx
 import pandas as pd
-from sqlalchemy import and_, func, select, text
+from sqlalchemy import and_, func, select
 
+from tushare_integration.logger import get_logger
 from tushare_integration.models.adj_factor import AdjFactor
 from tushare_integration.models.bak_daily import BakDaily
 from tushare_integration.models.daily import Daily
@@ -20,9 +19,11 @@ from tushare_integration.models.stk_mins import StkMins
 from tushare_integration.models.stk_weekly_monthly import StkWeeklyMonthly
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.suspend_d import SuspendD
+from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.models.weekly import Weekly
 from tushare_integration.spiders.tushare import DailySpider, TushareSpider
 
+logger = get_logger()
 
 class StockDailySpider(DailySpider):
 
@@ -98,15 +99,11 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
     __model__: type[StkWeeklyMonthly] = StkWeeklyMonthly
 
     def get_latest_trade_date(self, conn, db_name, date):
-        trade_dates = conn.query_df(
-            f"""
-                SELECT max(cal_date) AS `trade_date`
-                FROM {db_name}.trade_cal
-                WHERE is_open = 1
-                    AND cal_date <= '{date}'
-                    AND exchange = 'SSE'
-                """
+        # 使用SQLAlchemy构建查询
+        query = select(func.max(TradeCal.cal_date).label('trade_date')).where(
+            and_(TradeCal.is_open == 1, TradeCal.cal_date <= date, TradeCal.exchange == 'SSE')
         )
+        trade_dates = conn.query_df(query)
 
         if trade_dates.empty:
             return date
@@ -205,10 +202,6 @@ class BakDailySpider(DailySpider):
 class StockMin(TushareSpider):
 
     __model__: type[StkMins] = StkMins
-    custom_settings: dict[str, Any] = {
-        "BASIC_TABLE": "stock_basic",
-        "DAILY_TABLE": "daily",
-    }
 
     def start_requests(self):
         if not self.__model__ is StkMins:
@@ -230,13 +223,16 @@ class StockMin(TushareSpider):
                 exists_date = []
             else:
                 exists_date = list(exists_date_df['trade_date'].dt.date)
-            trade_dates = self.get_db_engine().query_df(
-                f"""
-                    SELECT DISTINCT trade_date 
-                    FROM {self.settings.database.db_name}.{self.custom_settings.get("DAILY_TABLE")}
-                    WHERE ts_code = '{ts_code}' AND trade_date >= '{self.__model__.__start_date__}'
-                    ORDER BY trade_date"""
+
+            # 获取需要采集的交易日期
+            query = (
+                select(Daily.trade_date)
+                .distinct()
+                .where(and_(Daily.ts_code == ts_code, Daily.trade_date >= self.__model__.__start_date__))
+                .order_by(Daily.trade_date)
             )
+            trade_dates = self.get_db_engine().query_df(query)
+
             if trade_dates.empty:
                 continue
             trade_dates = list(trade_dates['trade_date'].dt.date)
@@ -290,7 +286,7 @@ class StockMin(TushareSpider):
                 continue
             # 如果不在exists_date中，那么就需要判断长度是否是241，如果不是241，那么就报错并且丢弃
             if len(values) != 241:
-                logging.error(f"length of data is not 241, params: {response.request.extensions['params']}")
+                logger.error(f"length of data is not 241, params: {response.request.extensions['params']}")
                 continue
 
             pipe_item = pd.concat([pipe_item, values])

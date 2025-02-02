@@ -5,7 +5,6 @@ import httpx
 import pandas as pd
 
 from tushare_integration.models.core.base import Base
-from tushare_integration.settings import TushareIntegrationSettings
 
 
 class BaseSpider(ABC):

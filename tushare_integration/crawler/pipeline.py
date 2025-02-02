@@ -1,5 +1,4 @@
 import datetime
-import logging
 from abc import ABC, abstractmethod
 from typing import ClassVar, List
 
@@ -9,9 +8,11 @@ from sqlalchemy import Column, DateTime, Integer, String, Text
 
 from tushare_integration.crawler.abc import BaseSpider
 from tushare_integration.db_engine import DBEngine
+from tushare_integration.logger import get_logger
 from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
+logger = get_logger()
 
 class Pipeline(ABC):
     """管道基类"""
@@ -125,7 +126,7 @@ class DataPipeline(Pipeline):
             item = item.drop_duplicates(subset=model.__primary_key__, keep="last")
             self.db_engine.upsert(model, data=item)
         else:
-            logging.debug(f"Insert data into {self.table_name}, data count: {len(item)}")
+            logger.debug(f"Insert data into {self.table_name}, data count: {len(item)}")
             self.db_engine.insert(model, data=item)
 
         return item

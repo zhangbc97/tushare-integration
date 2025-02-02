@@ -1,7 +1,3 @@
-import logging
-from urllib import request
-from venv import logger
-
 import httpx
 import pandas as pd
 from sqlalchemy import distinct, select
