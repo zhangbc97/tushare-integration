@@ -3,10 +3,10 @@ from sqlalchemy import distinct, select
 from tushare_integration.models.ths_daily import ThsDaily
 from tushare_integration.models.ths_index import ThsIndex
 from tushare_integration.models.ths_member import ThsMember
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 
-class THSDailySpider(DailySpider):
+class THSDailySpider(TimeSeriesSpider):
 
     __model__: type[ThsDaily] = ThsDaily
 

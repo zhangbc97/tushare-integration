@@ -11,9 +11,9 @@ API_PATH_DICTIONARY = {
     '资金流向数据': 'moneyflow',
     '打板专题数据': 'limit',
     # Products 各类金融产品
-    '指数': 'index',
+    '指数专题': 'index',
     '公募基金': 'fund',
-    '期货': 'future',
+    '期货数据': 'future',
     '现货': 'spot',
     '期权': 'option',
     '债券': 'bond',

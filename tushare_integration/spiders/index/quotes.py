@@ -11,10 +11,10 @@ from tushare_integration.models.index_monthly import IndexMonthly
 from tushare_integration.models.index_weekly import IndexWeekly
 from tushare_integration.models.index_weight import IndexWeight
 from tushare_integration.models.sz_daily_info import SzDailyInfo
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 
-class IndexDailySpider(DailySpider):
+class IndexDailySpider(TimeSeriesSpider):
     __model__: type[IndexDaily] = IndexDaily
 
     def start_requests(self):
@@ -52,16 +52,16 @@ class IndexDailySpider(DailySpider):
                 end_date = start_date + datetime.timedelta(days=30 * 365)
 
 
-class DailyInfoSpider(DailySpider):
+class DailyInfoSpider(TimeSeriesSpider):
     __model__: type[DailyInfo] = DailyInfo
 
 
 # noinspection SpellCheckingInspection
-class IndexDailyBasicSpider(DailySpider):
+class IndexDailyBasicSpider(TimeSeriesSpider):
     __model__: type[IndexDailybasic] = IndexDailybasic
 
 
-class IndexGlobalSpider(DailySpider):
+class IndexGlobalSpider(TimeSeriesSpider):
     __model__: type[IndexGlobal] = IndexGlobal
 
 
@@ -78,5 +78,5 @@ class IndexWeightSpider(TushareSpider):
     __model__: type[IndexWeight] = IndexWeight
 
 
-class SZDailyInfoSpider(DailySpider):
+class SZDailyInfoSpider(TimeSeriesSpider):
     __model__: type[SzDailyInfo] = SzDailyInfo

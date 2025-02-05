@@ -3,7 +3,6 @@ from sqlalchemy import select
 from tushare_integration.models.block_trade import BlockTrade
 from tushare_integration.models.concept import Concept
 from tushare_integration.models.concept_detail import ConceptDetail
-from tushare_integration.models.margin_secs import MarginSecs
 from tushare_integration.models.pledge_detail import PledgeDetail
 from tushare_integration.models.pledge_stat import PledgeStat
 from tushare_integration.models.repurchase import Repurchase
@@ -12,13 +11,7 @@ from tushare_integration.models.stk_holdernumber import StkHoldernumber
 from tushare_integration.models.stk_holdertrade import StkHoldertrade
 from tushare_integration.models.top10_floatholders import Top10Floatholders
 from tushare_integration.models.top10_holders import Top10Holders
-from tushare_integration.models.top_inst import TopInst
-from tushare_integration.models.top_list import TopList
-from tushare_integration.spiders.tushare import DailySpider, FinancialReportSpider, TSCodeSpider, TushareSpider
-
-
-class MarginSecsSpider(DailySpider):
-    __model__: type[MarginSecs] = MarginSecs
+from tushare_integration.spiders.tushare import FinancialReportSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
 class Top10HoldersSpider(FinancialReportSpider):
@@ -29,32 +22,16 @@ class Top10FloatHoldersSpider(FinancialReportSpider):
     __model__: type[Top10Floatholders] = Top10Floatholders
 
 
-class TopListSpider(DailySpider):
-    __model__: type[TopList] = TopList
-
-
-class TopInstSpider(DailySpider):
-    __model__: type[TopInst] = TopInst
-
-
 class PledgeStatSpider(TSCodeSpider):
     __model__: type[PledgeStat] = PledgeStat
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class PledgeDetailSpider(TSCodeSpider):
     __model__: type[PledgeDetail] = PledgeDetail
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class RepurchaseSpider(TSCodeSpider):
     __model__: type[Repurchase] = Repurchase
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
-
-
-class ShareFloatSpider(TSCodeSpider):
-    __model__: type[ShareFloat] = ShareFloat
-    custom_settings = {"BASIC_TABLE": "stock_basic"}
 
 
 class ConceptSpider(TushareSpider):
@@ -75,15 +52,19 @@ class ConceptDetailSpider(TSCodeSpider):
             yield self.get_httpx_request(params={'id': code})
 
 
-class BlockTradeSpider(DailySpider):
+class ShareFloatSpider(TSCodeSpider):
+    __model__: type[ShareFloat] = ShareFloat
+
+
+class BlockTradeSpider(TimeSeriesSpider):
     __model__: type[BlockTrade] = BlockTrade
 
 
-class StkHoldernumberSpider(DailySpider):
+class StkHoldernumberSpider(TimeSeriesSpider):
     __model__: type[StkHoldernumber] = StkHoldernumber
-    custom_settings = {"TRADE_DATE_FIELD": "ann_date"}
+    __trade_date_field__: str = "ann_date"
 
 
-class StkHoldertradeSpider(DailySpider):
+class StkHoldertradeSpider(TimeSeriesSpider):
     __model__: type[StkHoldertrade] = StkHoldertrade
-    custom_settings = {"TRADE_DATE_FIELD": "ann_date"}
+    __trade_date_field__: str = "ann_date"

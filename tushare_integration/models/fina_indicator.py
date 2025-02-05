@@ -22,7 +22,7 @@ class FinaIndicator(Base):
     __api_path_ids__: ClassVar[List[int]] = [2, 14, 16, 79]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
-    __has_vip__: ClassVar[bool] = False
+    __has_vip__: ClassVar[bool] = True
     __dependencies__: ClassVar[List[str]] = ['stock_basic']
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'ann_date', 'end_date', 'update_flag']
     __start_date__: ClassVar[str | None] = None

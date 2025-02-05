@@ -11,10 +11,12 @@ from tushare_integration.models.limit_list_d import LimitListD
 from tushare_integration.models.limit_list_ths import LimitListThs
 from tushare_integration.models.limit_step import LimitStep
 from tushare_integration.models.ths_hot import ThsHot
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.models.top_inst import TopInst
+from tushare_integration.models.top_list import TopList
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 
-class DCHotSpider(DailySpider):
+class DCHotSpider(TimeSeriesSpider):
     __model__: type[DcHot] = DcHot
 
     def start_requests(self):
@@ -24,7 +26,7 @@ class DCHotSpider(DailySpider):
             yield req
 
 
-class HMDetailSpider(DailySpider):
+class HMDetailSpider(TimeSeriesSpider):
     __model__: type[HmDetail] = HmDetail
 
 
@@ -32,35 +34,35 @@ class HMListSpider(TushareSpider):
     __model__: type[HmList] = HmList
 
 
-class KplConceptConsSpider(DailySpider):
+class KplConceptConsSpider(TimeSeriesSpider):
     __model__: type[KplConceptCons] = KplConceptCons
 
 
-class KplConceptSpider(DailySpider):
+class KplConceptSpider(TimeSeriesSpider):
     __model__: type[KplConcept] = KplConcept
 
 
-class KplListSpider(DailySpider):
+class KplListSpider(TimeSeriesSpider):
     __model__: type[KplList] = KplList
 
 
-class LimitCptListSpider(DailySpider):
+class LimitCptListSpider(TimeSeriesSpider):
     __model__: type[LimitCptList] = LimitCptList
 
 
-class LimitListDSpider(DailySpider):
+class LimitListDSpider(TimeSeriesSpider):
     __model__: type[LimitListD] = LimitListD
 
 
-class LimitListTHSSpider(DailySpider):
+class LimitListTHSSpider(TimeSeriesSpider):
     __model__: type[LimitListThs] = LimitListThs
 
 
-class LimitStepSpider(DailySpider):
+class LimitStepSpider(TimeSeriesSpider):
     __model__: type[LimitStep] = LimitStep
 
 
-class THSHotSpider(DailySpider):
+class THSHotSpider(TimeSeriesSpider):
     __model__: type[ThsHot] = ThsHot
 
     def start_requests(self):
@@ -68,3 +70,11 @@ class THSHotSpider(DailySpider):
         yield self.get_httpx_request(params={'trade_date': datetime.datetime.now().strftime("%Y%m%d")})
         for req in super().start_requests():
             yield req
+
+
+class TopListSpider(TimeSeriesSpider):
+    __model__: type[TopList] = TopList
+
+
+class TopInstSpider(TimeSeriesSpider):
+    __model__: type[TopInst] = TopInst

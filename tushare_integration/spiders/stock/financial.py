@@ -8,7 +8,11 @@ from tushare_integration.models.fina_indicator import FinaIndicator
 from tushare_integration.models.fina_mainbz import FinaMainbz
 from tushare_integration.models.forecast import Forecast
 from tushare_integration.models.income import Income
-from tushare_integration.spiders.tushare import FinancialReportSpider, TSCodeSpider
+from tushare_integration.spiders.tushare import FinancialReportSpider
+
+
+class IncomeSpider(FinancialReportSpider):
+    __model__: type[Income] = Income
 
 
 class BalanceSheetSpider(FinancialReportSpider):
@@ -19,19 +23,15 @@ class CashFlowSpider(FinancialReportSpider):
     __model__: type[Cashflow] = Cashflow
 
 
-class IncomeSpider(FinancialReportSpider):
-    __model__: type[Income] = Income
+class ForeCastSpider(FinancialReportSpider):
+    __model__: type[Forecast] = Forecast
 
 
 class ExpressSpider(FinancialReportSpider):
     __model__: type[Express] = Express
 
 
-class ForeCastSpider(FinancialReportSpider):
-    __model__: type[Forecast] = Forecast
-
-
-class DividendSpider(TSCodeSpider):
+class DividendSpider(FinancialReportSpider):
     __model__: type[Dividend] = Dividend
 
 
@@ -39,7 +39,7 @@ class FinaIndicatorSpider(FinancialReportSpider):
     __model__: type[FinaIndicator] = FinaIndicator
 
 
-class FinaAuditSpider(TSCodeSpider):
+class FinaAuditSpider(FinancialReportSpider):
     __model__: type[FinaAudit] = FinaAudit
 
 

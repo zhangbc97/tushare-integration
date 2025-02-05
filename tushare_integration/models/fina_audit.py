@@ -22,7 +22,7 @@ class FinaAudit(Base):
     __api_path_ids__: ClassVar[List[int]] = [2, 14, 16, 80]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
-    __has_vip__: ClassVar[bool] = False
+    __has_vip__: ClassVar[bool] = True
     __dependencies__: ClassVar[List[str]] = ['stock_basic']
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'end_date', 'ann_date']
     __start_date__: ClassVar[str | None] = None

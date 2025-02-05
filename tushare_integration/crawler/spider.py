@@ -307,11 +307,12 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             self._running = False
 
             logger.debug("Spider %s closing...", self.__spider_name__)
+            self._request_queue.clear()
+
             # 关闭所有pipeline
             for pipeline in self.pipelines:
                 pipeline.close()
 
-            self._request_queue.clear()
             self.client.close()
             logger.debug("Spider %s closed", self.__spider_name__)
 

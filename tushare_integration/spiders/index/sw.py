@@ -6,7 +6,7 @@ from tushare_integration.models.index_classify import IndexClassify
 from tushare_integration.models.index_member import IndexMember
 from tushare_integration.models.index_member_all import IndexMemberAll
 from tushare_integration.models.sw_daily import SwDaily
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider
 
 
 class IndexClassifySpider(TushareSpider):
@@ -31,40 +31,12 @@ class IndexMemberSpider(TushareSpider):
             )
 
 
-class IndexMemberAllSpider(TushareSpider):
-
+class IndexMemberAllSpider(LimitOffsetSpider):
     __model__: type[IndexMemberAll] = IndexMemberAll
-
-    def start_requests(self):
-        # 通过LIMIT+OFFSET的方取数据
-        request = self.get_httpx_request(params={'offset': 0, 'limit': 3000})
-        request.extensions["offset"] = 0
-        request.extensions["limit"] = 3000
-        yield request
-
-    def parse(self, response: httpx.Response, **kwargs):
-        first_page = self.parse_response(response, **kwargs)
-        if first_page.empty:
-            return None
-
-        all_data = [first_page]
-        offset = response.request.extensions["offset"] + response.request.extensions["limit"]
-        limit = response.request.extensions["limit"]
-
-        while True:
-            parsed_data = self.parse_response(
-                self._process_request(self.get_httpx_request(extensions={'offset': offset, 'limit': limit}))
-            )
-            if parsed_data.empty:
-                break
-            all_data.append(parsed_data)
-            offset += limit
-
-        return pd.concat(all_data, ignore_index=True)
+    __limit__: int = 3000
 
 
-class SWDailySpider(DailySpider):
-
+class SWDailySpider(TimeSeriesSpider):
     __model__: type[SwDaily] = SwDaily
 
     def start_requests(self):

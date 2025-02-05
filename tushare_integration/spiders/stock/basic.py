@@ -1,14 +1,16 @@
-import httpx
-import pandas as pd
+import datetime
 
+from tushare_integration.models.bak_basic import BakBasic
 from tushare_integration.models.hs_const import HsConst
 from tushare_integration.models.namechange import Namechange
+from tushare_integration.models.new_share import NewShare
 from tushare_integration.models.stk_managers import StkManagers
+from tushare_integration.models.stk_premarket import StkPremarket
 from tushare_integration.models.stk_rewards import StkRewards
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.stock_company import StockCompany
 from tushare_integration.models.trade_cal import TradeCal
-from tushare_integration.spiders.tushare import TushareSpider
+from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
 class StockBasicSpider(TushareSpider):
@@ -19,53 +21,22 @@ class StockBasicSpider(TushareSpider):
             yield self.get_httpx_request({"list_status": status})
 
 
-class StockCompanySpider(TushareSpider):
-    __model__: type[StockCompany] = StockCompany
+class StkPremarketSpider(TimeSeriesSpider):
+    __model__: type[StkPremarket] = StkPremarket
+
+
+class TradeCalSpider(TushareSpider):
+    __model__: type[TradeCal] = TradeCal
 
     def start_requests(self):
-        for exchange in ["SSE", "SZSE"]:
+        for exchange in ["SSE", "SZSE", "CFFEX", "DCE", "CZCE", "SHFE", "INE"]:
             params = {"exchange": exchange}
             yield self.get_httpx_request(params)
 
 
-class StkManagersSpider(TushareSpider):
-    __model__: type[StkManagers] = StkManagers
-
-
-class StkRewardsSpider(TushareSpider):
-    __model__: type[StkRewards] = StkRewards
-
-
-class NameChangeSpider(TushareSpider):
+class NameChangeSpider(LimitOffsetSpider):
     __model__: type[Namechange] = Namechange
-
-    def start_requests(self):
-        # 不能用start_date和end_date筛选，部分数据没有ann_date导致无法完整同步数据
-        # 每次拉5000条数据
-        request = self.get_httpx_request(params={'offset': 0, 'limit': 5000})
-        request.extensions["offset"] = 0
-        request.extensions["limit"] = 5000
-        yield request
-
-    def parse(self, response: httpx.Response, **kwargs):
-        first_page = self.parse_response(response, **kwargs)
-        if first_page.empty:
-            return None
-
-        all_data = [first_page]
-        offset = response.request.extensions["offset"] + response.request.extensions["limit"]
-        limit = response.request.extensions["limit"]
-
-        while True:
-            parsed_data = self.parse_response(
-                self._process_request(self.get_httpx_request(params={'offset': offset, 'limit': limit}))
-            )
-            if parsed_data.empty:
-                break
-            all_data.append(parsed_data)
-            offset += limit
-
-        return pd.concat(all_data, ignore_index=True)
+    __limit__: int = 5000
 
 
 class HSConstSpider(TushareSpider):
@@ -76,10 +47,33 @@ class HSConstSpider(TushareSpider):
             yield self.get_httpx_request({"hs_type": hs_type})
 
 
-class TradeCalSpider(TushareSpider):
-    __model__: type[TradeCal] = TradeCal
+class StockCompanySpider(TushareSpider):
+    __model__: type[StockCompany] = StockCompany
 
     def start_requests(self):
-        for exchange in ["SSE", "SZSE", "CFFEX", "DCE", "CZCE", "SHFE", "INE"]:
+        # 单次数量限制4500，所以需要分批请求
+        for exchange in ["SSE", "SZSE"]:
             params = {"exchange": exchange}
             yield self.get_httpx_request(params)
+
+
+class StkManagersSpider(TSCodeSpider):
+    __model__: type[StkManagers] = StkManagers
+
+
+class StkRewardsSpider(TSCodeSpider):
+    __model__: type[StkRewards] = StkRewards
+
+
+class NewShareSpider(LimitOffsetSpider):
+    __model__: type[NewShare] = NewShare
+
+    # 从1990开始一次获取5年，使用start_date和end_date筛选
+    def start_requests(self):
+        for year in range(1990, datetime.datetime.now().year, 5):
+            params = {"start_date": f"{year}0101", "end_date": f"{year+5}0101"}
+            yield self.get_httpx_request(params)
+
+
+class BakBasicSpider(TimeSeriesSpider):
+    __model__: type[BakBasic] = BakBasic

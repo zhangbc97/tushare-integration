@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import and_, distinct, not_, select, text
+from sqlalchemy import and_, distinct, not_, select
 
 from tushare_integration.models.broker_recommend import BrokerRecommend
 from tushare_integration.models.ccass_hold import CcassHold
@@ -14,14 +14,14 @@ from tushare_integration.models.stk_factor import StkFactor
 from tushare_integration.models.stk_factor_pro import StkFactorPro
 from tushare_integration.models.stk_surv import StkSurv
 from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.spiders.tushare import DailySpider, TSCodeSpider, TushareSpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
 class ReportRCSpider(TSCodeSpider):
     __model__: type[ReportRc] = ReportRc
 
 
-class CyqPerfSpider(DailySpider):
+class CyqPerfSpider(TimeSeriesSpider):
 
     __model__: type[CyqPerf] = CyqPerf
 
@@ -56,19 +56,19 @@ class CyqChipsSpider(TushareSpider):
                 yield self.get_httpx_request({"ts_code": ts_code, "trade_date": trade_date.strftime("%Y%m%d")})
 
 
-class StkFactorSpider(DailySpider):
+class StkFactorSpider(TimeSeriesSpider):
     __model__: type[StkFactor] = StkFactor
 
 
-class CCASSHoldSpider(DailySpider):
+class CCASSHoldSpider(TimeSeriesSpider):
     __model__: type[CcassHold] = CcassHold
 
 
-class CCASSHoldDetailSpider(DailySpider):
+class CCASSHoldDetailSpider(TimeSeriesSpider):
     __model__: type[CcassHoldDetail] = CcassHoldDetail
 
 
-class HKHoldSpider(DailySpider):
+class HKHoldSpider(TimeSeriesSpider):
     __model__: type[HkHold] = HkHold
 
 
@@ -87,5 +87,5 @@ class BrokerRecommendSpider(TushareSpider):
                 yield self.get_httpx_request({"month": f"{year}{month:02d}"})
 
 
-class StkFactorProSpider(DailySpider):
+class StkFactorProSpider(TimeSeriesSpider):
     __model__: type[StkFactorPro] = StkFactorPro

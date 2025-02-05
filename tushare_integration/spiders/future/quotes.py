@@ -10,10 +10,10 @@ from tushare_integration.models.fut_settle import FutSettle
 from tushare_integration.models.fut_weekly_detail import FutWeeklyDetail
 from tushare_integration.models.fut_wsr import FutWsr
 from tushare_integration.models.trade_cal import TradeCal
-from tushare_integration.spiders.tushare import DailySpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider
 
 
-class FutDailySpider(DailySpider):
+class FutDailySpider(TimeSeriesSpider):
     __model__: type[FutDaily] = FutDaily
 
     def start_requests(self):
@@ -52,7 +52,7 @@ class FutDailySpider(DailySpider):
                 yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
-class FutHoldingSpider(DailySpider):
+class FutHoldingSpider(TimeSeriesSpider):
     """
     期货持仓量
     这个接口的数据量较大，为了保证一致性，针对每个交易所单独按日获取
@@ -96,19 +96,19 @@ class FutHoldingSpider(DailySpider):
                 yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
-class FutSettleSpider(DailySpider):
+class FutSettleSpider(TimeSeriesSpider):
     __model__: type[FutSettle] = FutSettle
 
 
-class FutMappingSpider(DailySpider):
+class FutMappingSpider(TimeSeriesSpider):
     __model__: type[FutMapping] = FutMapping
 
 
-class FutWSRSpider(DailySpider):
+class FutWSRSpider(TimeSeriesSpider):
     __model__: type[FutWsr] = FutWsr
 
 
-class FutWeeklyDetailSpider(DailySpider):
+class FutWeeklyDetailSpider(TimeSeriesSpider):
     __model__: type[FutWeeklyDetail] = FutWeeklyDetail
 
     def start_requests(self):

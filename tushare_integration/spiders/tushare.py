@@ -1,6 +1,7 @@
 import datetime
 import json
-from typing import ClassVar, Generator
+import typing
+from typing import ClassVar, Generator, Literal
 
 import httpx
 import pandas as pd
@@ -15,6 +16,7 @@ from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
+
 
 class TushareSpider(Spider):
     __spider_name__: str
@@ -93,41 +95,59 @@ class TushareSpider(Spider):
         )
 
 
-class DailySpider(TushareSpider):
+class TimeSeriesSpider(TushareSpider):
     __model__: type[Base] = Base
+    __trade_date_period__: Literal["D", "W", "ME"] = "D"
 
-    def start_requests(self):
+    def get_trade_dates(self, period: Literal["D", "W", "ME"] | None = None) -> pd.DataFrame:
+        if period is None:
+            period = self.__trade_date_period__
         conn = self.get_db_engine()
-        start_date = self.start_date or datetime.date(1990, 1, 1)
+        from tushare_integration.models.trade_cal import TradeCal
 
-        # 重构后：直接使用 ORM 模型属性构造查询
-        subquery = select(getattr(self.__model__, self.__trade_date_field__)).select_from(self.__model__)
-
-        query = (
-            select(TradeCal.cal_date.distinct())
+        stmt = (
+            select(TradeCal.cal_date)
+            .distinct()
             .where(
                 and_(
-                    not_(TradeCal.cal_date.in_(subquery)),
                     TradeCal.is_open == '1',
-                    TradeCal.cal_date >= start_date,
-                    TradeCal.cal_date <= datetime.date.today(),
+                    TradeCal.cal_date <= datetime.datetime.today(),
                     TradeCal.exchange == 'SSE',
                 )
             )
             .order_by(TradeCal.cal_date)
         )
+        trade_dates = conn.query_df(stmt)
+        if trade_dates.empty:
+            return trade_dates
 
-        cal_dates = conn.query_df(query)
+        trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
+        trade_dates = (
+            trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
+            .set_index('trade_date_index')
+            .resample(period)
+            .agg({'cal_date': 'last'})
+            .reset_index(drop=True)
+            .dropna()
+        )
+        stmt = (
+            select(getattr(self.__model__, self.__trade_date_field__))
+            .distinct()
+            .order_by(getattr(self.__model__, self.__trade_date_field__))
+        )
+        db_trade_dates = conn.query_df(stmt)
+        if not db_trade_dates.empty:
+            db_trade_dates[self.__trade_date_field__] = pd.to_datetime(db_trade_dates[self.__trade_date_field__])
+            trade_dates = trade_dates[~trade_dates['cal_date'].isin(db_trade_dates[self.__trade_date_field__])]
+        return trade_dates
 
-        if cal_dates.empty:
+    def start_requests(self):
+        trade_dates_df = self.get_trade_dates()
+        if trade_dates_df.empty:
             return
-
-        cal_dates["cal_date"] = pd.to_datetime(cal_dates["cal_date"])
-
-        trade_dates = [cal_date.strftime("%Y%m%d") for cal_date in cal_dates["cal_date"]]
-
-        for trade_date in trade_dates:
-            yield self.get_httpx_request(params={self.__trade_date_field__: trade_date})
+        for _, row in trade_dates_df.iterrows():
+            trade_date = row['cal_date']
+            yield self.get_httpx_request(params={self.__trade_date_field__: trade_date.strftime("%Y%m%d")})
 
 
 class TSCodeSpider(TushareSpider):
@@ -136,12 +156,10 @@ class TSCodeSpider(TushareSpider):
 
     def start_requests(self):
         conn = self.get_db_engine()
-        # 使用ORM模型构造查询，从动态引用的 __basic_table__ 中获取 ts_code 字段
-
         if not hasattr(self.__basic_table__, 'ts_code'):
             raise AttributeError("The model does not have a 'ts_code' attribute.")
 
-        query = select(getattr(self.__basic_table__, 'ts_code'))
+        query = select(getattr(self.__basic_table__, 'ts_code')).distinct()
         ts_codes = conn.query_df(query)
 
         for ts_code in ts_codes['ts_code']:
@@ -150,7 +168,7 @@ class TSCodeSpider(TushareSpider):
 
 class FinancialReportSpider(TushareSpider):
     __model__: type[Base] = Base
-    _api_name_override: str | None = None  # 新增用于存储覆盖的api_name
+    _api_name_override: str | None = None
 
     @property
     def api_name(self) -> str:
@@ -161,7 +179,6 @@ class FinancialReportSpider(TushareSpider):
         self._api_name_override = value
 
     def start_requests(self):
-        # 如果积分大于5000，使用vip接口
         if self.settings.tushare_point >= 5000:
             return self.request_with_vip()
         else:
@@ -169,7 +186,6 @@ class FinancialReportSpider(TushareSpider):
 
     @staticmethod
     def get_all_period():
-        # 取所有的period
         periods = []
         for year in range(1990, datetime.datetime.now().year + 1):
             for end_date in [f"{year}0331", f"{year}0630", f"{year}0930", f"{year}1231"]:
@@ -177,28 +193,53 @@ class FinancialReportSpider(TushareSpider):
         return periods
 
     def request_with_vip(self):
-        # 每次全量同步即可，30年的数据只有4*30*12=1440次请求
         if self.__model__.__has_vip__ is True:
             self.api_name = self.api_name + "_vip"
         for period in self.get_all_period():
-            # 三大报表需要按照report_type分别请求
             if self.api_name.startswith(("income", "balance", "cashflow")):
                 for report_type in range(1, 13):
                     params = {"period": period, "report_type": str(report_type)}
                     yield self.get_httpx_request(params)
             else:
-                # 其他报表只需按period请求即可
                 params = {"period": period}
                 yield self.get_httpx_request(params)
 
     def request_with_ts_code(self):
-        # 按ts_code取数据，每次取一个股票的全量，几千次请求
         conn = self.get_db_engine()
-
-        # 使用 SQLAlchemy select 获取所有的 ts_code
         query = select(StockBasic.ts_code)
         ts_codes = conn.query_df(query)['ts_code']
 
         for ts_code in ts_codes:
             params = {"ts_code": ts_code, "limit": 2000}
             yield self.get_httpx_request(params)
+
+
+class LimitOffsetSpider(TushareSpider):
+    __limit__: int = 5000
+
+    def start_requests(self) -> Generator[httpx.Request, typing.Any, None]:
+        yield self.get_httpx_request(params={'offset': 0, 'limit': self.__limit__})
+
+    def parse(self, response: httpx.Response, **kwargs):
+        first_page = self.parse_response(response, **kwargs)
+        if first_page.empty:
+            return None
+
+        all_data = [first_page]
+        base_params = response.request.extensions.get("params", {})
+        offset = base_params.get('offset', 0) + base_params.get('limit', self.__limit__)
+        limit = base_params.get('limit', self.__limit__)
+
+        while True:
+            params = base_params.copy()
+            params.update({'offset': offset, 'limit': limit})
+
+            next_page = self.parse_response(
+                self._process_request(self.get_httpx_request(params=params)),
+            )
+            if next_page.empty:
+                break
+            all_data.append(next_page)
+            offset += limit
+
+        return pd.concat(all_data, ignore_index=True)

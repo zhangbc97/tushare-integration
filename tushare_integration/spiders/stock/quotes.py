@@ -1,5 +1,6 @@
 import calendar
 import datetime
+from typing import Literal
 
 import httpx
 import pandas as pd
@@ -16,94 +17,42 @@ from tushare_integration.models.hsgt_top10 import HsgtTop10
 from tushare_integration.models.monthly import Monthly
 from tushare_integration.models.stk_limit import StkLimit
 from tushare_integration.models.stk_mins import StkMins
+from tushare_integration.models.stk_week_month_adj import StkWeekMonthAdj
 from tushare_integration.models.stk_weekly_monthly import StkWeeklyMonthly
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.models.suspend_d import SuspendD
 from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.models.weekly import Weekly
-from tushare_integration.spiders.tushare import DailySpider, TushareSpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 logger = get_logger()
 
-class StockDailySpider(DailySpider):
 
+class DailySpider(TimeSeriesSpider):
     __model__: type[Daily] = Daily
 
 
-class StockWeeklySpider(TushareSpider):
-
+class WeeklySpider(TimeSeriesSpider):
     __model__: type[Weekly] = Weekly
-
-    def start_requests(self):
-        conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
-        table_name = self.table_name
-
-        trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
-
-        for trade_date in trade_dates['cal_date']:
-            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
-
-    def get_trade_dates(self, conn, db_name, table_name, period):
-        from tushare_integration.models.trade_cal import TradeCal
-
-        # 获取交易日历
-        stmt = (
-            select(TradeCal.cal_date)
-            .distinct()
-            .where(and_(TradeCal.is_open == 1, TradeCal.cal_date <= func.today(), TradeCal.exchange == 'SSE'))
-            .order_by(TradeCal.cal_date)
-        )
-        trade_dates = conn.query_df(stmt)
-
-        trade_dates['cal_date'] = pd.to_datetime(trade_dates['cal_date'])
-        trade_dates = (
-            trade_dates.assign(trade_date_index=lambda x: x['cal_date'].astype('datetime64[ns]'))
-            .set_index('trade_date_index')
-            .resample(period)
-            .agg({'cal_date': 'last'})
-            .reset_index(drop=True)
-            .dropna()
-        )
-
-        # 获已有的交易日期
-        stmt = select(self.__model__.trade_date).distinct().order_by(self.__model__.trade_date)
-        period_trade_dates = conn.query_df(stmt)
-
-        if period_trade_dates.empty:
-            period_trade_dates = pd.DataFrame(columns=['trade_date'])
-        else:
-            period_trade_dates['trade_date'] = pd.to_datetime(period_trade_dates['trade_date'])
-
-        trade_dates = trade_dates[~trade_dates['cal_date'].isin(period_trade_dates['trade_date'])]
-        return trade_dates
+    # 使用新的 TimeSeriesSpider 统一逻辑，设置按周采集
+    __trade_date_period__: Literal["D", "W", "ME"] = "W"
 
 
-class StockMonthlySpider(StockWeeklySpider):
-
+class MonthlySpider(TimeSeriesSpider):
     __model__: type[Monthly] = Monthly
-
-    def start_requests(self):
-        conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
-        table_name = self.table_name
-
-        trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
-
-        for trade_date in trade_dates['cal_date']:
-            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d")})
+    # 设置按月末采集
+    __trade_date_period__: Literal["D", "W", "ME"] = "ME"
 
 
-class StockWeeklyMonthlySpider(StockWeeklySpider):
-
+class StkWeeklyMonthlySpider(WeeklySpider):
     __model__: type[StkWeeklyMonthly] = StkWeeklyMonthly
 
-    def get_latest_trade_date(self, conn, db_name, date):
+    def get_latest_trade_date(self, date):
         # 使用SQLAlchemy构建查询
         query = select(func.max(TradeCal.cal_date).label('trade_date')).where(
-            and_(TradeCal.is_open == 1, TradeCal.cal_date <= date, TradeCal.exchange == 'SSE')
+            and_(TradeCal.is_open == '1', TradeCal.cal_date <= date, TradeCal.exchange == 'SSE')
         )
-        trade_dates = conn.query_df(query)
+        trade_dates = self.get_db_engine().query_df(query)
 
         if trade_dates.empty:
             return date
@@ -117,26 +66,22 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
             return today
         sunday = (today + datetime.timedelta(days=6 - weekday)).strftime("%Y-%m-%d")
 
-        return self.get_latest_trade_date(self.get_db_engine(), self.settings.database.db_name, sunday)
+        return self.get_latest_trade_date(sunday)
 
     def get_end_of_month(self):
         today = datetime.date.today()
         end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1]).strftime("%Y-%m-%d")
 
-        return self.get_latest_trade_date(self.get_db_engine(), self.settings.database.db_name, end_date_of_month)
+        return self.get_latest_trade_date(end_date_of_month)
 
     def start_requests(self):
-        conn = self.get_db_engine()
-        db_name = self.settings.database.db_name
-        table_name = self.table_name
-
-        weekly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='W')
+        weekly_trade_dates = self.get_trade_dates(period='W')
         weekly_trade_dates = pd.concat(
             [weekly_trade_dates, pd.DataFrame([{'cal_date': self.get_weekly_trade_date()}])], ignore_index=True
         )
         weekly_trade_dates['freq'] = 'week'
 
-        monthly_trade_dates = self.get_trade_dates(conn, db_name, table_name, period='ME')
+        monthly_trade_dates = self.get_trade_dates(period='ME')
         monthly_trade_dates = pd.concat(
             [monthly_trade_dates, pd.DataFrame([{'cal_date': self.get_end_of_month()}])], ignore_index=True
         )
@@ -148,59 +93,43 @@ class StockWeeklyMonthlySpider(StockWeeklySpider):
             yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d"), "freq": freq})
 
 
-class AdjFactorSpider(DailySpider):
+class StkWeekMonthAdjSpider(StkWeeklyMonthlySpider):
+    __model__: type[StkWeekMonthAdj] = StkWeekMonthAdj
 
+
+class AdjFactorSpider(TimeSeriesSpider):
     __model__: type[AdjFactor] = AdjFactor
 
 
-class SuspendDSpider(DailySpider):
-
-    description = '每日停复牌信息'
-
-    __model__: type[SuspendD] = SuspendD
-
-
-class HSGTTop10Spider(DailySpider):
-
-    description = '沪深股通十大成交股'
-    __model__: type[HsgtTop10] = HsgtTop10
-
-
-class StkLimitSpider(DailySpider):
-
-    description = '每日涨跌停价格'
-    __model__: type[StkLimit] = StkLimit
-
-
-class DailyBasicSpider(DailySpider):
-
+class DailyBasicSpider(TimeSeriesSpider):
     __model__: type[DailyBasic] = DailyBasic
 
 
-class GGTTop10Spider(DailySpider):
+class StkLimitSpider(TimeSeriesSpider):
+    __model__: type[StkLimit] = StkLimit
 
-    description = '港股通十大成交股'
+
+class SuspendDSpider(TimeSeriesSpider):
+    __model__: type[SuspendD] = SuspendD
+
+
+class HSGTTop10Spider(TimeSeriesSpider):
+    __model__: type[HsgtTop10] = HsgtTop10
+
+
+class GGTTop10Spider(TimeSeriesSpider):
     __model__: type[GgtTop10] = GgtTop10
 
 
-class GGTDailySpider(DailySpider):
-
-    description = '港股通每日成交统计'
+class GGTDailySpider(TimeSeriesSpider):
     __model__: type[GgtDaily] = GgtDaily
-
-
-class BakDailySpider(DailySpider):
-
-    description = '备用行情'
-    __model__: type[BakDaily] = BakDaily
 
 
 # 港股通每月成交统计数据只更新到2020年底，在这里不开发策略
 
 
 # noinspection SqlNoDataSourceInspection
-class StockMin(TushareSpider):
-
+class StkMinSpider(TushareSpider):
     __model__: type[StkMins] = StkMins
 
     def start_requests(self):
@@ -292,3 +221,7 @@ class StockMin(TushareSpider):
             pipe_item = pd.concat([pipe_item, values])
         # 减少写入次数
         yield pipe_item
+
+
+class BakDailySpider(TimeSeriesSpider):
+    __model__: type[BakDaily] = BakDaily
