@@ -10,19 +10,21 @@ from tushare_integration.models.cyq_perf import CyqPerf
 from tushare_integration.models.daily import Daily
 from tushare_integration.models.hk_hold import HkHold
 from tushare_integration.models.report_rc import ReportRc
+from tushare_integration.models.stk_auction_c import StkAuctionC
+from tushare_integration.models.stk_auction_o import StkAuctionO
 from tushare_integration.models.stk_factor import StkFactor
 from tushare_integration.models.stk_factor_pro import StkFactorPro
+from tushare_integration.models.stk_nineturn import StkNineturn
 from tushare_integration.models.stk_surv import StkSurv
 from tushare_integration.models.stock_basic import StockBasic
 from tushare_integration.spiders.tushare import TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
-class ReportRCSpider(TSCodeSpider):
+class ReportRCSpider(TimeSeriesSpider):
     __model__: type[ReportRc] = ReportRc
 
 
 class CyqPerfSpider(TimeSeriesSpider):
-
     __model__: type[CyqPerf] = CyqPerf
 
 
@@ -60,6 +62,10 @@ class StkFactorSpider(TimeSeriesSpider):
     __model__: type[StkFactor] = StkFactor
 
 
+class StkFactorProSpider(TimeSeriesSpider):
+    __model__: type[StkFactorPro] = StkFactorPro
+
+
 class CCASSHoldSpider(TimeSeriesSpider):
     __model__: type[CcassHold] = CcassHold
 
@@ -70,6 +76,14 @@ class CCASSHoldDetailSpider(TimeSeriesSpider):
 
 class HKHoldSpider(TimeSeriesSpider):
     __model__: type[HkHold] = HkHold
+
+
+class StkAuctionOSpider(TimeSeriesSpider):
+    __model__: type[StkAuctionO] = StkAuctionO
+
+
+class StkAuctionCSpider(TimeSeriesSpider):
+    __model__: type[StkAuctionC] = StkAuctionC
 
 
 class StkSurvSpider(TSCodeSpider):
@@ -85,7 +99,3 @@ class BrokerRecommendSpider(TushareSpider):
         for year in range(2020, datetime.datetime.now().year + 1):
             for month in range(1, 13):
                 yield self.get_httpx_request({"month": f"{year}{month:02d}"})
-
-
-class StkFactorProSpider(TimeSeriesSpider):
-    __model__: type[StkFactorPro] = StkFactorPro

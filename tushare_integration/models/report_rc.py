@@ -25,7 +25,7 @@ class ReportRc(Base):
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = ['stock_basic']
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'report_date']
-    __start_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = '2010-01-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'ts_code': {'type': 'str', 'required': False, 'description': '股票代码'},
