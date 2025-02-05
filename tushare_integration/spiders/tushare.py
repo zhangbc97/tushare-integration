@@ -4,7 +4,7 @@ from typing import ClassVar, Generator
 
 import httpx
 import pandas as pd
-from sqlalchemy import and_, not_, select, text
+from sqlalchemy import and_, not_, select
 
 from tushare_integration.crawler.spider import Spider
 from tushare_integration.db_engine import DBEngine
