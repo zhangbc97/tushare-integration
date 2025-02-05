@@ -18,7 +18,7 @@ class FutHolding(Base):
     __api_name__: ClassVar[str] = 'fut_holding'
     __api_title__: ClassVar[str] = '每日持仓排名'
     __api_info_title__: ClassVar[str] = '每日成交持仓排名'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货', '每日持仓排名']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '每日持仓排名']
     __api_path_ids__: ClassVar[List[int]] = [2, 134, 139]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

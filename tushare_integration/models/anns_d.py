@@ -33,8 +33,8 @@ class AnnsD(Base):
         'start_date': {'type': 'str', 'required': False, 'description': '公告开始日期'},
         'end_date': {'type': 'str', 'required': False, 'description': '公告结束日期'},
         'title': {'type': 'str', 'required': False, 'description': '标题'},
-        'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
-        'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
+        'limit': {'type': 'str', 'required': False, 'description': ''},
+        'offset': {'type': 'str', 'required': False, 'description': ''},
     }
 
     __mapper_args__ = {'primary_key': __primary_key__}

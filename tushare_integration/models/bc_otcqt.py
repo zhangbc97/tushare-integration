@@ -18,7 +18,7 @@ class BcOtcqt(Base):
     __api_name__: ClassVar[str] = 'bc_otcqt'
     __api_title__: ClassVar[str] = '柜台流通式债券报价'
     __api_info_title__: ClassVar[str] = '柜台流通式债券报价'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '柜台流通式债券报价']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '柜台流通式债券报价']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 322]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

@@ -18,7 +18,7 @@ class IndexMemberAll(Base):
     __api_name__: ClassVar[str] = 'index_member_all'
     __api_title__: ClassVar[str] = '申万行业成分(分级)'
     __api_info_title__: ClassVar[str] = '申万行业成分构成'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '申万行业成分（分级）']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '申万行业成分（分级）']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 335]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

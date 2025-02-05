@@ -18,7 +18,7 @@ class IndexDaily(Base):
     __api_name__: ClassVar[str] = 'index_daily'
     __api_title__: ClassVar[str] = '南华期货指数行情'
     __api_info_title__: ClassVar[str] = '指数日线行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货', '南华期货指数行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '南华期货指数行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 134, 155]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

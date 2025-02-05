@@ -18,7 +18,7 @@ class YcCb(Base):
     __api_name__: ClassVar[str] = 'yc_cb'
     __api_title__: ClassVar[str] = '国债收益率曲线'
     __api_info_title__: ClassVar[str] = '中债收益率曲线'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '国债收益率曲线']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '国债收益率曲线']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 201]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

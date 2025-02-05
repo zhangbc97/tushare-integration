@@ -18,7 +18,7 @@ class SgeBasic(Base):
     __api_name__: ClassVar[str] = 'sge_basic'
     __api_title__: ClassVar[str] = '上海黄金基础信息'
     __api_info_title__: ClassVar[str] = '黄金现货基础信息'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '现货', '上海黄金基础信息']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '现货数据', '上海黄金基础信息']
     __api_path_ids__: ClassVar[List[int]] = [2, 283, 284]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

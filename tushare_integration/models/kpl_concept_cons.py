@@ -30,6 +30,7 @@ class KplConceptCons(Base):
     __api_params__: ClassVar[Dict[str, Any]] = {
         'ts_code': {'type': 'str', 'required': False, 'description': '题材代码'},
         'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
+        'con_code': {'type': 'str', 'required': False, 'description': '成分代码'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
@@ -52,8 +53,8 @@ class KplConceptCons(Base):
 
     ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='题材ID')
     name = Column('name', String(), nullable=False, default="", server_default=text("''"), comment='题材名称')
-    cons_name = Column('cons_name', String(), nullable=False, default="", server_default=text("''"), comment='股票名称')
-    cons_code = Column('cons_code', String(), nullable=False, default="", server_default=text("''"), comment='股票代码')
+    con_name = Column('con_name', String(), nullable=False, default="", server_default=text("''"), comment='股票名称')
+    con_code = Column('con_code', String(), nullable=False, default="", server_default=text("''"), comment='股票代码')
     trade_date = Column(
         'trade_date',
         Date,

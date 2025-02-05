@@ -18,7 +18,7 @@ class SzDailyInfo(Base):
     __api_name__: ClassVar[str] = 'sz_daily_info'
     __api_title__: ClassVar[str] = '深圳市场每日交易情况'
     __api_info_title__: ClassVar[str] = '深圳市场每日交易概况'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '深圳市场每日交易情况']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '深圳市场每日交易情况']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 268]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

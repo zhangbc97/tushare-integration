@@ -18,7 +18,7 @@ class FutWsr(Base):
     __api_name__: ClassVar[str] = 'fut_wsr'
     __api_title__: ClassVar[str] = '仓单日报'
     __api_info_title__: ClassVar[str] = '仓单日报'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货', '仓单日报']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '仓单日报']
     __api_path_ids__: ClassVar[List[int]] = [2, 134, 140]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

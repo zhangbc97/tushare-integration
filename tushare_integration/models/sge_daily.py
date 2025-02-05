@@ -18,7 +18,7 @@ class SgeDaily(Base):
     __api_name__: ClassVar[str] = 'sge_daily'
     __api_title__: ClassVar[str] = '上海黄金现货日行情'
     __api_info_title__: ClassVar[str] = '现货黄金日行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '现货', '上海黄金现货日行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '现货数据', '上海黄金现货日行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 283, 285]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

@@ -34,8 +34,8 @@ class FundPortfolio(Base):
         'end_date': {'type': 'str', 'required': False, 'description': '公告结束日期'},
         'period': {'type': 'str', 'required': False, 'description': '报告期'},
         'symbol': {'type': 'str', 'required': False, 'description': '股票代码'},
+        'offset': {'type': 'int', 'required': False, 'description': ''},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
-        'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
 
     __mapper_args__ = {'primary_key': __primary_key__}

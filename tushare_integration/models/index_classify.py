@@ -18,7 +18,7 @@ class IndexClassify(Base):
     __api_name__: ClassVar[str] = 'index_classify'
     __api_title__: ClassVar[str] = '申万行业分类'
     __api_info_title__: ClassVar[str] = '申万行业分类'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '申万行业分类']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '申万行业分类']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 181]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

@@ -18,7 +18,7 @@ class IndexDailybasic(Base):
     __api_name__: ClassVar[str] = 'index_dailybasic'
     __api_title__: ClassVar[str] = '大盘指数每日指标'
     __api_info_title__: ClassVar[str] = '大盘指数每日指标'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '大盘指数每日指标']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '大盘指数每日指标']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 128]
     __api_points_required__: ClassVar[int] = 4000
     __api_special_permission__: ClassVar[bool] = False

@@ -18,7 +18,7 @@ class FutWeeklyDetail(Base):
     __api_name__: ClassVar[str] = 'fut_weekly_detail'
     __api_title__: ClassVar[str] = '期货主要品种交易周报'
     __api_info_title__: ClassVar[str] = '期货主要品种交易周报'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货', '期货主要品种交易周报']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '期货主要品种交易周报']
     __api_path_ids__: ClassVar[List[int]] = [2, 134, 216]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

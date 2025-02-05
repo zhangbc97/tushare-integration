@@ -18,7 +18,7 @@ class OptBasic(Base):
     __api_name__: ClassVar[str] = 'opt_basic'
     __api_title__: ClassVar[str] = '期权合约信息'
     __api_info_title__: ClassVar[str] = '期权合约信息'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期权', '期权合约信息']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期权数据', '期权合约信息']
     __api_path_ids__: ClassVar[List[int]] = [2, 157, 158]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

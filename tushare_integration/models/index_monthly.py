@@ -18,7 +18,7 @@ class IndexMonthly(Base):
     __api_name__: ClassVar[str] = 'index_monthly'
     __api_title__: ClassVar[str] = '指数月线行情'
     __api_info_title__: ClassVar[str] = '指数月线行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '指数月线行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '指数月线行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 172]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

@@ -10,16 +10,16 @@ from sqlalchemy import Column, text
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
 
-class FutWeeklyMonthly(Base):
-    """期货周/月线行情(每日更新)"""
+class StkWeekMonthAdj(Base):
+    """股票周/月线行情(复权--每日更新)"""
 
-    __tablename__: str = 'fut_weekly_monthly'
-    __api_id__: ClassVar[int] = 337
-    __api_name__: ClassVar[str] = 'fut_weekly_monthly'
-    __api_title__: ClassVar[str] = '期货周/月线行情(每日更新)'
-    __api_info_title__: ClassVar[str] = '期货周/月线行情(每日更新)'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '期货周/月线行情(每日更新)']
-    __api_path_ids__: ClassVar[List[int]] = [2, 134, 337]
+    __tablename__: str = 'stk_week_month_adj'
+    __api_id__: ClassVar[int] = 365
+    __api_name__: ClassVar[str] = 'stk_week_month_adj'
+    __api_title__: ClassVar[str] = '股票周/月线行情(复权--每日更新)'
+    __api_info_title__: ClassVar[str] = '股票周/月线行情(复权--每日更新)'
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '行情数据', '股票周/月线行情(复权--每日更新)']
+    __api_path_ids__: ClassVar[List[int]] = [2, 14, 15, 365]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
@@ -33,7 +33,6 @@ class FutWeeklyMonthly(Base):
         'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},
         'end_date': {'type': 'str', 'required': False, 'description': '结束日期'},
         'freq': {'type': 'str', 'required': True, 'description': '频率week周，month月'},
-        'exchange': {'type': 'str', 'required': False, 'description': '交易所'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
@@ -43,7 +42,7 @@ class FutWeeklyMonthly(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '期货周/月线行情(每日更新)',
+            'comment': '股票周/月线行情(复权--每日更新)',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -54,7 +53,7 @@ class FutWeeklyMonthly(Base):
         },
     )
 
-    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='期货代码')
+    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='股票代码')
     trade_date = Column(
         'trade_date',
         Date,
@@ -71,34 +70,45 @@ class FutWeeklyMonthly(Base):
     low = Column('low', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)最低价')
     close = Column('close', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)收盘价')
     pre_close = Column(
-        'pre_close', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前一(周/月)收盘价'
-    )
-    settle = Column('settle', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)结算价')
-    pre_settle = Column(
-        'pre_settle', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前一(周/月)结算价'
-    )
-    vol = Column('vol', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)成交量(手)')
-    amount = Column(
-        'amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)成交金额(万元)'
-    )
-    oi = Column('oi', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)持仓量(手)')
-    oi_chg = Column(
-        'oi_chg', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)持仓量变化'
-    )
-    exchange = Column('exchange', String(), nullable=False, default="", server_default=text("''"), comment='交易所')
-    change1 = Column(
-        'change1',
+        'pre_close',
         Float,
         nullable=False,
         default=0.0,
         server_default=text("'0.0'"),
-        comment='(周/月)涨跌1 收盘价-昨结算价',
+        comment='上一(周/月)收盘价【除权价，前复权】',
     )
-    change2 = Column(
-        'change2',
+    open_qfq = Column(
+        'open_qfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前复权(周/月)开盘价'
+    )
+    high_qfq = Column(
+        'high_qfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前复权(周/月)最高价'
+    )
+    low_qfq = Column(
+        'low_qfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前复权(周/月)最低价'
+    )
+    close_qfq = Column(
+        'close_qfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='前复权(周/月)收盘价'
+    )
+    open_hfq = Column(
+        'open_hfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='后复权(周/月)开盘价'
+    )
+    high_hfq = Column(
+        'high_hfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='后复权(周/月)最高价'
+    )
+    low_hfq = Column(
+        'low_hfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='后复权(周/月)最低价'
+    )
+    close_hfq = Column(
+        'close_hfq', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='后复权(周/月)收盘价'
+    )
+    vol = Column('vol', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)成交量')
+    amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)成交额')
+    change = Column('change', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='(周/月)涨跌额')
+    pct_chg = Column(
+        'pct_chg',
         Float,
         nullable=False,
         default=0.0,
         server_default=text("'0.0'"),
-        comment='(周/月)涨跌2 结算价-昨结算价',
+        comment='(周/月)涨跌幅 【基于除权后的昨收计算的涨跌幅：(今收-除权昨收)/除权昨收 】',
     )

@@ -18,7 +18,7 @@ class UsDaily(Base):
     __api_name__: ClassVar[str] = 'us_daily'
     __api_title__: ClassVar[str] = '美股日线行情'
     __api_info_title__: ClassVar[str] = '美股行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '美股', '美股日线行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '美股数据', '美股日线行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 251, 254]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = True

@@ -11,15 +11,15 @@ from tushare_integration.models.core import Base, Date, DateTime, Float, Integer
 
 
 class ThsMember(Base):
-    """同花顺概念和行业指数成分"""
+    """同花顺行业概念成分"""
 
     __tablename__: str = 'ths_member'
     __api_id__: ClassVar[int] = 261
     __api_name__: ClassVar[str] = 'ths_member'
-    __api_title__: ClassVar[str] = '同花顺概念和行业指数成分'
+    __api_title__: ClassVar[str] = '同花顺行业概念成分'
     __api_info_title__: ClassVar[str] = '同花顺概念板块成分'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '同花顺概念和行业指数成分']
-    __api_path_ids__: ClassVar[List[int]] = [2, 93, 261]
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '打板专题数据', '同花顺行业概念成分']
+    __api_path_ids__: ClassVar[List[int]] = [2, 14, 346, 261]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
@@ -29,9 +29,9 @@ class ThsMember(Base):
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'ts_code': {'type': 'str', 'required': False, 'description': '板块指数代码'},
-        'code': {'type': 'str', 'required': False, 'description': '股票代码'},
+        'con_code': {'type': 'str', 'required': False, 'description': '股票代码'},
+        'offset': {'type': 'str', 'required': False, 'description': ''},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
-        'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
 
     __mapper_args__ = {'primary_key': __primary_key__}
@@ -39,7 +39,7 @@ class ThsMember(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '同花顺概念和行业指数成分',
+            'comment': '同花顺行业概念成分',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -51,8 +51,8 @@ class ThsMember(Base):
     )
 
     ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='指数代码')
-    code = Column('code', String(), nullable=False, default="", server_default=text("''"), comment='股票代码')
-    name = Column('name', String(), nullable=False, default="", server_default=text("''"), comment='股票名称')
+    con_code = Column('con_code', String(), nullable=False, default="", server_default=text("''"), comment='股票代码')
+    con_name = Column('con_name', String(), nullable=False, default="", server_default=text("''"), comment='股票名称')
     weight = Column('weight', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='权重')
     in_date = Column(
         'in_date', Date, nullable=False, default="1970-01-01", server_default=text("'1970-01-01'"), comment='纳入日期'

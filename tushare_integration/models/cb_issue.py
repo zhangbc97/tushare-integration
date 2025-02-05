@@ -18,7 +18,7 @@ class CbIssue(Base):
     __api_name__: ClassVar[str] = 'cb_issue'
     __api_title__: ClassVar[str] = '可转债发行'
     __api_info_title__: ClassVar[str] = '可转债发行'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '可转债发行']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '可转债发行']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 186]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

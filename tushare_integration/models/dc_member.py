@@ -10,28 +10,27 @@ from sqlalchemy import Column, text
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
 
-class FutMapping(Base):
-    """期货主力与连续合约"""
+class DcMember(Base):
+    """东方财富概念成分"""
 
-    __tablename__: str = 'fut_mapping'
-    __api_id__: ClassVar[int] = 189
-    __api_name__: ClassVar[str] = 'fut_mapping'
-    __api_title__: ClassVar[str] = '期货主力与连续合约'
-    __api_info_title__: ClassVar[str] = '期货主力与连续合约'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '期货主力与连续合约']
-    __api_path_ids__: ClassVar[List[int]] = [2, 134, 189]
+    __tablename__: str = 'dc_member'
+    __api_id__: ClassVar[int] = 363
+    __api_name__: ClassVar[str] = 'dc_member'
+    __api_title__: ClassVar[str] = '东方财富概念成分'
+    __api_info_title__: ClassVar[str] = '东方财富板块成分'
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '打板专题数据', '东方财富概念成分']
+    __api_path_ids__: ClassVar[List[int]] = [2, 14, 346, 363]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
-    __start_date__: ClassVar[str | None] = '1995-04-17'
+    __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'ts_code': {'type': 'str', 'required': False, 'description': '合约代码'},
-        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
-        'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},
-        'end_date': {'type': 'str', 'required': False, 'description': '结束日期'},
+        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期（YYYYMMDD格式）'},
+        'ts_code': {'type': 'str', 'required': False, 'description': '板块指数代码'},
+        'con_code': {'type': 'str', 'required': False, 'description': '成分股票代码'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
@@ -41,7 +40,7 @@ class FutMapping(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '期货主力与连续合约',
+            'comment': '东方财富概念成分',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -52,17 +51,14 @@ class FutMapping(Base):
         },
     )
 
-    ts_code = Column(
-        'ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='连续合约代码'
-    )
     trade_date = Column(
         'trade_date',
         Date,
         nullable=False,
         default="1970-01-01",
         server_default=text("'1970-01-01'"),
-        comment='起始日期',
+        comment='交易日期',
     )
-    mapping_ts_code = Column(
-        'mapping_ts_code', String(), nullable=False, default="", server_default=text("''"), comment='期货合约代码'
-    )
+    ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='概念代码')
+    con_code = Column('con_code', String(), nullable=False, default="", server_default=text("''"), comment='成分代码')
+    name = Column('name', String(), nullable=False, default="", server_default=text("''"), comment='成分股名称')

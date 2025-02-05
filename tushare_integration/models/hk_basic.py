@@ -18,7 +18,7 @@ class HkBasic(Base):
     __api_name__: ClassVar[str] = 'hk_basic'
     __api_title__: ClassVar[str] = '港股基础信息'
     __api_info_title__: ClassVar[str] = '港股列表'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '港股', '港股基础信息']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '港股数据', '港股基础信息']
     __api_path_ids__: ClassVar[List[int]] = [2, 190, 191]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

@@ -18,7 +18,7 @@ class CbShare(Base):
     __api_name__: ClassVar[str] = 'cb_share'
     __api_title__: ClassVar[str] = '可转债转股结果'
     __api_info_title__: ClassVar[str] = '可转债转股结果'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '可转债转股结果']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '可转债转股结果']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 247]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
@@ -28,7 +28,8 @@ class CbShare(Base):
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'ts_code': {'type': 'str', 'required': True, 'description': '转债代码，支持多值输入'},
+        'ts_code': {'type': 'str', 'required': False, 'description': '转债代码，支持多值输入'},
+        'ann_date': {'type': 'str', 'required': False, 'description': '公告日期'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }

@@ -18,7 +18,7 @@ class BondBlkDetail(Base):
     __api_name__: ClassVar[str] = 'bond_blk_detail'
     __api_title__: ClassVar[str] = '大宗交易明细'
     __api_info_title__: ClassVar[str] = '大宗交易明细'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '大宗交易明细']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '大宗交易明细']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 272]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

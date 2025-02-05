@@ -18,7 +18,7 @@ class FxDaily(Base):
     __api_name__: ClassVar[str] = 'fx_daily'
     __api_title__: ClassVar[str] = '外汇日线行情'
     __api_info_title__: ClassVar[str] = '外汇日线行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '外汇', '外汇日线行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '外汇数据', '外汇日线行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 177, 179]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

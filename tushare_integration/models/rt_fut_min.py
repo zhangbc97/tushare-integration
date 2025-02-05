@@ -18,7 +18,7 @@ class RtFutMin(Base):
     __api_name__: ClassVar[str] = 'rt_fut_min'
     __api_title__: ClassVar[str] = '实时分钟行情'
     __api_info_title__: ClassVar[str] = '最新行情-期货-分钟'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '期货', '实时分钟行情']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '期货数据', '实时分钟行情']
     __api_path_ids__: ClassVar[List[int]] = [2, 134, 340]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

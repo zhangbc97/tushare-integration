@@ -18,7 +18,7 @@ class DailyInfo(Base):
     __api_name__: ClassVar[str] = 'daily_info'
     __api_title__: ClassVar[str] = '沪深市场每日交易统计'
     __api_info_title__: ClassVar[str] = '市场交易统计'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '沪深市场每日交易统计']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '沪深市场每日交易统计']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 215]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

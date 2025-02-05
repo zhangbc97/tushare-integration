@@ -11,15 +11,15 @@ from tushare_integration.models.core import Base, Date, DateTime, Float, Integer
 
 
 class ThsIndex(Base):
-    """同花顺概念和行业列表"""
+    """同花顺行业概念板块"""
 
     __tablename__: str = 'ths_index'
     __api_id__: ClassVar[int] = 259
     __api_name__: ClassVar[str] = 'ths_index'
-    __api_title__: ClassVar[str] = '同花顺概念和行业列表'
+    __api_title__: ClassVar[str] = '同花顺行业概念板块'
     __api_info_title__: ClassVar[str] = '同花顺板块指数'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '指数', '同花顺概念和行业列表']
-    __api_path_ids__: ClassVar[List[int]] = [2, 93, 259]
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '打板专题数据', '同花顺行业概念板块']
+    __api_path_ids__: ClassVar[List[int]] = [2, 14, 346, 259]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
@@ -31,6 +31,7 @@ class ThsIndex(Base):
         'ts_code': {'type': 'str', 'required': False, 'description': '指数代码'},
         'exchange': {'type': 'str', 'required': False, 'description': '市场类型A-a股票 HK-港股 US-美股'},
         'type': {'type': 'str', 'required': False, 'description': '指数类型 N-板块指数 S-同花顺特色指数'},
+        'name': {'type': 'str', 'required': False, 'description': ''},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
@@ -40,7 +41,7 @@ class ThsIndex(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '同花顺概念和行业列表',
+            'comment': '同花顺行业概念板块',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎

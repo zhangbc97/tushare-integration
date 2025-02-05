@@ -10,28 +10,29 @@ from sqlalchemy import Column, text
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
 
-class HkDaily(Base):
-    """港股日线行情"""
+class StkNineturn(Base):
+    """神奇九转指标"""
 
-    __tablename__: str = 'hk_daily'
-    __api_id__: ClassVar[int] = 192
-    __api_name__: ClassVar[str] = 'hk_daily'
-    __api_title__: ClassVar[str] = '港股日线行情'
-    __api_info_title__: ClassVar[str] = '港股行情'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '港股数据', '港股日线行情']
-    __api_path_ids__: ClassVar[List[int]] = [2, 190, 192]
+    __tablename__: str = 'stk_nineturn'
+    __api_id__: ClassVar[int] = 364
+    __api_name__: ClassVar[str] = 'stk_nineturn'
+    __api_title__: ClassVar[str] = '神奇九转指标'
+    __api_info_title__: ClassVar[str] = '神奇9转指标'
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '特色数据', '神奇九转指标']
+    __api_path_ids__: ClassVar[List[int]] = [2, 14, 291, 364]
     __api_points_required__: ClassVar[int] = 2000
-    __api_special_permission__: ClassVar[bool] = True
+    __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'ts_code': {'type': 'str', 'required': False, 'description': '股票代码'},
+        'ts_code': {'type': 'str', 'required': True, 'description': '股票代码'},
         'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
-        'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},
-        'end_date': {'type': 'str', 'required': False, 'description': '结束日期'},
+        'freq': {'type': 'str', 'required': False, 'description': '频率(日daily,分钟60min)'},
+        'start_date': {'type': 'str', 'required': False, 'description': '开始时间'},
+        'end_date': {'type': 'str', 'required': False, 'description': '结束时间'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
     }
@@ -41,7 +42,7 @@ class HkDaily(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '港股日线行情',
+            'comment': '神奇九转指标',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -61,12 +62,34 @@ class HkDaily(Base):
         server_default=text("'1970-01-01'"),
         comment='交易日期',
     )
+    freq = Column(
+        'freq', String(), nullable=False, default="", server_default=text("''"), comment='频率(日daily,分钟60min)'
+    )
     open = Column('open', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='开盘价')
     high = Column('high', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='最高价')
     low = Column('low', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='最低价')
     close = Column('close', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='收盘价')
-    pre_close = Column('pre_close', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='昨收价')
-    change = Column('change', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌额')
-    pct_chg = Column('pct_chg', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='涨跌幅')
     vol = Column('vol', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交量')
     amount = Column('amount', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='成交额')
+    up_count = Column(
+        'up_count', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='上九转计数'
+    )
+    down_count = Column(
+        'down_count', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='下九转计数'
+    )
+    nine_up_turn = Column(
+        'nine_up_turn',
+        String(),
+        nullable=False,
+        default="",
+        server_default=text("''"),
+        comment='是否上九转)+9表示上九转',
+    )
+    nine_down_turn = Column(
+        'nine_down_turn',
+        String(),
+        nullable=False,
+        default="",
+        server_default=text("''"),
+        comment='是否下九转-9表示下九转',
+    )

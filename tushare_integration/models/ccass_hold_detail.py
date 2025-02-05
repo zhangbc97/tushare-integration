@@ -33,8 +33,8 @@ class CcassHoldDetail(Base):
         'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},
         'end_date': {'type': 'str', 'required': False, 'description': '结束日期'},
         'hk_code': {'type': 'str', 'required': False, 'description': '港交所股份代码'},
-        'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
-        'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
+        'offset': {'type': 'str', 'required': False, 'description': '开始行数'},
+        'limit': {'type': 'str', 'required': False, 'description': '每页最大行数'},
     }
 
     __mapper_args__ = {'primary_key': __primary_key__}

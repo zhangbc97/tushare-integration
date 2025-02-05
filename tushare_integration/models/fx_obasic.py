@@ -18,7 +18,7 @@ class FxObasic(Base):
     __api_name__: ClassVar[str] = 'fx_obasic'
     __api_title__: ClassVar[str] = '外汇基础信息(海外)'
     __api_info_title__: ClassVar[str] = '外汇基础信息(海外)'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '外汇', '外汇基础信息（海外）']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '外汇数据', '外汇基础信息（海外）']
     __api_path_ids__: ClassVar[List[int]] = [2, 177, 178]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

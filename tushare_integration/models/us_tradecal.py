@@ -18,7 +18,7 @@ class UsTradecal(Base):
     __api_name__: ClassVar[str] = 'us_tradecal'
     __api_title__: ClassVar[str] = '美股交易日历'
     __api_info_title__: ClassVar[str] = '美股交易日历'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '美股', '美股交易日历']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '美股数据', '美股交易日历']
     __api_path_ids__: ClassVar[List[int]] = [2, 251, 253]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False

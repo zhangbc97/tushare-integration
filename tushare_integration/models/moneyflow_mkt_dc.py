@@ -62,8 +62,8 @@ class MoneyflowMktDc(Base):
     close_sh = Column(
         'close_sh', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='上证收盘价(元)'
     )
-    ptc_change_sh = Column(
-        'ptc_change_sh', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='上证涨跌幅(%)'
+    pct_change_sh = Column(
+        'pct_change_sh', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='上证涨跌幅(%)'
     )
     close_sz = Column(
         'close_sz', Float, nullable=False, default=0.0, server_default=text("'0.0'"), comment='深证收盘价(元)'

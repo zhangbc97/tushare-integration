@@ -18,7 +18,7 @@ class EcoCal(Base):
     __api_name__: ClassVar[str] = 'eco_cal'
     __api_title__: ClassVar[str] = '全球财经事件'
     __api_info_title__: ClassVar[str] = '财经日历'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '债券', '全球财经事件']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '债券专题', '全球财经事件']
     __api_path_ids__: ClassVar[List[int]] = [2, 184, 233]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
