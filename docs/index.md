@@ -230,13 +230,12 @@ SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
 ## 平台/工具
 
 - [Tushare Pro](https://tushare.pro/) 金融数据接口平台
-- [Scrapy](https://scrapy.org/) 数据采集框架
+- [httpx](https://www.python-httpx.org/) HTTP 请求客户端库
 - [Docker](https://www.docker.com/) 容器化运行环境
 - [Pydantic](https://docs.pydantic.dev/latest/) 用于参数校验
 - [Typer](https://typer.tiangolo.com/) 命令行参数解析
 - [Rich](https://rich.readthedocs.io/en/stable/introduction.html) 命令行输出美化
 - [PyYAML](https://pyyaml.org/) 配置文件解析
-- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/) 模板引擎
 - [Pandas](https://pandas.pydata.org/) 数据处理库
 - [SQLAlchemy](https://www.sqlalchemy.org/) 数据库访问库
 - [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) 文档生成工具

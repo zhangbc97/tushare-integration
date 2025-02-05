@@ -2,33 +2,81 @@
 
 ### 所需知识
 
-- 项目开发时以scrapy为基础，因此需要了解scrapy的基本使用方法
+- 基于Tushare HTTP API进行数据集成，开发时需了解
++ 为了顺利开发和扩展本项目，建议具备以下相关知识和技能：
++ 
++ 1. **Tushare Pro 接口及数据服务**  
++    - 熟悉 Tushare Pro 提供的 HTTP API 及接口文档，包括申请 token、查询请求参数和解析返回数据。  
++    - 理解 Tushare 积分机制以及不同数据接口调用的频次限制。
++ 
++ 2. **Python 编程**  
++    - 掌握 Python 基本语法和面向对象编程思想，了解异步编程和 HTTP 请求库（如 httpx）的使用方法。
++ 
++ 3. **SQLAlchemy 与 ORM**  
++    - 熟悉 SQLAlchemy 的基本用法和 ORM（对象关系映射）原理，能够基于 SQLAlchemy 定义数据模型。  
++    - 理解如何在模型中配置 `__table_args__` 来支持不同数据库引擎（如 ClickHouse、MySQL、Apache Doris、StarRocks）。
++ 
++ 4. **数据库知识**  
++    - 熟悉常见关系型数据库（如 MySQL）以及分布式数据库（如 ClickHouse）的基本原理和操作。  
++    - 了解常用数据库引擎特点，如 InnoDB、ReplacingMergeTree 及 PrimaryKey 模型，并明白其在数据存储中的作用。
++ 
++ 5. **爬虫开发与数据集成**  
++    - 理解爬虫系统的基本架构和工作流程，本项目所有爬虫均继承自 `Spider`，并通过 `SpiderMeta` 自动注册，实现统一管理与调度。  
++    - 熟悉爬虫实现流程，包括请求生成、响应解析以及数据处理 Pipeline（如 FillNAPipeline、TransformDTypePipeline、DataPipeline、RecordLogPipeline）的使用与扩展。
++ 
++ 6. **配置管理与日志系统**  
++    - 掌握使用 YAML 文件和环境变量进行配置管理，了解 Pydantic BaseSettings 的使用方法。  
++    - 理解日志系统的工作原理，能够利用日志模块对爬虫运行过程进行调试和监控。
++ 
++ 7. **容器化及部署**  
++    - 掌握 Docker 镜像构建与部署技术，了解 Kubernetes（Helm）部署和 CronJob 定时任务的配置方法。  
++    - 熟悉使用命令行工具（如 typer）管理爬虫任务和查看 API 信息的基本操作。
 
 ### BaseSpiders
 
-**所有的Spider均是TushareSpider的子类**
+**所有爬虫均继承自 Spider，并通过 SpiderMeta 自动注册**
 
-| BaseSpider            | 功能              | 备注                                                                                                                       |
-|-----------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------|
-| TushareSpider         | 用于所有Spider的基类   | TushareSpider为所有Spider的基类，内部包含自动建表的逻辑以及HTTP Request生成逻辑                                                                  |
-| DailySpider           | 用于按日采集数据        | <li>DailySpider用于按日采集数据，将会按照交易日历寻找开盘日期，如果日期不存在目标表中，则会采集对应日期的数据 </li> <li>可通过`{{ custom_settings.MIN_CAL_DATE}}`减小范围</li> |
-| TSCodeSpider          | 用于根据ts_code采集数据 | TSCodeSpider将会读取`{{ custom_settings.BASIC_TABLE }}`中的ts_code清单，然后根据ts_code进行数据采集                                         |
-| FinancialReportSpider | 用于采集财务报表数据      | 当大于5000积分时，可使用vip接口进行数据采集，FinancialReportSpider将会根据积分判断使用不同的接口                                                           |
+| BaseSpider            | 功能                      | 备注                                                                                                                                                         |
+| --------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| TushareSpider         | 用于所有Spider的基础实现  | TushareSpider 为爬虫的核心实现，内置了自动建表逻辑以及 HTTP Request 生成逻辑；所有其它爬虫均基于 TushareSpider 扩展实现具体业务逻辑。                        |
+| DailySpider           | 用于按日采集数据          | 日采型爬虫实现了基于交易日历的数据采集策略，当目标表缺少某个日期的数据时，自动发起采集请求；数据模型中定义的 `__start_date__` 属性决定了采集数据的起始日期。 |
+| TSCodeSpider          | 用于根据 ts_code 采集数据 | TSCodeSpider 需要在爬虫类中增加 `__basic_table__` 属性，用于指定基础表，然后读取该表的 `ts_code` 字段，并针对每个 ts_code 发起数据采集请求。                 |
+| FinancialReportSpider | 用于采集财务报表数据      | 根据积分情况判断是否采用 VIP 接口，当积分大于5000时启用高级接口采集数据。                                                                                    |
 
 ### Pipelines
 
-- TushareIntegrationFillNAPipeline 用于使用默认值填充缺失值
-- TransformDTypePipeline 用于转换数据类型
-- TushareIntegrationDataPipeline 用于将数据写入数据库
-- RecordLogPipeline 用于记录日志
+- **FillNAPipeline**：遍历目标数据模型的所有字段，根据字段类型自动填充缺失值。  
+  - 如果字段设置了默认值，则使用该默认值，否则根据字段类型返回空字符串（str）、0 或 0.0（数值）、"1970-01-01"（日期）、"1970-01-01 00:00:00"（日期时间）等。  
+  - 该管道确保数据在进一步转换或入库前不会因缺失值影响后续操作。
+
+- **TransformDTypePipeline**：基于数据模型字段的类型定义，对传入的 DataFrame 数据进行数据类型转换。  
+  - 分别将数据转换为字符串、浮点数、整数类型，并对日期、日期时间字段进行标准化处理（例如使用 `pd.to_datetime` 进行解析）。
+  - 该管道保证数据类型与数据库表结构一致，避免因数据格式问题导致插入失败。
+
+- **DataPipeline**：实现数据存储功能。  
+  - 在处理数据前，会通过 DBEngine 自动创建目标数据库表（依据 SQLAlchemy 模型中定义的 __table_args__）。  
+  - 如果数据模型定义了主键，会对数据进行去重并采用 upsert（更新或插入）的策略；否则直接进行插入操作。  
+  - 该管道封装了对数据库的写入细节，支持多种数据库（如 ClickHouse、MySQL、Apache Doris、StarRocks）。
+
+- **RecordLogPipeline**：记录数据集成处理过程中的日志信息。  
+  - 在数据传递过程中累计处理的数据条数，并在管道关闭时将批次 ID、爬虫名称、API 描述、数据计数、开始与结束时间记录到日志表中。  
+  - 该日志记录有助于后续故障排查和监控数据同步情况。
 
 ### 数据库支持
 
-项目使用模板引擎生成SQL语句，只需要配置好对应数据库的模板，即可支持对应的数据库。  
-新增一个数据库需要提供三个模板文件，放置于 `tushare_integration/schema/template/{database}` 目录下
+项目基于SQLAlchemy实现，通过灵活的ORM映射和数据库引擎配置提供了多种数据库的支持，目前已集成以下数据库：
 
-- `insert.jinja2` 用于生成插入语句
-- `create.jinja2` 用于生成建表语句，当Spider启动时会自动使用table.jinja2建表，建表语句请使用`CREATE TABLE IF NOT EXIST`
-  ，当表结构发生变化时，需要手动修改表结构
-- `upsert.jinja2` 用于生成更新或插入语句,数据库需要支持UPSERT能力，例如`REPLACE INTO`
+- **ClickHouse**：利用 clickhouse_sqlalchemy 提供的 ReplacingMergeTree 引擎，实现高效数据写入与查询。
+- **Apache Doris**：支持通过自定义引擎选项与 Doris 前端进行数据交互（未完全测试）。
+- **MySQL**：借助 InnoDB 引擎实现数据存储，保证兼容性与稳定性。
+- **StarRocks**：采用 PrimaryKey 模型，实现分布式数据存储与快速查询。
 
+每个数据库的配置均在对应数据模型的 __table_args__ 中详细设置，以匹配各自数据库的特性。如果需要扩展支持其他数据库，只需按照以下步骤操作：
+
+1. 添加或引入该数据库对应的 SQLAlchemy 方言或驱动；
+2. 在数据模型中配置或修改 __table_args__，设置相应的引擎和选项；
+3. 更新数据库引擎类（DBEngine）中 create_table、insert、upsert 等操作的实现，确保适配新的数据库。
+
+这种设计使得项目能够灵活适配多种数据库，同时方便用户根据业务场景自定义扩展其他数据库支持。
+
+所有继承自 `Spider` 的爬虫会自动注册到 `SpiderMeta`，实现对所有爬虫的统一管理、调度与 API 信息查询。用户可以通过命令行工具列出当前可用爬虫及其详细信息，从而方便扩展和调试。
