@@ -220,6 +220,13 @@ class LimitOffsetSpider(TushareSpider):
     def start_requests(self) -> Generator[httpx.Request, typing.Any, None]:
         yield self.get_httpx_request(params={'offset': 0, 'limit': self.__limit__})
 
+    def _has_more(self, response: httpx.Response) -> bool:
+        try:
+            return response.json().get('data', {}).get('has_more', False) == True
+        except Exception as e:
+            logger.error("Error parsing response: %s", e)
+            return False
+
     def parse(self, response: httpx.Response, **kwargs):
         first_page = self.parse_response(response, **kwargs)
         if first_page.empty:
@@ -227,19 +234,19 @@ class LimitOffsetSpider(TushareSpider):
 
         all_data = [first_page]
         base_params = response.request.extensions.get("params", {})
-        offset = base_params.get('offset', 0) + base_params.get('limit', self.__limit__)
+        offset = base_params.get('offset', 0)
         limit = base_params.get('limit', self.__limit__)
 
-        while True:
+        while self._has_more(response):
+            offset += limit
             params = base_params.copy()
             params.update({'offset': offset, 'limit': limit})
+            next_request = self.get_httpx_request(params=params)
+            response = self._process_request(next_request)
 
-            next_page = self.parse_response(
-                self._process_request(self.get_httpx_request(params=params)),
-            )
+            next_page = self.parse_response(response, **kwargs)
             if next_page.empty:
                 break
             all_data.append(next_page)
-            offset += limit
 
         return pd.concat(all_data, ignore_index=True)

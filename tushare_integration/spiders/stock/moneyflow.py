@@ -12,25 +12,25 @@ class MoneyFlowSpider(TimeSeriesSpider):
     __model__: type[Moneyflow] = Moneyflow
 
 
-class MoneyFlowHSGTSpider(TimeSeriesSpider):
-    __model__: type[MoneyflowHsgt] = MoneyflowHsgt
+class MoneyFlowTHSSpider(TimeSeriesSpider):
+    __model__: type[MoneyflowThs] = MoneyflowThs
 
 
 class MoneyFlowDCSpider(TimeSeriesSpider):
     __model__: type[MoneyflowDc] = MoneyflowDc
 
 
-class MoneyFlowIndDCSpider(TimeSeriesSpider):
-    __model__: type[MoneyflowIndDc] = MoneyflowIndDc
-
-
 class MoneyFlowIndTHSSpider(TimeSeriesSpider):
     __model__: type[MoneyflowIndThs] = MoneyflowIndThs
+
+
+class MoneyFlowIndDCSpider(TimeSeriesSpider):
+    __model__: type[MoneyflowIndDc] = MoneyflowIndDc
 
 
 class MoneyFlowMktDCSpider(TimeSeriesSpider):
     __model__: type[MoneyflowMktDc] = MoneyflowMktDc
 
 
-class MoneyFlowTHSSpider(TimeSeriesSpider):
-    __model__: type[MoneyflowThs] = MoneyflowThs
+class MoneyFlowHSGTSpider(TimeSeriesSpider):
+    __model__: type[MoneyflowHsgt] = MoneyflowHsgt

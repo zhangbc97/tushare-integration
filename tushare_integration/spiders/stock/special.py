@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import and_, distinct, not_, select
+from sqlalchemy import and_, distinct, func, not_, select
 
 from tushare_integration.models.broker_recommend import BrokerRecommend
 from tushare_integration.models.ccass_hold import CcassHold
@@ -17,7 +17,7 @@ from tushare_integration.models.stk_factor_pro import StkFactorPro
 from tushare_integration.models.stk_nineturn import StkNineturn
 from tushare_integration.models.stk_surv import StkSurv
 from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.spiders.tushare import TimeSeriesSpider, TSCodeSpider, TushareSpider
+from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
 class ReportRCSpider(TimeSeriesSpider):
@@ -86,16 +86,46 @@ class StkAuctionCSpider(TimeSeriesSpider):
     __model__: type[StkAuctionC] = StkAuctionC
 
 
-class StkSurvSpider(TSCodeSpider):
+class StkNineturnSpider(LimitOffsetSpider):
+    __model__: type[StkNineturn] = StkNineturn
+    __limit__: int = 10000
+
+    def start_requests(self):
+        # 获取所有股票代码
+        conn = self.get_db_engine()
+        query = select(StockBasic.ts_code)
+        ts_codes = conn.query_df(query)['ts_code']
+
+        # 对每个 ts_code 分别请求日线和60分钟数据，全量采集，配合limit+offset分页处理
+        for ts_code in ts_codes:
+            for freq in ["daily", "60min"]:
+                params = {
+                    "ts_code": ts_code,
+                    "freq": freq,
+                    "limit": self.__limit__,
+                    "offset": 0,
+                }
+                yield self.get_httpx_request(params)
+
+
+class StkSurvSpider(LimitOffsetSpider):
     __model__: type[StkSurv] = StkSurv
+    __limit__: int = 100
+
+    def start_requests(self):
+        # 获取所有股票代码
+        conn = self.get_db_engine()
+        query = select(StockBasic.ts_code)
+        ts_codes = conn.query_df(query)['ts_code']
+
+        for ts_code in ts_codes:
+            yield self.get_httpx_request({"ts_code": ts_code})
 
 
 class BrokerRecommendSpider(TushareSpider):
     __model__: type[BrokerRecommend] = BrokerRecommend
 
     def start_requests(self):
-        # 生成从202003到现在的月份列表
-        month_list = []
         for year in range(2020, datetime.datetime.now().year + 1):
             for month in range(1, 13):
                 yield self.get_httpx_request({"month": f"{year}{month:02d}"})

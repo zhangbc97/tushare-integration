@@ -1,16 +1,29 @@
+import calendar  # 新增：用于月份末的计算
 import datetime
 
+import pandas as pd  # 新增：用于 pd.concat 等操作
 from sqlalchemy import and_, distinct, not_, select
 from sqlalchemy.sql import func
 
+from tushare_integration.models.fut_basic import FutBasic
 from tushare_integration.models.fut_daily import FutDaily
 from tushare_integration.models.fut_holding import FutHolding
 from tushare_integration.models.fut_mapping import FutMapping
 from tushare_integration.models.fut_settle import FutSettle
 from tushare_integration.models.fut_weekly_detail import FutWeeklyDetail
+from tushare_integration.models.fut_weekly_monthly import FutWeeklyMonthly
 from tushare_integration.models.fut_wsr import FutWsr
 from tushare_integration.models.trade_cal import TradeCal
-from tushare_integration.spiders.tushare import TimeSeriesSpider
+from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
+
+
+class FutBasicSpider(TushareSpider):
+    __model__: type[FutBasic] = FutBasic
+
+    def start_requests(self):
+        for exchange in ["CFFEX", "DCE", "CZCE", "SHFE", "INE", "GFEX"]:
+            params = {"exchange": exchange}
+            yield self.get_httpx_request(params)
 
 
 class FutDailySpider(TimeSeriesSpider):
@@ -50,6 +63,59 @@ class FutDailySpider(TimeSeriesSpider):
 
             for trade_date in trade_dates:
                 yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
+
+
+class FutWeeklyMonthlySpider(TimeSeriesSpider):
+    __model__: type[FutWeeklyMonthly] = FutWeeklyMonthly
+
+    def get_latest_trade_date(self, date):
+        # 使用SQLAlchemy构建查询，期货数据逻辑中不限定具体交易所
+        query = select(func.max(TradeCal.cal_date).label('trade_date')).where(
+            and_(TradeCal.is_open == '1', TradeCal.cal_date <= date)
+        )
+        trade_dates = self.get_db_engine().query_df(query)
+        if trade_dates.empty:
+            return date
+        return trade_dates['trade_date'].iloc[-1]
+
+    def get_weekly_trade_date(self):
+        today = datetime.date.today()
+        weekday = today.weekday()
+        if weekday == 6:
+            return today
+        sunday = (today + datetime.timedelta(days=6 - weekday)).strftime("%Y-%m-%d")
+        return self.get_latest_trade_date(sunday)
+
+    def get_end_of_month(self):
+        today = datetime.date.today()
+        end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1]).strftime("%Y-%m-%d")
+        return self.get_latest_trade_date(end_date_of_month)
+
+    def start_requests(self):
+        weekly_trade_dates = self.get_trade_dates(period='W')
+        weekly_trade_dates = pd.concat(
+            [weekly_trade_dates, pd.DataFrame([{'cal_date': self.get_weekly_trade_date()}])], ignore_index=True
+        )
+        weekly_trade_dates['freq'] = 'week'
+
+        monthly_trade_dates = self.get_trade_dates(period='ME')
+        monthly_trade_dates = pd.concat(
+            [monthly_trade_dates, pd.DataFrame([{'cal_date': self.get_end_of_month()}])], ignore_index=True
+        )
+        monthly_trade_dates['freq'] = 'month'
+
+        trade_dates = pd.concat([weekly_trade_dates, monthly_trade_dates], ignore_index=True)
+
+        for trade_date, freq in trade_dates[['cal_date', 'freq']].itertuples(index=False):
+            yield self.get_httpx_request(params={"trade_date": trade_date.strftime("%Y%m%d"), "freq": freq})
+
+
+class FutWSRSpider(TimeSeriesSpider):
+    __model__: type[FutWsr] = FutWsr
+
+
+class FutSettleSpider(TimeSeriesSpider):
+    __model__: type[FutSettle] = FutSettle
 
 
 class FutHoldingSpider(TimeSeriesSpider):
@@ -96,16 +162,8 @@ class FutHoldingSpider(TimeSeriesSpider):
                 yield self.get_httpx_request(params={"trade_date": trade_date, "exchange": exchange})
 
 
-class FutSettleSpider(TimeSeriesSpider):
-    __model__: type[FutSettle] = FutSettle
-
-
 class FutMappingSpider(TimeSeriesSpider):
     __model__: type[FutMapping] = FutMapping
-
-
-class FutWSRSpider(TimeSeriesSpider):
-    __model__: type[FutWsr] = FutWsr
 
 
 class FutWeeklyDetailSpider(TimeSeriesSpider):

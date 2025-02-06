@@ -222,7 +222,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         else:
             self._request_queue.append(request)
 
-    def _process_request(self, request: httpx.Request) -> Optional[httpx.Response]:
+    def _process_request(self, request: httpx.Request) -> httpx.Response:
         """处理请求并获取响应
 
         Args:
@@ -250,7 +250,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         except Exception as e:
             for middleware in self.middlewares:
                 middleware.process_exception(request, e)
-            return None
+            raise e
 
     def _process_data(self, response: httpx.Response) -> None:
         """处理响应数据"""

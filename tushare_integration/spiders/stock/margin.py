@@ -1,6 +1,7 @@
 from tushare_integration.models.margin import Margin
 from tushare_integration.models.margin_detail import MarginDetail
 from tushare_integration.models.margin_secs import MarginSecs
+from tushare_integration.models.slb_len import SlbLen
 from tushare_integration.models.slb_len_mm import SlbLenMm
 from tushare_integration.models.slb_sec import SlbSec
 from tushare_integration.models.slb_sec_detail import SlbSecDetail
@@ -19,13 +20,17 @@ class MarginSecsSpider(TimeSeriesSpider):
     __model__: type[MarginSecs] = MarginSecs
 
 
-class SLBLenMMSpider(TimeSeriesSpider):
-    __model__: type[SlbLenMm] = SlbLenMm
+class SLBSecSpider(TimeSeriesSpider):
+    __model__: type[SlbSec] = SlbSec
+
+
+class SLBLenSpider(TimeSeriesSpider):
+    __model__: type[SlbLen] = SlbLen
 
 
 class SLBSecDetailSpider(TimeSeriesSpider):
     __model__: type[SlbSecDetail] = SlbSecDetail
 
 
-class SLBSecSpider(TimeSeriesSpider):
-    __model__: type[SlbSec] = SlbSec
+class SLBLenMMSpider(TimeSeriesSpider):
+    __model__: type[SlbLenMm] = SlbLenMm

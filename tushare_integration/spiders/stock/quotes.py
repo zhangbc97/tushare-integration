@@ -44,7 +44,7 @@ class MonthlySpider(TimeSeriesSpider):
     __trade_date_period__: Literal["D", "W", "ME"] = "ME"
 
 
-class StkWeeklyMonthlySpider(WeeklySpider):
+class StkWeeklyMonthlySpider(TimeSeriesSpider):
     __model__: type[StkWeeklyMonthly] = StkWeeklyMonthly
 
     def get_latest_trade_date(self, date):

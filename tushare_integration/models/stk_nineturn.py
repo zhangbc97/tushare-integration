@@ -24,8 +24,8 @@ class StkNineturn(Base):
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
-    __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
-    __start_date__: ClassVar[str | None] = None
+    __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date', 'freq']
+    __start_date__: ClassVar[str | None] = '2023-01-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'ts_code': {'type': 'str', 'required': True, 'description': '股票代码'},
@@ -56,10 +56,10 @@ class StkNineturn(Base):
     ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='股票代码')
     trade_date = Column(
         'trade_date',
-        Date,
+        DateTime,
         nullable=False,
-        default="1970-01-01",
-        server_default=text("'1970-01-01'"),
+        default="1970-01-01 00:00:00",
+        server_default=text("'1970-01-01 00:00:00'"),
         comment='交易日期',
     )
     freq = Column(

@@ -20,12 +20,12 @@ class IndexDailybasic(Base):
     __api_info_title__: ClassVar[str] = '大盘指数每日指标'
     __api_path__: ClassVar[List[str]] = ['数据接口', '指数专题', '大盘指数每日指标']
     __api_path_ids__: ClassVar[List[int]] = [2, 93, 128]
-    __api_points_required__: ClassVar[int] = 4000
+    __api_points_required__: ClassVar[int] = 400
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['ts_code', 'trade_date']
-    __start_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = '2004-01-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
