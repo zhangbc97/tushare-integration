@@ -19,7 +19,7 @@ API_PATH_DICTIONARY = {
     '债券专题': 'bond',
     '外汇数据': 'forex',
     '港股数据': 'hkstock',
-    '美股': 'usstock',
+    '美股数据': 'usstock',
     # Econ 经济数据
     '行业经济': 'industry',
     'TMT行业': 'tmt',

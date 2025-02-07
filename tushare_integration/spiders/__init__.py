@@ -7,7 +7,7 @@ from .index import *
 from .industry import *
 from .macroeconomic import *
 from .option import *
-from .special import *
+from .alternative import *
 from .spot import *
 from .stock import *
 from .tushare import *
