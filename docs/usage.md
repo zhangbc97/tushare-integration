@@ -3,81 +3,29 @@
 - 参考[配置文件](settings.md)编写好配置文件
 - 使用python main.py启动主程序
 
-## 命令行工具
+## 命令列表
 
-项目提供了一个功能强大的命令行工具，包含以下主要命令：
+- **run**: 运行爬虫或任务，在项目运行时调用不同的爬虫和任务。
+  - **run spider**: 运行指定爬虫，支持通配符匹配  
+    例如：`python main.py run spider stock/basic/stock_basic` 运行单个爬虫，或 `python main.py run spider stock/basic/*` 运行该目录下全部爬虫。可使用 `--verbose` 参数增加调试日志输出。
+  - **run job**: 运行预定义任务，通过jobs.yaml进行任务调度  
+    例如：`python main.py run job daily_morning` 运行名为 daily_morning 的任务，此命令会自动读取默认配置文件（config.yaml）。
 
-### run - 运行命令
+- **spider**: 爬虫管理命令，用于查看所有爬虫列表及详细信息。
+  - **spider list**: 列出所有可用爬虫，展示爬虫名称、对应 API 接口及数据路径  
+    例如：`python main.py spider list`
+  - **spider info**: 查看指定爬虫的详细信息，包括数据处理逻辑与依赖关系  
+    例如：`python main.py spider info stock/basic/stock_basic`
 
-#### spider - 运行爬虫
+- **api**: API管理命令，用于查询 API 文档和接口使用情况。
+  - **api list**: 列出所有可用 API，展示接口名称、所需积分、特殊权限以及参数信息  
+    例如：`python main.py api list`
+  - **api info**: 查看指定 API 的详细信息，包括分类、详细参数说明和依赖关系  
+    例如：`python main.py api info stock_basic`
 
-```bash
-python main.py run spider [OPTIONS] SPIDER_NAME
-```
-
-该命令用于运行指定的爬虫。SPIDER_NAME支持通配符匹配，例如：
-- `stock/basic/stock_basic` - 运行单个爬虫
-- `stock/basic/*` - 运行stock/basic目录下的所有爬虫
-
-参数说明：
-- `SPIDER_NAME`: 爬虫名称，支持通配符匹配
-
-#### job - 运行任务
-
-```bash
-python main.py run job [OPTIONS] JOB_NAME
-```
-
-该命令将从jobs.yaml文件中找到对应的job，然后运行该job下的所有spider。
-
-参数说明：
-- `JOB_NAME`: 任务名称，对应jobs.yaml中定义的任务名
-
-### spider - 爬虫管理
-
-#### list - 列出爬虫
-
-```bash
-python main.py spider list
-```
-
-列出所有可用的爬虫，以表格形式展示：
-- 爬虫名称
-- 接口名称
-- 接口路径
-
-#### info - 查看爬虫详情
-
-```bash
-python main.py spider info [SPIDER_NAME]
-```
-
-查看特定爬虫的详细信息，包括：
-- 爬虫名称
-- 接口信息
-- 数据路径
-- 依赖关系
-
-参数说明：
-- `SPIDER_NAME`: 要查看详情的爬虫名称
-
-### api - API管理
-
-#### info - 查看API详情
-
-```bash
-python main.py api info [API_NAME]
-```
-
-查看特定API的详细信息，包括：
-- API名称和分类
-- 所需积分
-- 是否需要特殊权限
-- 参数列表及说明
-- 依赖关系
-
-参数说明：
-- `API_NAME`: 要查看详情的API名称
+- **config**: 配置管理命令，帮助用户交互式生成和修改配置文件。
+  - **config init**: 交互式初始化配置，生成默认的 config.yaml 及（可选的）jobs.yaml 文件  
+    例如：`python main.py config init`
 
 ## 使用示例
 
@@ -303,7 +251,7 @@ docker run -d --net=host -v /data0/tushare-integration/config/jobs.yaml:/code/ap
 
 #### 配置定时任务
 
-配置定时任务时请避免定时任务同时启动，采集服务并��情况下可能会出现采集的数据异常
+配置定时任务时请避免定时任务同时启动，采集服务并发情况下可能会出现采集的数据异常
 
 ```shell
 crontab -e

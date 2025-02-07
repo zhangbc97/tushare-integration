@@ -32,53 +32,52 @@ cronjob:
 
 #### Tushare相关
 
-| 配置项                            | 环境变量        | 类型  | 默认值                  | 说明                                                       |
-| --------------------------------- | --------------- | ----- | ----------------------- | ---------------------------------------------------------- |
-| `tushare_url`                     | `TUSHARE_URL`   | `str` | https://api.tushare.pro | Tushare服务地址                                            |
-| `tushare_point`                   | `TUSHARE_POINT` | `int` | 2000                    | Tushare服务积分                                            |
-| `tushare_token`                   | `TUSHARE_TOKEN` | `str` | ""                      | Tushare账号Token                                           |
-| `tushare_max_concurrent_requests` | ``              | `int` | 基于积分计算            | 基于积分自动计算最大每分钟并行请求数，如果指定则会跳过计算 |
+| 配置项                            | 环境变量        | 类型  | 默认值                  | 说明                                                   |
+| --------------------------------- | --------------- | ----- | ----------------------- | ------------------------------------------------------ |
+| `tushare_token`                   | `TUSHARE_TOKEN` | `str` | 无默认值 (必填)         | Tushare账号 Token                                      |
+| `tushare_url`                     |                 | `str` | https://api.tushare.pro | Tushare服务地址                                        |
+| `tushare_point`                   |                 | `int` | 2000                    | Tushare服务积分                                        |
+| `tushare_max_concurrent_requests` |                 | `int` | 基于积分计算            | 自动计算每分钟最大并发请求数；若手动指定则跳过自动计算 |
 
-#### 任务相关
-| 配置项          | 环境变量 | 类型   | 默认值 | 说明                                           |
-| --------------- | -------- | ------ | ------ | ---------------------------------------------- |
-| `batch_id`      | ``       | `str`  | ''     | 批次ID，用于写数据库和发送通知，不填则自动生成 |
-| `parallel_mode` | ``       | `bool` | False  | 并行模式，并行模式下将会关闭自动依赖处理       |
+#### 任务及调度配置
 
+| 配置项               | 环境变量             | 类型   | 默认值        | 说明                                         |
+| -------------------- | -------------------- | ------ | ------------- | -------------------------------------------- |
+| `batch_id`           | `BATCH_ID`           | `str`  | 自动生成 UUID | 批次ID，用于数据库写入和通知；不填则自动生成 |
+| `parallel_mode`      |                      | `bool` | False         | 并行模式，开启后将关闭自动依赖解析           |
+| `concurrent_spiders` | `CONCURRENT_SPIDERS` | `int`  | 1             | 并发爬虫数，用于控制同时运行的爬虫数量       |
 
 #### 数据库相关
 
-数据库相关配置在 `databases` 下，目前支持的数据库有 `clickhouse`、`doris`、`mysql`，每个数据库的配置项不同，具体请参考下表。
+数据库配置存放于 `database` 下，支持的数据库包括 `clickhouse`、`doris`、`mysql` 等。
 
-| 配置项            | 环境变量      | 类型   | 默认值 | 说明         |
-| ----------------- | ------------- | ------ | ------ | ------------ |
-| `db_type`         | `DB_TYPE`     | `str`  |        | 数据库类型   |
-| `host`            | `DB_HOST`     | `str`  |        | 数据库地址   |
-| `port`            | `DB_PORT`     | `int`  |        | 数据库端口   |
-| `user`            | `DB_USER`     | `str`  |        | 数据库用户名 |
-| `password`        | `DB_PASSWORD` | `str`  |        | 数据库密码   |
-| `db_name`         | `DB_NAME`     | `str`  |        | 数据库名称   |
-| `template_params` | ``            | `dict` | {}     | 模板参数     |
+| 配置项            | 环境变量      | 类型   | 默认值   | 说明                                                   |
+| ----------------- | ------------- | ------ | -------- | ------------------------------------------------------ |
+| `drivername`      | `DB_DRIVER`   | `str`  | 无默认值 | 数据库驱动名称，例如：clickhouse+native, mysql+pymysql |
+| `host`            | `DB_HOST`     | `str`  |          | 数据库地址                                             |
+| `port`            | `DB_PORT`     | `int`  |          | 数据库端口                                             |
+| `user`            | `DB_USER`     | `str`  |          | 数据库用户名                                           |
+| `password`        | `DB_PASSWORD` | `str`  | ""       | 数据库密码                                             |
+| `db_name`         | `DB_NAME`     | `str`  |          | 数据库名称                                             |
+| `template_params` |               | `dict` | {}       | SQL模板参数                                            |
 
-#### Reporters
+#### Reporters相关配置
 
-reporters可选值
+| 配置项           | 环境变量         | 类型        | 默认值 | 说明              |
+| ---------------- | ---------------- | ----------- | ------ | ----------------- |
+| `reporters`      |                  | `list[str]` | []     | Reporter 清单     |
+| `feishu_webhook` | `FEISHU_WEBHOOK` | `str`       | ""     | 飞书 Webhook 地址 |
 
-- ` tushare_integration.reporters.FeishuWebHookReporter` 飞书WebHook
+#### 爬虫及请求配置
 
-| 配置项           | 环境变量         | 类型        | 默认值 | 说明            |
-| ---------------- | ---------------- | ----------- | ------ | --------------- |
-| `reporters`      |                  | `list[str]` | []     | Reporter清单    |
-| `feishu_webhook` | `FEISHU_WEBHOOK` | `str`       | ""     | 飞书WebHook地址 |
-
-#### Scrapy配置
-
-| 配置项                | 环境变量 | 类型   | 默认值                | 说明                   |
-| --------------------- | -------- | ------ | --------------------- | ---------------------- |
-| `bot_name`            |          | `str`  | "tushare_integration" | Scrapy Bot Name        |
-| `concurrent_requests` |          | `int`  | 10                    | 最大并发请求           |
-| `concurrent_items`    |          | `int`  | 100                   | Pipeline最大并行处理数 |
-| `retry_enabled`       |          | `bool` | true                  | 是否开启请求失败重试   |
-| `retry_delay`         |          | `int`  | 10                    | 重试延迟时间(秒)       |
-| `retry_times`         |          | `int`  | 6                     | 最大重试次数           |
+| 配置项                    | 环境变量    | 类型                                        | 默认值                                | 说明                   |
+| ------------------------- | ----------- | ------------------------------------------- | ------------------------------------- | ---------------------- |
+| `download_delay`          |             | `float`                                     | 0                                     | 下载延迟（秒）         |
+| `max_requests_per_minute` |             | `int`                                       | 60                                    | 每分钟最大请求数       |
+| `retry_enabled`           |             | `bool`                                      | True                                  | 是否启用请求重试       |
+| `retry_times`             |             | `int`                                       | 10                                    | 重试次数               |
+| `retry_delay`             |             | `int`                                       | 10                                    | 请求失败重试间隔（秒） |
+| `timeout`                 |             | `int`                                       | 30                                    | 请求超时时间（秒）     |
+| `headers`                 |             | `dict[str, str]`                            | {"User-Agent": "tushare-integration"} | 请求头                 |
+| `log_level`               | `LOG_LEVEL` | `Literal['DEBUG','INFO','WARNING','ERROR']` | 'INFO'                                | 日志级别               |
 
