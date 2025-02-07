@@ -18,7 +18,7 @@ API_PATH_DICTIONARY = {
     '期权数据': 'option',
     '债券专题': 'bond',
     '外汇数据': 'forex',
-    '港股': 'hkstock',
+    '港股数据': 'hkstock',
     '美股': 'usstock',
     # Econ 经济数据
     '行业经济': 'industry',

@@ -34,10 +34,6 @@ class DBEngine(object):
         create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
         self.conn.execute(text(str(create_stmt)))
 
-    def session(self) -> Session:
-        """创建会话"""
-        return Session(self.engine)
-
     def insert(self, model, data: pd.DataFrame) -> None:
         """插入数据"""
         data.to_sql(
@@ -95,3 +91,7 @@ class DBEngine(object):
         sql = stmt.compile(dialect=self.engine.dialect, compile_kwargs={"literal_binds": True})
         logger.debug(f"Executing SQL: {str(sql)}")
         return pd.read_sql(str(sql), self.conn)
+
+    def session(self) -> Session:
+        """创建会话"""
+        return Session(self.engine)

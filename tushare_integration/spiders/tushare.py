@@ -98,24 +98,52 @@ class TushareSpider(Spider):
 class TimeSeriesSpider(TushareSpider):
     __model__: type[Base] = Base
     __trade_date_period__: Literal["D", "W", "ME"] = "D"
+    __trade_cal_model__: type[Base] = TradeCal
+
+    def get_dates(self, freq: Literal['MS', 'W-MON', 'D'] = 'MS'):
+        conn = self.get_db_engine()
+        stmt = select(getattr(self.__model__, self.__trade_date_field__)).distinct()
+        existing_df = conn.query_df(stmt)
+        if not existing_df.empty:
+            existing = set(
+                existing_df[self.__trade_date_field__].apply(
+                    lambda x: x.strftime("%Y%m%d") if isinstance(x, (datetime.date, datetime.datetime)) else str(x)
+                )
+            )
+        else:
+            existing = set()
+
+        if not hasattr(self.__model__, '__start_date__') or self.__model__.__start_date__ is None:
+            self.__model__.__start_date__ = '2008-01-01'
+
+        start_date = pd.to_datetime(self.__model__.__start_date__, format="%Y-%m-%d")
+        end_date = pd.to_datetime(datetime.date.today())
+        dates = pd.date_range(start=start_date, end=end_date, freq=freq)
+        for date in dates:
+            date_str = date.strftime("%Y%m%d")
+            if date_str not in existing:
+                yield self.get_httpx_request(params={"date": date_str})
 
     def get_trade_dates(self, period: Literal["D", "W", "ME"] | None = None) -> pd.DataFrame:
         if period is None:
             period = self.__trade_date_period__
         conn = self.get_db_engine()
-        from tushare_integration.models.trade_cal import TradeCal
+
+        if not hasattr(self.__trade_cal_model__, 'is_open'):
+            raise AttributeError("The model does not have a 'is_open' attribute.")
+        if not hasattr(self.__trade_cal_model__, 'cal_date'):
+            raise AttributeError("The model does not have a 'cal_date' attribute.")
 
         stmt = (
-            select(TradeCal.cal_date)
+            select(getattr(self.__trade_cal_model__, 'cal_date'))
             .distinct()
             .where(
                 and_(
-                    TradeCal.is_open == '1',
-                    TradeCal.cal_date <= datetime.datetime.today(),
-                    TradeCal.exchange == 'SSE',
+                    getattr(self.__trade_cal_model__, 'is_open') == '1',
+                    getattr(self.__trade_cal_model__, 'cal_date') <= datetime.datetime.today(),
                 )
             )
-            .order_by(TradeCal.cal_date)
+            .order_by(getattr(self.__trade_cal_model__, 'cal_date'))
         )
         trade_dates = conn.query_df(stmt)
         if trade_dates.empty:

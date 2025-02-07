@@ -2,8 +2,14 @@ from .bond import *
 from .forex import *
 from .fund import *
 from .future import *
+from .hk import *
 from .index import *
+from .industry import *
+from .macroeconomic import *
 from .option import *
+from .special import *
 from .spot import *
 from .stock import *
 from .tushare import *
+from .us import *
+from .wealth import *

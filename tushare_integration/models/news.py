@@ -25,7 +25,7 @@ class News(Base):
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['datetime', 'title']
-    __start_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = '2018-10-08 00:00:00'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},

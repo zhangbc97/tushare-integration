@@ -25,7 +25,7 @@ class BoWeekly(Base):
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['name', 'date']
-    __start_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = '2008-01-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'date': {'type': 'str', 'required': False, 'description': '日期（每周一日期）'},

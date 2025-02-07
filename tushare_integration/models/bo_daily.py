@@ -25,7 +25,7 @@ class BoDaily(Base):
     __has_vip__: ClassVar[bool] = False
     __dependencies__: ClassVar[List[str]] = []
     __primary_key__: ClassVar[List[str]] = ['date', 'name']
-    __start_date__: ClassVar[str | None] = None
+    __start_date__: ClassVar[str | None] = '2018-09-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
         'date': {'type': 'str', 'required': True, 'description': '日期'},
