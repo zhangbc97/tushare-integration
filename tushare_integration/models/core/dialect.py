@@ -24,6 +24,10 @@ class TSStarRocksDDLCompiler(StarRocksDDLCompiler):
         if 'PRIMARY_KEY' in opts:
             table_opts.append(f'PRIMARY KEY({opts["PRIMARY_KEY"]})')
 
+        if "COMMENT" in opts:
+            comment = self.sql_compiler.render_literal_value(opts["COMMENT"], sqltypes.String())
+            table_opts.append(f"COMMENT {comment}")
+
         if 'DISTRIBUTED_BY' in opts:
             table_opts.append(f'DISTRIBUTED BY HASH({opts["DISTRIBUTED_BY"]})')
 
@@ -37,14 +41,6 @@ class TSStarRocksDDLCompiler(StarRocksDDLCompiler):
 
         if 'ORDER_BY' in opts:
             table_opts.append(f'ORDER BY ({opts["ORDER_BY"]})')
-
-        if "COMMENT" in opts:
-            comment = self.sql_compiler.render_literal_value(opts["COMMENT"], sqltypes.String())
-            table_opts.append(f"COMMENT {comment}")
-
-        # ToDo - Partition
-        # ToDo - Distribution
-        # ToDo - Order by
 
         if "PROPERTIES" in opts:
             props = ",\n".join([f'\t"{k}"="{v}"' for k, v in opts["PROPERTIES"]])
