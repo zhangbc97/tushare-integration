@@ -7,7 +7,7 @@ from sqlalchemy import func
 from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
-engine = create_engine(f'clickhouse://localhost/{database}', echo=False)
+engine = create_engine(f'starrocks://localhost/{database}', echo=False)
 
 # 获取表对象并设置 schema
 table = LimitListThs.__table__

@@ -45,12 +45,12 @@ tushare_token: '你的Token'  # 替换为你的Token
 tushare_point: 2000        # 替换为你的积分
 
 database:
-  db_type: 'clickhouse'
-  host: '127.0.0.1'
-  port: '8123'
-  user: 'default'
-  password: ''
-  db_name: 'default'
+  drivername: "clickhouse+http" # 必填，可通过环境变量 DB_DRIVER 设置
+  host: "127.0.0.1" # 必填，可通过环境变量 DB_HOST 设置
+  port: 8123 # 必填，可通过环境变量 DB_PORT 设置
+  user: "default" # 必填，可通过环境变量 DB_USER 设置
+  password: "" # 可选，可通过环境变量 DB_PASSWORD 设置
+  db_name: "default" # 必填，可通过环境变量 DB_NAME 设置
 ```
 
 4. 运行数据同步任务
