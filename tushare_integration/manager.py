@@ -70,6 +70,8 @@ class TushareIntegrationManager(object):
             for log in logs:
                 content += f"Spider: {log.spider_name} Count: {log.count}\n"
 
+            content += "\n"
+
             # TODO 添TODO加警告信息
 
             return content

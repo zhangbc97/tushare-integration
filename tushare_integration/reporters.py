@@ -21,24 +21,9 @@ class FeishuWebHookReporter(Reporter):
             logging.info('No feishu webhook, skip send report')
             return
 
-            # 将content按照\n分割
-        body = {
-            "msg_type": "post",
-            "content": {
-                "post": {
-                    "zh_cn": {
-                        "title": subject,
-                        "content": [[{"text": f'{_}\n', "tag": "text"} for _ in content.split('\n')]],
-                    }
-                }
-            },
-        }
+        content = f'**{subject}**\n{content}'
 
-        # 找到最后一个content，移除掉末尾的\n
-        if body['content']['post']['zh_cn']['content'][-1][-1]['text'] == '\n':
-            body['content']['post']['zh_cn']['content'][-1][-1]['text'] = body['content']['post']['zh_cn']['content'][
-                -1
-            ][-1]['text'][:-1]
+        body = {"msg_type": "text", "content": {"text": content}}
 
         resp = requests.post(self.webhook, json=body)
         logging.info(f'Send report to feishu webhook, status code: {resp.status_code}, response: {resp.text}')
@@ -54,7 +39,7 @@ class ReporterLoader(object):
         self.reporters = settings.reporters
         logging.info(f'Load reporters: {self.reporters}')
 
-    def get_reporters(self):
+    def get_reporters(self) -> list[Reporter]:
         reporters = []
         for reporter in self.reporters:
             package, class_name = reporter.rsplit('.', 1)
