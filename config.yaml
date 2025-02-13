@@ -23,12 +23,11 @@ feishu_webhook: "" # 可选，可通过环境变量 FEISHU_WEBHOOK 设置
 # 爬虫配置
 parallel_mode: false # 可选，是否开启并行模式
 batch_id: "" # 可选，可通过环境变量 BATCH_ID 设置
-concurrent_spiders: 1 # 可选，可通过环境变量 CONCURRENT_SPIDERS 设置
 
-# 请求配置
-download_delay: 0.0 # 可选，下载延迟
+concurrent_spiders: 1 # 可选，可通过环境变量 CONCURRENT_SPIDERS 设置
 max_workers_per_spider: 10 # 可选，每个爬虫最大工作线程数
 max_requests_per_minute: 500 # 可选，每分钟最大请求数
+
 retry_enabled: true # 可选，是否开启重试
 retry_times: 10 # 可选，重试次数
 retry_delay: 10 # 可选，重试延迟(秒)
