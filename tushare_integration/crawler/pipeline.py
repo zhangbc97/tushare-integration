@@ -1,4 +1,5 @@
 import datetime
+import threading
 from abc import ABC, abstractmethod
 from typing import ClassVar, List
 
@@ -13,6 +14,7 @@ from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
+
 
 class Pipeline(ABC):
     """管道基类"""
@@ -170,33 +172,36 @@ class RecordLogPipeline(Pipeline):
         self.count: int = 0
         self.start_time = datetime.datetime.now()
         self.db_engine.create_table(TushareIntegrationLog)
+        self._lock = threading.Lock()
 
     def process_item(self, item: pd.DataFrame) -> pd.DataFrame | None:
-        self.count += len(item)
+        with self._lock:
+            self.count += len(item)
         return item
 
     def close(self):
         """关闭管道时记录日志"""
-        log_entry = TushareIntegrationLog(
-            batch_id=self.settings.batch_id,
-            spider_name=self.spider.__spider_name__,
-            description=self.spider.__model__.__api_title__,
-            count=self.count,
-            start_time=self.start_time,
-            end_time=datetime.datetime.now(),
-        )
-        self.db_engine.insert(
-            TushareIntegrationLog,
-            pd.DataFrame(
-                [
-                    {
-                        'batch_id': log_entry.batch_id,
-                        'spider_name': log_entry.spider_name,
-                        'description': log_entry.description,
-                        'count': log_entry.count,
-                        'start_time': log_entry.start_time,
-                        'end_time': log_entry.end_time,
-                    }
-                ]
-            ),
-        )
+        with self._lock:
+            log_entry = TushareIntegrationLog(
+                batch_id=self.settings.batch_id,
+                spider_name=self.spider.__spider_name__,
+                description=self.spider.__model__.__api_title__,
+                count=self.count,
+                start_time=self.start_time,
+                end_time=datetime.datetime.now(),
+            )
+            self.db_engine.insert(
+                TushareIntegrationLog,
+                pd.DataFrame(
+                    [
+                        {
+                            'batch_id': log_entry.batch_id,
+                            'spider_name': log_entry.spider_name,
+                            'description': log_entry.description,
+                            'count': log_entry.count,
+                            'start_time': log_entry.start_time,
+                            'end_time': log_entry.end_time,
+                        }
+                    ]
+                ),
+            )

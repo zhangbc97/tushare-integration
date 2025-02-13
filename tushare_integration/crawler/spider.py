@@ -1,9 +1,11 @@
 import json
 import re
 import threading
+import time
 from abc import ABCMeta, abstractmethod
 from collections import deque
-from typing import ClassVar, Deque, Dict, Generator, Iterator, List, Optional, Type
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import ClassVar, Deque, Dict, Generator, Iterator, List, Type, cast
 
 import httpx
 import pandas as pd
@@ -51,7 +53,7 @@ class SpiderMeta(ABCMeta):
                 raise ValueError(f'重复的爬虫名称: {spider_name}')
             # 设置类的 __spider_name__ 属性
             setattr(cls, '__spider_name__', spider_name)
-            mcs._registry[spider_name] = cls
+            mcs._registry[spider_name] = cast(Type["Spider"], cls)
 
         return cls
 
@@ -179,7 +181,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
         # 添加运行状态控制
         self._running = False
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def start(self) -> None:
         """启动爬虫"""
@@ -196,19 +198,26 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
 
             logger.debug("Spider %s has %d requests queued", self.__spider_name__, len(self._request_queue))
 
-            while self._request_queue:
-                request = self._request_queue.popleft()
-                logger.debug("Spider %s processing request: %s", self.__spider_name__, request.url)
-                if response := self._process_request(request):
-                    logger.debug("Spider %s got response, processing data", self.__spider_name__)
-                    self._process_data(response)
-                else:
-                    logger.warning("Spider %s got no response for request", self.__spider_name__)
+            with ThreadPoolExecutor(max_workers=self.settings.max_workers_per_spider) as executor:
+                # 启动所有线程并等待执行完毕
+                futures = [executor.submit(self._worker) for _ in range(self.settings.max_workers_per_spider)]
+                for _ in as_completed(futures):
+                    pass
         except Exception as e:
             logger.exception("Spider %s encountered error: %s", self.__spider_name__, str(e))
             raise
         finally:
             self.close()
+
+    def _worker(self) -> None:
+        while self._request_queue and self._running:
+            request = self._request_queue.popleft()
+            logger.info("Spider %s processing request: %s", self.__spider_name__, request.url)
+            if response := self._process_request(request):
+                logger.debug("Spider %s got response, processing data", self.__spider_name__)
+                self._process_data(response)
+            else:
+                logger.warning("Spider %s got no response for request", self.__spider_name__)
 
     def schedule_request(self, request: httpx.Request, first: bool = False) -> None:
         """调度请求到队列

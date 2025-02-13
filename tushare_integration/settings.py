@@ -98,10 +98,6 @@ class TushareIntegrationSettings(BaseSettings):
     tushare_url: str = Field(default='https://api.tushare.pro', description='Tushare API URL')
     tushare_point: int = Field(default=2000, description='Tushare积分')
 
-    tushare_max_concurrent_requests: int | None = Field(
-        None, description='Tushare最大每分钟请求数,可手工指定，不指定会自动按积分计算'
-    )
-
     database: DatabaseConfig = Field(..., description='数据库配置')
 
     reporters: list[str] = Field([], description='报告模块')
@@ -116,10 +112,9 @@ class TushareIntegrationSettings(BaseSettings):
     )
 
     concurrent_spiders: Annotated[int, env_variable('CONCURRENT_SPIDERS')] = Field(default=1, description='并发爬虫数')
+    max_workers_per_spider: int = Field(default=1, description='每个爬虫最大线程数')
+    max_requests_per_minute: int = Field(default=500, description='每分钟最大请求数')
 
-    download_delay: float = Field(default=0, description='下载延迟')
-
-    max_requests_per_minute: int = Field(default=60, description='每分钟最大请求数')
     retry_enabled: bool = Field(default=True, description='是否开启重试')
     retry_times: int = Field(default=10, description='重试次数')
     retry_delay: int = Field(default=10, description='重试延迟')

@@ -37,7 +37,7 @@ cronjob:
 | `tushare_token`                   | `TUSHARE_TOKEN` | `str` | 无默认值 (必填)         | Tushare账号 Token                                      |
 | `tushare_url`                     |                 | `str` | https://api.tushare.pro | Tushare服务地址                                        |
 | `tushare_point`                   |                 | `int` | 2000                    | Tushare服务积分                                        |
-| `tushare_max_concurrent_requests` |                 | `int` | 基于积分计算            | 自动计算每分钟最大并发请求数；若手动指定则跳过自动计算 |
+
 
 #### 任务及调度配置
 
@@ -73,7 +73,8 @@ cronjob:
 | 配置项                    | 环境变量    | 类型                                        | 默认值                                | 说明                   |
 | ------------------------- | ----------- | ------------------------------------------- | ------------------------------------- | ---------------------- |
 | `download_delay`          |             | `float`                                     | 0                                     | 下载延迟（秒）         |
-| `max_requests_per_minute` |             | `int`                                       | 60                                    | 每分钟最大请求数       |
+| `max_workers_per_spider` |             | `int`                                       | 1                                    | 每个爬虫最大线程数       |
+| `max_requests_per_minute` |             | `int`                                       | 500                                    | 每分钟最大请求数       |
 | `retry_enabled`           |             | `bool`                                      | True                                  | 是否启用请求重试       |
 | `retry_times`             |             | `int`                                       | 10                                    | 重试次数               |
 | `retry_delay`             |             | `int`                                       | 10                                    | 请求失败重试间隔（秒） |
