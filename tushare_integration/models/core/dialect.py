@@ -1,9 +1,84 @@
+from sqlalchemy import exc
 from sqlalchemy import schema as sa_schema
+from sqlalchemy import util
 from sqlalchemy.sql import sqltypes
 from starrocks.dialect import StarRocksDDLCompiler, StarRocksDialect
 
 
 class TSStarRocksDDLCompiler(StarRocksDDLCompiler):
+
+    def visit_create_table(self, create, **kw):
+        table = create.element
+        preparer = self.preparer
+
+        text = "\nCREATE "
+        if table._prefixes:
+            text += " ".join(table._prefixes) + " "
+
+        text += "TABLE "
+        if create.if_not_exists:
+            text += "IF NOT EXISTS "
+
+        text += preparer.format_table(table) + " "
+
+        create_table_suffix = self.create_table_suffix(table)
+        if create_table_suffix:
+            text += create_table_suffix + " "
+
+        text += "("
+
+        separator = "\n"
+
+        # Sort columns to put primary key columns first
+        pk_cols = []
+        opts = dict(
+            (k[len(self.dialect.name) + 1 :].upper(), v)
+            for k, v in table.kwargs.items()
+            if k.startswith("%s_" % self.dialect.name)
+        )
+        if 'PRIMARY_KEY' in opts:
+            pk_cols = [col.strip() for col in opts['PRIMARY_KEY'].split(',')]
+
+        # Sort columns list while preserving primary key order
+        sorted_columns = []
+        remaining_columns = []
+        column_map = {col.element.name: col for col in create.columns}
+
+        # First add primary key columns in their specified order
+        for pk_col in pk_cols:
+            if pk_col in column_map:
+                sorted_columns.append(column_map[pk_col])
+
+        # Then add remaining columns
+        for create_column in create.columns:
+            if create_column.element.name not in pk_cols:
+                remaining_columns.append(create_column)
+
+        sorted_columns.extend(remaining_columns)
+
+        # Process columns in the new order
+        first_pk = False
+        for create_column in sorted_columns:
+            column = create_column.element
+            try:
+                processed = self.process(create_column, first_pk=column.primary_key and not first_pk)
+                if processed is not None:
+                    text += separator
+                    separator = ", \n"
+                    text += "\t" + processed
+                if column.primary_key:
+                    first_pk = True
+            except exc.CompileError as ce:
+                util.raise_( # type: ignore
+                    exc.CompileError(
+                        util.u("(in table '%s', column '%s'): %s") % (table.description, column.name, ce.args[0]) # type: ignore
+                    ),
+                    from_=ce,
+                )
+
+        text += "\n)%s\n\n" % self.post_create_table(table)
+        return text
+
     def post_create_table(self, table):
         """Build table-level CREATE options like ENGINE and COLLATE."""
 
