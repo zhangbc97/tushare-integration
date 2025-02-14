@@ -172,57 +172,37 @@ cronjob:
       - name: stock/limit/limit_list_ths
       - name: stock/limit/limit_step
       - name: stock/limit/ths_hot
-
 configOverrides:
   # TUSHARE相关配置
   tushare_url: https://api.tushare.pro
-  tushare_point: 5000
+  tushare_point: 10000
   tushare_token: ""
 
   database:
-    # 数据库配置
-    db_type: "clickhouse"
-    host: "clickhouse"
-    port: "8123"
-    user: "default"
-    password: ""
-    db_name: "default"
-    template_params: {}
+    drivername: "clickhouse+http" # 必填，可通过环境变量 DB_DRIVER 设置
+    host: "127.0.0.1" # 必填，可通过环境变量 DB_HOST 设置
+    port: 8123 # 必填，可通过环境变量 DB_PORT 设置
+    user: "default" # 必填，可通过环境变量 DB_USER 设置
+    password: "" # 可选，可通过环境变量 DB_PASSWORD 设置
+    db_name: "tushare" # 必填，可通过环境变量 DB_NAME 设置
 
-  reporters:
-    - "tushare_integration.reporters.FeishuWebHookReporter"
-
+  reporters: []
   # 飞书Webhook配置
-  feishu_webhook: ""
+  feishu_webhook: 
 
-  # 并行模式，当开启并行模式时，每个任务将会独立的创建一个CronJob，使用并行模式可以更为简单的查看任务的执行情况
-  # 请注意，由于采集服务本身不是并行安全的，并行模式下需要人工处理好任务间的依赖问题，并且不支持使用正则表达式
-  parallel_mode: true
-  # Scrapy配置
-  bot_name: tushare_integration
-  concurrent_requests: 1
-  concurrent_items: 100
+  parallel_mode: false # 可选，是否开启并行模式
+  batch_id: "" # 可选，可通过环境变量 BATCH_ID 设置
 
-  downloader_middlewares:
-    scrapy.downloadermiddlewares.retry.RetryMiddleware: null
-    tushare_integration.middlewares.TushareRetryDownloaderMiddleware: 543
+  concurrent_spiders: 10 # 可选，可通过环境变量 CONCURRENT_SPIDERS 设置
+  max_workers_per_spider: 10 # 可选，每个爬虫最大工作线程数
+  max_requests_per_minute: 500 # 可选，每分钟最大请求数
 
-  item_pipelines:
-    tushare_integration.pipelines.TushareIntegrationFillNAPipeline: 298
-    tushare_integration.pipelines.TransformDTypePipeline: 299
-    tushare_integration.pipelines.TushareIntegrationDataPipeline: 300
-    tushare_integration.pipelines.RecordLogPipeline: 301
+  retry_enabled: true # 可选，是否开启重试
+  retry_times: 10 # 可选，重试次数
+  retry_delay: 10 # 可选，重试延迟(秒)
 
-  # 重试配置
-  # Tushare的频次限制是一分钟为周期，重试只要大于这个周期理论上不会有任何问题
-  retry_enabled: true
-  retry_delay: 60
-  retry_times: 3
-
-  spider_modules:
-    - "tushare_integration.spiders"
-
-  closespider_errorcount: 1
+  # HTTP配置
+  timeout: 30 # 可选，请求超时时间(秒)
 
 nodeSelector: {}
 
