@@ -18,15 +18,13 @@ run_app = typer.Typer(
 @run_app.command('job', help='运行预定义任务')
 def run_job(
     verbose: bool = VerboseOption,
-    job_file: Path = typer.Argument(
+    job_name: str = typer.Argument(
         ...,
-        help='任务配置文件路径，例如：jobs.yaml',
-    ),
-    job_name: str = typer.Option(
-        None,
-        '--job',
-        '-j',
         help='可选的任务名称，如果指定则只运行该任务',
+    ),
+    job_file: Path = typer.Option(
+        'jobs.yaml',
+        help='任务配置文件路径，例如：jobs.yaml',
     ),
     config: Path = typer.Option(
         None,

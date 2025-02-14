@@ -24,30 +24,29 @@ class Crawler(object):
         logger.info("Initializing crawler...")
         self.max_workers = settings.concurrent_spiders
         self._lock = threading.Lock()
+        self._spiders:Set[Type[Spider]] = set()
         self._running_spiders: List[Spider] = []
         self._results: List[Dict[str, Any]] = []
         self._running = True
 
-    def _build_dependency_graph(self, pattern: str | None = None) -> Dict[str, Set[str]]:
-        """构建依赖图
+    def add_spider(self, pattern: str) -> None: 
+        for spider in SpiderMeta.list_spiders(pattern):
+            self._spiders.add(spider)
 
-        Args:
-            pattern: Spider名称匹配模式
+    def _build_dependency_graph(self, ) -> Dict[str, Set[str]]:
+        """构建依赖图
 
         Returns:
             Dict[str, Set[str]]: 依赖关系字典 {spider_name -> {dependency_names}}
         """
+        logger.info("Building dependency graph...")
         # 获取匹配的爬虫和依赖图
         graph = {}
-
-        # 直接使用pattern获取匹配的爬虫
-        matched_spiders = SpiderMeta.list_spiders(pattern)
-        for spider_class in matched_spiders:
+        for spider_class in self._spiders:
             graph[spider_class.__spider_name__] = set()
             logger.info(f"Found matching spider: {spider_class.__spider_name__}")
 
         if not graph:
-            logger.warning(f"No matching spiders found for pattern: {pattern}")
             return {}
 
         # 并行模式下不解析依赖关系
@@ -73,16 +72,13 @@ class Crawler(object):
 
         return graph
 
-    def crawl(self, pattern: str | None = None) -> None:
+    def crawl(self) -> None:
         """并发运行爬虫"""
-        logger.info(f"Starting crawl with pattern: {pattern}")
         self._running = True  # 重置运行状态
 
-        # 构建依赖图
-        logger.info("Building dependency graph...")
-        graph = self._build_dependency_graph(pattern)
+        graph = self._build_dependency_graph()
         if not graph:
-            logger.warning(f"No matching spiders found for pattern: {pattern}")
+            logger.warning("No spiders to run, exiting...")
             return
 
         # 创建拓扑排序器

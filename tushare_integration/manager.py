@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from sqlalchemy import select
+import yaml
 
 from tushare_integration.crawler.crawler import Crawler
 from tushare_integration.crawler.pipeline import TushareIntegrationLog
@@ -46,9 +47,21 @@ class TushareIntegrationManager(object):
 
     def run_spider(self, pattern: str) -> None:
         self.crawler = Crawler(self.settings)
-        self.crawler.crawl(pattern)
+        self.crawler.add_spider(pattern)
+        self.crawler.crawl()
 
-    def run_job(self, job_file: Path, job_name: str | None = None) -> None: ...
+    def run_job(self, job_file: Path, job_name: str | None = None) -> None: 
+        self.crawler = Crawler(self.settings)
+
+        with open(job_file.as_posix(), 'r',encoding='utf-8') as f:
+            cron_job = yaml.load(f, Loader=yaml.FullLoader)
+            for job in cron_job['cronjob']:
+                if job['name'] == job_name:
+                    for spider in job['spiders']:
+                        self.crawler.add_spider(spider['name'])
+                    break
+
+        self.crawler.crawl()
 
     def send_report(self) -> None:
         """发送报告"""

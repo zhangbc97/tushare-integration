@@ -31,20 +31,20 @@ def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
 
     # 转换为英文路径，跳过第一个元素
     api_path_en = []
-    for i, path in enumerate(api_path[1:], 1):  # 从第二个元素开始，保持索引正确
-        if i == len(api_path) - 1:
-            # 最后一级使用__api_name__
-            api_path_en.append(getattr(model, '__api_name__', path))
-        else:
-            en_path = API_PATH_DICTIONARY.get(path, path)
-            api_path_en.append(en_path)
+    for p in api_path[1:-1]:  # 除了第一个和最后一个元素外的所有元素
+        en_path = API_PATH_DICTIONARY.get(p, p)
+        api_path_en.append(en_path)
+    
+    # 添加最后一个元素，使用__api_name__
+    if len(api_path) > 1:
+        api_path_en.append(getattr(model, '__api_name__', api_path[-1]))
+
     return {
         'api_title': getattr(model, '__api_title__', ''),
         'name': spider_cls.__model__.__api_name__,
         'api_path': ' > '.join(api_path),
         'api_path_en': '/'.join(api_path_en),
     }
-
 
 def list_spiders_info(pattern: Optional[str] = None) -> List[Dict[str, str]]:
     """获取爬虫信息列表

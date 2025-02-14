@@ -104,17 +104,6 @@ class SpiderMeta(ABCMeta):
             匹配的爬虫类列表
         """
         path_parts = path_pattern.strip('/').split('/')
-        cn_path_parts = []
-
-        # 创建反向映射字典
-        reverse_dict = {v: k for k, v in API_PATH_DICTIONARY.items()}
-
-        # 转换路径部分为中文
-        for part in path_parts:
-            if part in reverse_dict:
-                cn_path_parts.append(reverse_dict[part])
-            else:
-                cn_path_parts.append(part)
 
         matched_spiders = []
         for spider_name, spider_cls in cls._registry.items():
@@ -122,11 +111,12 @@ class SpiderMeta(ABCMeta):
             if not (model and hasattr(model, '__api_path__')):
                 continue
 
-            api_path = model.__api_path__
-
+            api_path = [API_PATH_DICTIONARY.get(part, part) for part in model.__api_path__[:-1]]
+            # 添加最后一个元素，使用__api_name__
+            api_path.append(getattr(model, '__api_name__', model.__api_path__[-1]))
             # 跳过第一个元素进行匹配
             match = True
-            for i, pattern in enumerate(cn_path_parts):
+            for i, pattern in enumerate(path_parts):
                 # 直接从第二个元素开始匹配
                 api_path_index = i + 1
                 if api_path_index >= len(api_path):
@@ -212,7 +202,6 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
     def _worker(self) -> None:
         while self._request_queue and self._running:
             request = self._request_queue.popleft()
-            logger.info("Spider %s processing request: %s", self.__spider_name__, request.url)
             if response := self._process_request(request):
                 logger.debug("Spider %s got response, processing data", self.__spider_name__)
                 self._process_data(response)
@@ -231,14 +220,14 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         else:
             self._request_queue.append(request)
 
-    def _process_request(self, request: httpx.Request) -> httpx.Response:
-        """处理请求并获取响应
+    def _process_request(self, request: httpx.Request) -> httpx.Response | None:
+        """请求并获取响应
 
         Args:
             request: 请求对象
 
         Returns:
-            响应对象，如果请求处理失败则返回None
+            响应对象，如果请求失败则返回None
         """
         try:
             # 执行请求中间件
@@ -248,7 +237,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             # 修改日志输出格式
             logger.info("Request %s with params: %s", self.__spider_name__, json.loads(request.content)['params'])
             # 发送请求
-            response = self.client.send(request)
+            response: httpx.Response = self.client.send(request)
 
             # 执行响应中间件
             for middleware in self.middlewares:
@@ -259,7 +248,6 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         except Exception as e:
             for middleware in self.middlewares:
                 middleware.process_exception(request, e)
-            raise e
 
     def _process_data(self, response: httpx.Response) -> None:
         """处理响应数据"""

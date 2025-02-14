@@ -40,7 +40,7 @@ spec:
             containers:
               - name: {{ (splitList  "/" $spider.name) | last | replace "_" "-" }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: {{ $.Values.image.pullPolicy }}
                 command:
                   - /bin/sh
                 args:
@@ -96,7 +96,7 @@ spec:
             containers:
               - name: {{ .name }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: "{{ $.Values.image.pullPolicy }}"
                 command:
                   - /bin/sh
                 args:

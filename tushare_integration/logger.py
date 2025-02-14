@@ -1,12 +1,23 @@
 import logging
 
 
+def _disable_httpx_logger() -> None:
+    """
+    禁用 httpx 的日志输出，将其日志级别设置为 WARNING
+    """
+    httpx_logger = logging.getLogger("httpx")
+    httpx_logger.setLevel(logging.WARNING)
+
+
 def init_logger(level: int = logging.INFO) -> None:
     """初始化日志配置
 
     Args:
         level: 日志级别，默认为 INFO
     """
+    # 禁用 httpx 日志
+    _disable_httpx_logger()
+
     # 创建根日志记录器
     logger = logging.getLogger('tushare_integration')
 

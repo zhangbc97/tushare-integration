@@ -5,7 +5,7 @@ from typing import ClassVar, Generator, Literal
 
 import httpx
 import pandas as pd
-from sqlalchemy import and_, not_, select
+from sqlalchemy import and_, select
 
 from tushare_integration.crawler.spider import Spider
 from tushare_integration.db_engine import DBEngine
@@ -145,6 +145,13 @@ class TimeSeriesSpider(TushareSpider):
             )
             .order_by(getattr(self.__trade_cal_model__, 'cal_date'))
         )
+
+        if self.__model__.__start_date__ is not None:
+            start_date = datetime.datetime.strptime(self.__model__.__start_date__, "%Y-%m-%d")
+            stmt = stmt.where(
+                getattr(self.__trade_cal_model__, 'cal_date') >= start_date
+            )
+
         trade_dates = conn.query_df(stmt)
         if trade_dates.empty:
             return trade_dates
@@ -270,7 +277,11 @@ class LimitOffsetSpider(TushareSpider):
             params = base_params.copy()
             params.update({'offset': offset, 'limit': limit})
             next_request = self.get_httpx_request(params=params)
-            response = self._process_request(next_request)
+
+            response = self._process_request(next_request)  # type: ignore
+
+            if response is None:
+                raise Exception("Request failed")
 
             next_page = self.parse_response(response, **kwargs)
             if next_page.empty:

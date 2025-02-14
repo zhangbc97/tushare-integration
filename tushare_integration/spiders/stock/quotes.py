@@ -64,13 +64,13 @@ class StkWeeklyMonthlySpider(TimeSeriesSpider):
         weekday = today.weekday()
         if weekday == 6:
             return today
-        sunday = (today + datetime.timedelta(days=6 - weekday)).strftime("%Y-%m-%d")
+        sunday = (today + datetime.timedelta(days=6 - weekday))
 
         return self.get_latest_trade_date(sunday)
 
     def get_end_of_month(self):
         today = datetime.date.today()
-        end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1]).strftime("%Y-%m-%d")
+        end_date_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1])
 
         return self.get_latest_trade_date(end_date_of_month)
 
