@@ -1,3 +1,4 @@
+from databend_sqlalchemy.databend_dialect import DatabendDDLCompiler, DatabendDialect
 from sqlalchemy import exc
 from sqlalchemy import schema as sa_schema
 from sqlalchemy import util
@@ -69,9 +70,9 @@ class TSStarRocksDDLCompiler(StarRocksDDLCompiler):
                 if column.primary_key:
                     first_pk = True
             except exc.CompileError as ce:
-                util.raise_( # type: ignore
+                util.raise_(  # type: ignore
                     exc.CompileError(
-                        util.u("(in table '%s', column '%s'): %s") % (table.description, column.name, ce.args[0]) # type: ignore
+                        util.u("(in table '%s', column '%s'): %s") % (table.description, column.name, ce.args[0])  # type: ignore
                     ),
                     from_=ce,
                 )
@@ -180,4 +181,49 @@ class TSStarRocksDDLCompiler(StarRocksDDLCompiler):
         return " ".join(colspec)
 
 
+class TSDatabendDDLCompiler(DatabendDDLCompiler):
+
+    def post_create_table(self, table):
+        table_opts = []
+        db_opts = table.dialect_options["databend"]
+
+        engine = db_opts.get("engine")
+        if engine is not None:
+            table_opts.append(f" ENGINE={engine}")
+
+        cluster_keys = db_opts.get("cluster_by")
+        if cluster_keys is not None:
+            if isinstance(cluster_keys, str):
+                cluster_by = cluster_keys
+            elif isinstance(cluster_keys, list):
+                cluster_by = ", ".join(
+                    self.sql_compiler.process(
+                        expr if not isinstance(expr, str) else table.c[expr],
+                        include_table=False,
+                        literal_binds=True,
+                    )
+                    for expr in cluster_keys
+                )
+            else:
+                cluster_by = ""
+            table_opts.append(f"\n CLUSTER BY ( {cluster_by} )")
+
+        if table.comment is not None:
+            comment = self.sql_compiler.render_literal_value(table.comment, sqltypes.String())
+            table_opts.append(f" COMMENT={comment}")
+
+        # ToDo - Engine options
+
+        return " ".join(table_opts)
+
+    def get_column_specification(self, column, **kwargs):
+        spec = super().get_column_specification(column, **kwargs)
+
+        if column.comment is not None:
+            spec += f" COMMENT {self.sql_compiler.render_literal_value(column.comment, sqltypes.String())}"
+
+        return spec
+
+
 StarRocksDialect.ddl_compiler = TSStarRocksDDLCompiler
+DatabendDialect.ddl_compiler = TSDatabendDDLCompiler

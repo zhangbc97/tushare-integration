@@ -1,13 +1,17 @@
+import os
+import sys
 from typing import cast
-from sqlalchemy import Table, create_engine, select
+
+from sqlalchemy import Table, create_engine, func, select
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import insert
-from sqlalchemy import func
 
+# 将上一级目录添加到import目录
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
-engine = create_engine(f'starrocks://localhost/{database}', echo=False)
+engine = create_engine(f'databend://localhost/{database}', echo=False)
 
 # 获取表对象并设置 schema
 table = LimitListThs.__table__

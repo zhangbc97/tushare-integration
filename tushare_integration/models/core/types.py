@@ -10,6 +10,7 @@ from sqlalchemy.types import Float as SAFloat
 from sqlalchemy.types import String as SAString
 from sqlalchemy.types import TypeDecorator, TypeEngine
 
+
 # 受支持的数据库
 # clickhouse
 # doris
@@ -32,7 +33,7 @@ class String(TypeDecorator):
         match dialect.name:
             case 'clickhouse':
                 return dialect.type_descriptor(SAString(self.length))
-            case 'starrocks' | 'doris':
+            case 'starrocks' | 'doris' | 'databend':
                 return dialect.type_descriptor(SAString(self.length or 65535))
             case _:
                 return dialect.type_descriptor(SAString(self.length or 255))

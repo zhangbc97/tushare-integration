@@ -12,6 +12,7 @@ class to_date(GenericFunction):
         'clickhouse': 'toDate(%s)',
         'starrocks': 'to_date(%s)',
         'doris': 'to_date(%s)',
+        'databend': 'to_date(%s)',
     }
 
     def __init__(self, *args, **kwargs):

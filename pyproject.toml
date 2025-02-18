@@ -49,12 +49,14 @@ clickhouse = ["clickhouse-connect>=0.8.15", "clickhouse-sqlalchemy>=0.3.2"]
 mysql = ["pymysql>=1.1.1"]
 doris = ["doris-alchemy>=0.2.8"]
 starrocks = ["starrocks>=1.2.0"]
+databend = ["databend-sqlalchemy>=0.5.0"]
 all = [
 "clickhouse-connect>=0.8.15",
 "clickhouse-sqlalchemy>=0.3.2",
 "pymysql>=1.1.1",
 "doris-alchemy>=0.2.8",
 "starrocks>=1.2.0",
+"databend-sqlalchemy>=0.5.0"
 ]
 dev = ["pytest>=7.0", "black", "isort", "build", "twine"]
 

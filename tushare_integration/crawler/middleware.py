@@ -41,7 +41,7 @@ class Middleware(ABC):
         pass
 
     @abstractmethod
-    def process_response(self, response: httpx.Response) -> httpx.Response:
+    def process_response(self, response: httpx.Response) -> httpx.Response | None:
         """处理响应
 
         Args:
@@ -133,45 +133,45 @@ class RetryMiddleware(Middleware):
             处理后的响应对象
 
         """
-        data = response.json()
+        try:
+            data = response.json()
+            code = data.get("code", 0)
 
-        with self._lock:
-            if (code := data.get("code", 0)) == 0:
-                return response
-            # 检查是否是 402XX 错误码，如果是则重试
-            elif 40200 <= code < 40300:
-                request = response.request
-                retry_count = request.extensions.get("retry_count", 0)
+            # 检查是否是 402XX 错误码
+            if 40200 <= code < 40300:
+                with self._lock:  # 使用锁保护重试逻辑
+                    request = response.request
+                    retry_count = request.extensions.get("retry_count", 0)
 
-                if retry_count < self.settings.retry_times:
-                    request.extensions["retry_count"] = retry_count + 1
-                    retry_msg = "API error code %d - %s" % (code, data.get('msg', 'Unknown error'))
+                    if retry_count < self.settings.retry_times:
+                        request.extensions["retry_count"] = retry_count + 1
+                        retry_msg = "API error code %d - %s" % (code, data.get('msg', 'Unknown error'))
 
-                    self.logger.warning(
-                        "Request RateLimit (attempt %d/%d): %s\n" "URL: %s\n" "Method: %s\n" "Will retry in %d seconds",
-                        retry_count + 1,
-                        self.settings.retry_times,
-                        retry_msg,
-                        request.url,
-                        request.method,
-                        self.settings.retry_delay,
-                    )
+                        self.logger.warning(
+                            "Request failed (attempt %d/%d): %s\n"
+                            "URL: %s\n"
+                            "Method: %s\n"
+                            "Will retry in %d seconds",
+                            retry_count + 1,
+                            self.settings.retry_times,
+                            retry_msg,
+                            request.url,
+                            request.method,
+                            self.settings.retry_delay,
+                        )
 
-                    time.sleep(self.settings.retry_delay)
-                    self.spider.schedule_request(request, first=True)
-                    # 这里抛异常不会中断Spider的流程，如果不抛的话会导致后续解析报错，中断Spider的流程
-                    raise Exception("Retrying %s (%s, attempt %d)", request.url, retry_msg, retry_count + 1)
-                else:
-                    self.logger.error(
-                        "Request RateLimit after %d retries: %s\n" "URL: %s\n" "Method: %s\n" "Error Code: %d",
-                        retry_count,
-                        data.get('msg', 'Unknown error'),
-                        request.url,
-                        request.method,
-                        code,
-                    )
-                    # 异常只在上面抛出，这里不抛，直接在解析阶段报错即可
-            else:
+                        time.sleep(self.settings.retry_delay)
+                        self.spider.schedule_request(request, first=True)
+                    else:
+                        self.logger.error(
+                            "Request failed after %d retries: %s\n" "URL: %s\n" "Method: %s\n" "Error Code: %d",
+                            retry_count,
+                            data.get('msg', 'Unknown error'),
+                            request.url,
+                            request.method,
+                            code,
+                        )
+            elif code != 0:
                 self.logger.error(
                     "Request failed with non-retryable error code %d: %s\n" "URL: %s\n" "Method: %s",
                     code,
@@ -179,7 +179,16 @@ class RetryMiddleware(Middleware):
                     response.request.url,
                     response.request.method,
                 )
-                # 异常只在上面抛出，这里不抛，直接在解析阶段报错即可
+
+        except ValueError:
+            if response.status_code in self.RETRY_HTTP_STATUS_CODES:
+                with self._lock:  # 使用锁保护HTTP错误重试逻辑
+                    self.logger.warning(
+                        "Request failed with HTTP status %d\n" "URL: %s\n" "Method: %s",
+                        response.status_code,
+                        response.request.url,
+                        response.request.method,
+                    )
 
         return response
 
@@ -216,5 +225,3 @@ class RetryMiddleware(Middleware):
                         request.url,
                         request.method,
                     )
-                    # 这里抛出异常直接中断Spider的流程
-                    raise exception

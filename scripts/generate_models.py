@@ -53,6 +53,7 @@ class {{ table_name|to_camel_case }}(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
         }
     )
     {% for field in fields %}

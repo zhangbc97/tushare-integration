@@ -97,6 +97,7 @@ SELECT * FROM stock_basic ORDER BY list_date DESC LIMIT 5;
 
 ## 目前支持的数据库
 
+- [Databend](https://databend.rs/) - 云原生分析型数据库
 - [StarRocks](https://www.starrocks.io/) - 使用 PrimaryKey 模型，适合实时分析场景
 - [ClickHouse](https://clickhouse.com/) - 高性能列式数据库
 - [MySQL](https://www.mysql.com/)
