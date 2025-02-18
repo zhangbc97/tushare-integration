@@ -1,115 +1,73 @@
-from datetime import date, datetime
-from typing import Optional
-
-from clickhouse_sqlalchemy.types import Date32, DateTime64, Float64, Int64
-from sqlalchemy.types import BigInteger
-from sqlalchemy.types import Date as SADate
-from sqlalchemy.types import DateTime as SADateTime
-from sqlalchemy.types import Double as SADouble
-from sqlalchemy.types import Float as SAFloat
-from sqlalchemy.types import String as SAString
-from sqlalchemy.types import TypeDecorator, TypeEngine
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.types import BigInteger as Integer
+from sqlalchemy.types import Date, DateTime, Float, String
 
 
-# 受支持的数据库
-# clickhouse
-# doris
-# starrocks
-# mysql
-# 除了clickhouse外，doris、starrocks和mysql基本兼容
+# String编译规则
+@compiles(String, 'clickhouse')
+def compile_string_clickhouse(element, compiler, **kw):
+    return f'String' if element.length is None else f'String({element.length})'
 
 
-class String(TypeDecorator):
-    """字符串类型"""
-
-    impl = SAString
-    cache_ok = True
-
-    def __init__(self, length: Optional[int] = None):
-        super().__init__(length=length if length else 255)
-        self.length = length
-
-    def load_dialect_impl(self, dialect) -> TypeEngine:
-        match dialect.name:
-            case 'clickhouse':
-                return dialect.type_descriptor(SAString(self.length))
-            case 'starrocks' | 'doris' | 'databend':
-                return dialect.type_descriptor(SAString(self.length or 65535))
-            case _:
-                return dialect.type_descriptor(SAString(self.length or 255))
-
-    @property
-    def python_type(self):
-        return str
+@compiles(String, 'starrocks')
+@compiles(String, 'doris')
+@compiles(String, 'databend')
+@compiles(String, 'mysql')
+def compile_string_others(element, compiler, **kw):
+    length = element.length or 65535
+    return f'VARCHAR({length})'
 
 
-class Integer(TypeDecorator):
-    """整数类型"""
-
-    impl = BigInteger
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect) -> TypeEngine:
-        match dialect.name:
-            case 'clickhouse':
-                return dialect.type_descriptor(Int64())
-            case _:
-                return dialect.type_descriptor(BigInteger())
-
-    @property
-    def python_type(self):
-        return int
+@compiles(Integer, 'clickhouse')
+def compile_integer_clickhouse(element, compiler, **kw):
+    return 'Int64'
 
 
-class Float(TypeDecorator):
-    """浮点数类型"""
-
-    impl = SAFloat
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect) -> TypeEngine:
-        match dialect.name:
-            case 'clickhouse':
-                return dialect.type_descriptor(Float64())
-            case _:
-                return dialect.type_descriptor(SADouble())
-
-    @property
-    def python_type(self):
-        return float
+@compiles(Integer, 'starrocks')
+@compiles(Integer, 'doris')
+@compiles(Integer, 'databend')
+@compiles(Integer, 'mysql')
+def compile_integer_others(element, compiler, **kw):
+    return 'BIGINT'
 
 
-class Date(TypeDecorator):
-    """日期类型"""
-
-    impl = SADate
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect) -> TypeEngine:
-        match dialect.name:
-            case 'clickhouse':
-                return dialect.type_descriptor(Date32())
-            case _:
-                return dialect.type_descriptor(SADate())
-
-    @property
-    def python_type(self):
-        return date
+# Float编译规则
+@compiles(Float, 'clickhouse')
+def compile_float_clickhouse(element, compiler, **kw):
+    return 'Float64'
 
 
-class DateTime(TypeDecorator):
-    """日期时间类型"""
+@compiles(Float, 'starrocks')
+@compiles(Float, 'doris')
+@compiles(Float, 'databend')
+@compiles(Float, 'mysql')
+def compile_float_others(element, compiler, **kw):
+    return 'DOUBLE'
 
-    impl = SADateTime
-    cache_ok = True
 
-    def load_dialect_impl(self, dialect) -> TypeEngine:
-        match dialect.name:
-            case 'clickhouse':
-                return dialect.type_descriptor(DateTime64())
-            case _:
-                return dialect.type_descriptor(SADateTime())
+# Date编译规则
+@compiles(Date, 'clickhouse')
+def compile_date_clickhouse(element, compiler, **kw):
+    return 'Date32'
 
-    @property
-    def python_type(self):
-        return datetime
+
+@compiles(Date, 'starrocks')
+@compiles(Date, 'doris')
+@compiles(Date, 'databend')
+@compiles(Date, 'mysql')
+def compile_date_others(element, compiler, **kw):
+    return 'DATE'
+
+
+# DateTime编译规则
+@compiles(DateTime, 'clickhouse')
+def compile_datetime_clickhouse(element, compiler, **kw):
+    return 'DateTime64'
+
+
+@compiles(DateTime, 'starrocks')
+@compiles(DateTime, 'doris')
+@compiles(DateTime, 'databend')
+@compiles(DateTime, 'mysql')
+def compile_datetime_others(element, compiler, **kw):
+    return 'DATETIME'
