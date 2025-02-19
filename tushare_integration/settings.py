@@ -55,6 +55,10 @@ class DatabaseConfig(BaseSettings):
     def get_uri(self):
         return f"{self.drivername}://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
+    @property
+    def database_type(self) -> str:
+        return self.drivername.split('+')[0]
+
     model_config = SettingsConfigDict(extra='ignore')
 
 

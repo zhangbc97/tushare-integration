@@ -48,6 +48,7 @@ class DBEngine(object):
                 schema=self.settings.database.db_name,
                 if_exists='append',
                 index=False,
+                method='multi'
             )
 
     def upsert(self, model, data: pd.DataFrame) -> None:
@@ -57,31 +58,39 @@ class DBEngine(object):
         对于其他数据库（ClickHouse、StarRocks等）直接使用insert
         """
         with self._db_lock:
+            match self.settings.database.database_type:
+                case 'mysql':
+
+                    # MySQL使用ON DUPLICATE KEY UPDATE
+                    table = model.__table__
+
+                    # 将DataFrame转换为字典列表，确保键是字符串类型
+                    records = [{str(k): v for k, v in record.items()} for record in data.to_dict(orient='records')]
+
+                    # 使用SQLAlchemy的insert().on_duplicate_key_update()
+                    stmt = table.insert()
+
+                    # 获取所有非主键列作为更新列
+                    primary_key = model.__primary_key__
+                    update_columns = {
+                        str(col.name): stmt.inserted[col.name] for col in table.columns if col.name not in primary_key
+                    }
+
+                    # 构建upsert语句
+                    upsert_stmt = stmt.on_duplicate_key_update(**update_columns)
+
+                    # 执行语句
+                    self.conn.execute(upsert_stmt, records)
+                case 'databend':
+                    ...
+                case _:
+                    self.insert(model, data)
+                    return
+
             if 'mysql' not in self.settings.database.drivername:
                 # 非MySQL数据库直接插入
                 self.insert(model, data)
                 return
-
-            # MySQL使用ON DUPLICATE KEY UPDATE
-            table = model.__table__
-
-            # 将DataFrame转换为字典列表，确保键是字符串类型
-            records = [{str(k): v for k, v in record.items()} for record in data.to_dict(orient='records')]
-
-            # 使用SQLAlchemy的insert().on_duplicate_key_update()
-            stmt = table.insert()
-
-            # 获取所有非主键列作为更新列
-            primary_key = model.__primary_key__
-            update_columns = {
-                str(col.name): stmt.inserted[col.name] for col in table.columns if col.name not in primary_key
-            }
-
-            # 构建upsert语句
-            upsert_stmt = stmt.on_duplicate_key_update(**update_columns)
-
-            # 执行语句
-            self.conn.execute(upsert_stmt, records)
 
     def query_df(self, stmt: Select | str) -> pd.DataFrame:
         """执行查询并返回DataFrame
