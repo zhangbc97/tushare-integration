@@ -11,14 +11,14 @@ from tushare_integration.models.core import Base, Date, DateTime, Float, Integer
 
 
 class BakBasic(Base):
-    """备用列表"""
+    """股票历史列表"""
 
     __tablename__: str = 'bak_basic'
     __api_id__: ClassVar[int] = 262
     __api_name__: ClassVar[str] = 'bak_basic'
-    __api_title__: ClassVar[str] = '备用列表'
+    __api_title__: ClassVar[str] = '股票历史列表'
     __api_info_title__: ClassVar[str] = '备用列表'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '基础数据', '备用列表']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '基础数据', '股票历史列表']
     __api_path_ids__: ClassVar[List[int]] = [2, 14, 24, 262]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
@@ -39,7 +39,7 @@ class BakBasic(Base):
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '备用列表',
+            'comment': '股票历史列表',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -47,6 +47,8 @@ class BakBasic(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 

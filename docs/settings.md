@@ -58,8 +58,8 @@ cronjob:
 | `port`            | `DB_PORT`     | `int`  |          | 数据库端口                                             |
 | `user`            | `DB_USER`     | `str`  |          | 数据库用户名                                           |
 | `password`        | `DB_PASSWORD` | `str`  | ""       | 数据库密码                                             |
-| `db_name`         | `DB_NAME`     | `str`  |          | 数据库名称                                             |
-| `template_params` |               | `dict` | {}       | SQL模板参数                                            |
+| `database`         | `DB_NAME`     | `str`  |          | 数据库名称                                             |
+| `query` |               | `dict` | {}       | 链接参数                                            |
 
 #### Reporters相关配置
 

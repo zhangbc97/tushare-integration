@@ -11,6 +11,7 @@ import requests
 import yaml
 from pydantic import BeforeValidator, Field, field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+from sqlalchemy import URL
 
 point_frequency = [
     {'point': 120, 'frequency': 50},
@@ -47,17 +48,19 @@ class DatabaseConfig(BaseSettings):
     port: Annotated[int, env_variable('DB_PORT')] = Field(..., description='数据库端口')
     user: Annotated[str, env_variable('DB_USER')] = Field(..., description='数据库用户名')
     password: Annotated[str, env_variable('DB_PASSWORD')] = Field('', description='数据库密码')
+    database: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
+    query: dict[str, Any] = Field(default={}, description='数据库连接参数')
 
-    db_name: Annotated[str, env_variable('DB_NAME')] = Field(..., description='数据库名称')
-    template_params: dict[str, Any] = Field(default={}, description='SQL模板参数')
-
-    # 移除 drivername property
     def get_uri(self):
-        return f"{self.drivername}://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
-
-    @property
-    def database_type(self) -> str:
-        return self.drivername.split('+')[0]
+        return URL.create(
+            drivername=self.drivername,
+            username=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.database,
+            query=self.query,
+        )
 
     model_config = SettingsConfigDict(extra='ignore')
 

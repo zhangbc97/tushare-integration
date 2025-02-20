@@ -8,6 +8,7 @@ from sqlalchemy.sql import insert
 
 # 将上一级目录添加到import目录
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from tushare_integration.models.core.dml import upsert
 from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
@@ -27,6 +28,12 @@ print("\n")
 insert_stmt = insert(LimitListThs).compile(engine, compile_kwargs={"literal_binds": True})
 print("INSERT 语句模板:")
 print(str(insert_stmt))
+print("\n")
+
+# 生成UPSERT语句模板
+upsert_stmt = upsert(LimitListThs).compile(engine, compile_kwargs={"literal_binds": True})
+print("UPSERT 语句模板:")
+print(str(upsert_stmt))
 print("\n")
 
 # 生成SELECT语句模板

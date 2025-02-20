@@ -13,7 +13,8 @@ database:
   port: 8123 # 必填，可通过环境变量 DB_PORT 设置
   user: "default" # 必填，可通过环境变量 DB_USER 设置
   password: "" # 可选，可通过环境变量 DB_PASSWORD 设置
-  db_name: "default" # 必填，可通过环境变量 DB_NAME 设置
+  database: "default" # 必填，可通过环境变量 DB_NAME 设置
+  query: {} # 可选，连接参数
 
 # 报告配置
 reporters: [] # 可选，报告模块列表

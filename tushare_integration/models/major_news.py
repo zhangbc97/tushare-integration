@@ -18,7 +18,7 @@ class MajorNews(Base):
     __api_name__: ClassVar[str] = 'major_news'
     __api_title__: ClassVar[str] = '新闻通讯(长篇)'
     __api_info_title__: ClassVar[str] = '新闻通讯'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '另类数据', '新闻通讯（长篇）']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '大模型语料专题数据', '新闻通讯（长篇）']
     __api_path_ids__: ClassVar[List[int]] = [2, 142, 195]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
@@ -48,6 +48,8 @@ class MajorNews(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 

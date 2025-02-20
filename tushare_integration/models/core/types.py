@@ -18,6 +18,7 @@ def compile_string_others(element, compiler, **kw):
     return f'VARCHAR({length})'
 
 
+# Integer编译规则
 @compiles(Integer, 'clickhouse')
 def compile_integer_clickhouse(element, compiler, **kw):
     return 'Int64'

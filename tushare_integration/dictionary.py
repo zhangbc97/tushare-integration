@@ -37,6 +37,6 @@ API_PATH_DICTIONARY = {
     # Other 其他数据
     '财富管理': 'wealth',
     '基金销售行业数据': 'fundsales',
-    '另类数据': 'alternative',
+    '大模型语料专题数据': 'llm',
     '资讯公告': 'news',
 }

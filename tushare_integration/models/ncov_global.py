@@ -18,8 +18,8 @@ class NcovGlobal(Base):
     __api_name__: ClassVar[str] = 'ncov_global'
     __api_title__: ClassVar[str] = '全球新冠疫情数据'
     __api_info_title__: ClassVar[str] = '全球新冠疫情数据'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '另类数据', '全球新冠疫情数据']
-    __api_path_ids__: ClassVar[List[int]] = [2, 142, 213]
+    __api_path__: ClassVar[List[str]] = ['全球新冠疫情数据']
+    __api_path_ids__: ClassVar[List[int]] = []
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
     __has_vip__: ClassVar[bool] = False
@@ -50,6 +50,8 @@ class NcovGlobal(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 

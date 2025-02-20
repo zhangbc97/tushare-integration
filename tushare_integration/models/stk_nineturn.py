@@ -50,16 +50,18 @@ class StkNineturn(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 
     ts_code = Column('ts_code', String(16), nullable=False, default="", server_default=text("''"), comment='股票代码')
     trade_date = Column(
         'trade_date',
-        DateTime,
+        Date,
         nullable=False,
-        default="1970-01-01 00:00:00",
-        server_default=text("'1970-01-01 00:00:00'"),
+        default="1970-01-01",
+        server_default=text("'1970-01-01'"),
         comment='交易日期',
     )
     freq = Column(

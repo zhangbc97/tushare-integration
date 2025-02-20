@@ -18,7 +18,7 @@ class AnnsD(Base):
     __api_name__: ClassVar[str] = 'anns_d'
     __api_title__: ClassVar[str] = '上市公司公告'
     __api_info_title__: ClassVar[str] = '全量公告'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '另类数据', '上市公司公告']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '大模型语料专题数据', '上市公司公告']
     __api_path_ids__: ClassVar[List[int]] = [2, 142, 176]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = True
@@ -50,6 +50,8 @@ class AnnsD(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 
