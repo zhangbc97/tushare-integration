@@ -5,6 +5,7 @@ import pandas as pd  # 新增：用于 pd.concat 等操作
 from sqlalchemy import and_, distinct, not_, select
 from sqlalchemy.sql import func
 
+from tushare_integration.models.ft_limit import FtLimit
 from tushare_integration.models.fut_basic import FutBasic
 from tushare_integration.models.fut_daily import FutDaily
 from tushare_integration.models.fut_holding import FutHolding
@@ -83,7 +84,7 @@ class FutWeeklyMonthlySpider(TimeSeriesSpider):
         weekday = today.weekday()
         if weekday == 6:
             return today
-        sunday = (today + datetime.timedelta(days=6 - weekday))
+        sunday = today + datetime.timedelta(days=6 - weekday)
         return self.get_latest_trade_date(sunday)
 
     def get_end_of_month(self):
@@ -182,3 +183,8 @@ class FutWeeklyDetailSpider(TimeSeriesSpider):
         # 生成请求
         for week in weeks:
             yield self.get_httpx_request(params={"week": week})
+
+
+class FtLimitSpider(TimeSeriesSpider):
+    __model__: type[FtLimit] = FtLimit
+    __trade_cal_model__: type[TradeCal] = TradeCal
