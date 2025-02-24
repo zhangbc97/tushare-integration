@@ -7,7 +7,6 @@ from sqlalchemy.schema import CreateTable
 
 from tushare_integration.logger import get_logger
 from tushare_integration.models.core.dml import upsert
-from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
 
@@ -24,6 +23,7 @@ class DBEngine(object):
         with self._db_lock:
             create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
             self.conn.execute(text(str(create_stmt)))
+            self.conn.commit()  # 目前DuckDB需要手动提交事务
 
     def execute(self, stmt: str):
         """执行SQL语句"""
@@ -39,6 +39,7 @@ class DBEngine(object):
         """插入或更新数据"""
         with self._db_lock:
             self.conn.execute(upsert(model).values(data.to_dict(orient='records')))
+            self.conn.commit()  # 目前DuckDB需要手动提交事务
 
     def query_df(self, stmt: Select | str) -> pd.DataFrame:
         """执行查询并返回DataFrame
