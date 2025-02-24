@@ -13,6 +13,7 @@ def compile_string_clickhouse(element, compiler, **kw):
 @compiles(String, 'doris')
 @compiles(String, 'databend')
 @compiles(String, 'mysql')
+@compiles(String, 'duckdb')
 def compile_string_others(element, compiler, **kw):
     length = element.length or 65535
     return f'VARCHAR({length})'
@@ -28,6 +29,7 @@ def compile_integer_clickhouse(element, compiler, **kw):
 @compiles(Integer, 'doris')
 @compiles(Integer, 'databend')
 @compiles(Integer, 'mysql')
+@compiles(Integer, 'duckdb')
 def compile_integer_others(element, compiler, **kw):
     return 'BIGINT'
 
@@ -42,6 +44,7 @@ def compile_float_clickhouse(element, compiler, **kw):
 @compiles(Float, 'doris')
 @compiles(Float, 'databend')
 @compiles(Float, 'mysql')
+@compiles(Float, 'duckdb')
 def compile_float_others(element, compiler, **kw):
     return 'DOUBLE'
 
@@ -56,6 +59,7 @@ def compile_date_clickhouse(element, compiler, **kw):
 @compiles(Date, 'doris')
 @compiles(Date, 'databend')
 @compiles(Date, 'mysql')
+@compiles(Date, 'duckdb')
 def compile_date_others(element, compiler, **kw):
     return 'DATE'
 
@@ -70,5 +74,6 @@ def compile_datetime_clickhouse(element, compiler, **kw):
 @compiles(DateTime, 'doris')
 @compiles(DateTime, 'databend')
 @compiles(DateTime, 'mysql')
+@compiles(DateTime, 'duckdb')
 def compile_datetime_others(element, compiler, **kw):
     return 'DATETIME'

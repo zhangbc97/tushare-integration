@@ -5,7 +5,7 @@
 from typing import Any, ClassVar, Dict, List
 
 from clickhouse_sqlalchemy import engines
-from sqlalchemy import Column, text
+from sqlalchemy import Column, PrimaryKeyConstraint, text
 
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
@@ -28,7 +28,7 @@ class TopInst(Base):
     __start_date__: ClassVar[str | None] = '2005-01-01'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'trade_date': {'type': 'str', 'required': True, 'description': '交易日期'},
+        'trade_date': {'type': 'str', 'required': True, 'description': '交易日期（格式：YYYYMMDD）'},
         'ts_code': {'type': 'str', 'required': False, 'description': 'TS代码'},
         'limit': {'type': 'int', 'required': False, 'description': '单次返回数据长度'},
         'offset': {'type': 'int', 'required': False, 'description': '请求数据的开始位移量'},
@@ -36,6 +36,7 @@ class TopInst(Base):
 
     __mapper_args__ = {'primary_key': __primary_key__}
     __table_args__ = (
+        PrimaryKeyConstraint(*__primary_key__),
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
@@ -48,7 +49,6 @@ class TopInst(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
-            'databend_cluster_by': __primary_key__,
         },
     )
 

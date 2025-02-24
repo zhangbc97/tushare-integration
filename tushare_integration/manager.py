@@ -3,8 +3,8 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
-from sqlalchemy import select
 import yaml
+from sqlalchemy import select
 
 from tushare_integration.crawler.crawler import Crawler
 from tushare_integration.crawler.pipeline import TushareIntegrationLog
@@ -35,7 +35,7 @@ class TushareIntegrationManager(object):
         self.config_file = config_file
         self.batch_id = uuid.uuid1().hex
         self.settings: TushareIntegrationSettings = TushareIntegrationSettings.load_config(config_file)
-        self.db_engine: DBEngine = DBEngine(self.settings)
+        self.db_engine: DBEngine = DBEngine(self.settings.database.get_uri())
         self.reporter_loader: ReporterLoader = ReporterLoader(self.settings)
         logger.info(f"Load reporters: {self.reporter_loader.get_reporters()}")
 
@@ -50,10 +50,10 @@ class TushareIntegrationManager(object):
         self.crawler.add_spider(pattern)
         self.crawler.crawl()
 
-    def run_job(self, job_file: Path, job_name: str | None = None) -> None: 
+    def run_job(self, job_file: Path, job_name: str | None = None) -> None:
         self.crawler = Crawler(self.settings)
 
-        with open(job_file.as_posix(), 'r',encoding='utf-8') as f:
+        with open(job_file.as_posix(), 'r', encoding='utf-8') as f:
             cron_job = yaml.load(f, Loader=yaml.FullLoader)
             for job in cron_job['cronjob']:
                 if job['name'] == job_name:

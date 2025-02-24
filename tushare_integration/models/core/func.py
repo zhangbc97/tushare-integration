@@ -13,6 +13,7 @@ class to_date(GenericFunction):
         'starrocks': 'to_date(%s)',
         'doris': 'to_date(%s)',
         'databend': 'to_date(%s)',
+        'duckdb': 'to_date(%s)',
     }
 
     def __init__(self, *args, **kwargs):

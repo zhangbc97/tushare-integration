@@ -25,7 +25,7 @@ class TushareSpider(Spider):
 
     def __init__(self, settings: TushareIntegrationSettings):
         super().__init__(settings)
-        self.db_engine: DBEngine = DBEngine(settings)
+        self.db_engine: DBEngine = DBEngine(settings.database.get_uri())
 
     @property
     def api_name(self) -> str:
@@ -148,9 +148,7 @@ class TimeSeriesSpider(TushareSpider):
 
         if self.__model__.__start_date__ is not None:
             start_date = datetime.datetime.strptime(self.__model__.__start_date__, "%Y-%m-%d")
-            stmt = stmt.where(
-                getattr(self.__trade_cal_model__, 'cal_date') >= start_date
-            )
+            stmt = stmt.where(getattr(self.__trade_cal_model__, 'cal_date') >= start_date)
 
         trade_dates = conn.query_df(stmt)
         if trade_dates.empty:

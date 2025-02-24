@@ -5,7 +5,7 @@
 from typing import Any, ClassVar, Dict, List
 
 from clickhouse_sqlalchemy import engines
-from sqlalchemy import Column, text
+from sqlalchemy import Column, PrimaryKeyConstraint, text
 
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
@@ -35,6 +35,7 @@ class CbRate(Base):
 
     __mapper_args__ = {'primary_key': __primary_key__}
     __table_args__ = (
+        PrimaryKeyConstraint(*__primary_key__),
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
@@ -47,7 +48,6 @@ class CbRate(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
-            'databend_cluster_by': __primary_key__,
         },
     )
 

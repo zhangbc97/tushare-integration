@@ -1,7 +1,7 @@
 import threading
 
 import pandas as pd
-from sqlalchemy import Select, create_engine, insert, text
+from sqlalchemy import URL, Select, create_engine, insert, text
 from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
 
@@ -13,11 +13,10 @@ logger = get_logger()
 
 
 class DBEngine(object):
-    def __init__(self, settings: TushareIntegrationSettings) -> None:
+    def __init__(self, engine_uri: str | URL, **kwargs) -> None:
         self._db_lock = threading.RLock()  # 新增数据库操作锁
-        self.settings = settings
         logger.info("Initializing database engine...")
-        self.engine = create_engine(self.settings.database.get_uri())
+        self.engine = create_engine(engine_uri, **kwargs)
         self.conn = self.engine.connect()
 
     def create_table(self, model) -> None:
@@ -25,6 +24,11 @@ class DBEngine(object):
         with self._db_lock:
             create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
             self.conn.execute(text(str(create_stmt)))
+
+    def execute(self, stmt: str):
+        """执行SQL语句"""
+        with self._db_lock:
+            return self.conn.execute(text(stmt))
 
     def insert(self, model, data: pd.DataFrame) -> None:
         """插入数据"""

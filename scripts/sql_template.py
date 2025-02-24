@@ -12,7 +12,7 @@ from tushare_integration.models.core.dml import upsert
 from tushare_integration.models.limit_list_ths import LimitListThs
 
 database = 'default'
-engine = create_engine(f'databend://localhost/{database}', echo=False)
+engine = create_engine(f'duckdb://localhost/{database}', echo=False)
 
 # 获取表对象并设置 schema
 table = LimitListThs.__table__

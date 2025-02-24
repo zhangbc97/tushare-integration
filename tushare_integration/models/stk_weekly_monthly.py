@@ -5,20 +5,20 @@
 from typing import Any, ClassVar, Dict, List
 
 from clickhouse_sqlalchemy import engines
-from sqlalchemy import Column, text
+from sqlalchemy import Column, PrimaryKeyConstraint, text
 
 from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
 
 
 class StkWeeklyMonthly(Base):
-    """股票周/月线行情(每日更新)"""
+    """周/月线行情(每日更新)"""
 
     __tablename__: str = 'stk_weekly_monthly'
     __api_id__: ClassVar[int] = 336
     __api_name__: ClassVar[str] = 'stk_weekly_monthly'
-    __api_title__: ClassVar[str] = '股票周/月线行情(每日更新)'
+    __api_title__: ClassVar[str] = '周/月线行情(每日更新)'
     __api_info_title__: ClassVar[str] = '股票周/月线行情(每日更新)'
-    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '行情数据', '股票周/月线行情(每日更新)']
+    __api_path__: ClassVar[List[str]] = ['数据接口', '沪深股票', '行情数据', '周/月线行情(每日更新)']
     __api_path_ids__: ClassVar[List[int]] = [2, 14, 15, 336]
     __api_points_required__: ClassVar[int] = 2000
     __api_special_permission__: ClassVar[bool] = False
@@ -39,10 +39,11 @@ class StkWeeklyMonthly(Base):
 
     __mapper_args__ = {'primary_key': __primary_key__}
     __table_args__ = (
+        PrimaryKeyConstraint(*__primary_key__),
         # ClickHouse引擎
         engines.ReplacingMergeTree(order_by=__primary_key__),
         {
-            'comment': '股票周/月线行情(每日更新)',
+            'comment': '周/月线行情(每日更新)',
             # MySQL引擎
             'mysql_engine': 'InnoDB',
             # StarRocks引擎
@@ -51,7 +52,6 @@ class StkWeeklyMonthly(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
-            'databend_cluster_by': __primary_key__,
         },
     )
 

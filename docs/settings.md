@@ -32,11 +32,11 @@ cronjob:
 
 #### Tushare相关
 
-| 配置项                            | 环境变量        | 类型  | 默认值                  | 说明                                                   |
-| --------------------------------- | --------------- | ----- | ----------------------- | ------------------------------------------------------ |
-| `tushare_token`                   | `TUSHARE_TOKEN` | `str` | 无默认值 (必填)         | Tushare账号 Token                                      |
-| `tushare_url`                     |                 | `str` | https://api.tushare.pro | Tushare服务地址                                        |
-| `tushare_point`                   |                 | `int` | 2000                    | Tushare服务积分                                        |
+| 配置项          | 环境变量        | 类型  | 默认值                  | 说明              |
+| --------------- | --------------- | ----- | ----------------------- | ----------------- |
+| `tushare_token` | `TUSHARE_TOKEN` | `str` | 无默认值 (必填)         | Tushare账号 Token |
+| `tushare_url`   |                 | `str` | https://api.tushare.pro | Tushare服务地址   |
+| `tushare_point` |                 | `int` | 2000                    | Tushare服务积分   |
 
 
 #### 任务及调度配置
@@ -51,15 +51,15 @@ cronjob:
 
 数据库配置存放于 `database` 下，支持的数据库包括 `clickhouse`、`doris`、`mysql` 等。
 
-| 配置项            | 环境变量      | 类型   | 默认值   | 说明                                                   |
-| ----------------- | ------------- | ------ | -------- | ------------------------------------------------------ |
-| `drivername`      | `DB_DRIVER`   | `str`  | 无默认值 | 数据库驱动名称，例如：clickhouse+native, mysql+pymysql |
-| `host`            | `DB_HOST`     | `str`  |          | 数据库地址                                             |
-| `port`            | `DB_PORT`     | `int`  |          | 数据库端口                                             |
-| `user`            | `DB_USER`     | `str`  |          | 数据库用户名                                           |
-| `password`        | `DB_PASSWORD` | `str`  | ""       | 数据库密码                                             |
-| `database`         | `DB_NAME`     | `str`  |          | 数据库名称                                             |
-| `query` |               | `dict` | {}       | 链接参数                                            |
+| 配置项       | 环境变量      | 类型   | 默认值   | 说明                                                   |
+| ------------ | ------------- | ------ | -------- | ------------------------------------------------------ |
+| `drivername` | `DB_DRIVER`   | `str`  | 无默认值 | 数据库驱动名称，例如：clickhouse+native, mysql+pymysql |
+| `host`       | `DB_HOST`     | `str`  |          | 数据库地址                                             |
+| `port`       | `DB_PORT`     | `int`  |          | 数据库端口                                             |
+| `user`       | `DB_USER`     | `str`  |          | 数据库用户名                                           |
+| `password`   | `DB_PASSWORD` | `str`  | ""       | 数据库密码                                             |
+| `database`   | `DB_NAME`     | `str`  |          | 数据库名称                                             |
+| `query`      |               | `dict` | {}       | 链接参数                                               |
 
 #### Reporters相关配置
 
@@ -73,12 +73,23 @@ cronjob:
 | 配置项                    | 环境变量    | 类型                                        | 默认值                                | 说明                   |
 | ------------------------- | ----------- | ------------------------------------------- | ------------------------------------- | ---------------------- |
 | `download_delay`          |             | `float`                                     | 0                                     | 下载延迟（秒）         |
-| `max_workers_per_spider` |             | `int`                                       | 1                                    | 每个爬虫最大线程数       |
-| `max_requests_per_minute` |             | `int`                                       | 500                                    | 每分钟最大请求数       |
+| `max_workers_per_spider`  |             | `int`                                       | 1                                     | 每个爬虫最大线程数     |
+| `max_requests_per_minute` |             | `int`                                       | 500                                   | 每分钟最大请求数       |
 | `retry_enabled`           |             | `bool`                                      | True                                  | 是否启用请求重试       |
 | `retry_times`             |             | `int`                                       | 10                                    | 重试次数               |
 | `retry_delay`             |             | `int`                                       | 10                                    | 请求失败重试间隔（秒） |
 | `timeout`                 |             | `int`                                       | 30                                    | 请求超时时间（秒）     |
 | `headers`                 |             | `dict[str, str]`                            | {"User-Agent": "tushare-integration"} | 请求头                 |
 | `log_level`               | `LOG_LEVEL` | `Literal['DEBUG','INFO','WARNING','ERROR']` | 'INFO'                                | 日志级别               |
+
+#### 本地缓存配置
+
+本地缓存配置存放于 `cache` 下，用于控制数据的本地缓存行为。
+
+| 配置项       | 类型                   | 默认值                   | 说明                                             |
+| ------------ | ---------------------- | ------------------------ | ------------------------------------------------ |
+| `enable`     | `bool`                 | false                    | 是否启用本地缓存                                 |
+| `type`       | `'MEMORY'` 或 `'FILE'` | 'MEMORY'                 | 缓存类型，可选内存或文件                         |
+| `file_path`  | `str`                  | 'tushare-integration.db' | 本地缓存数据库文件路径（仅FILE类型时有效）       |
+| `batch_size` | `int`                  | 100000                   | 本地缓存数据量达到该值时，触发批量写入远程数据库 |
 

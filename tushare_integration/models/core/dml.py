@@ -23,7 +23,7 @@ class Replace(Insert):
 
 
 @compiles(Replace, 'databend')
-def replace_into_databend(insert: Replace, compiler: Any, **kw: Any) -> str:
+def compile_upsert_databend(insert: Replace, compiler: Any, **kw: Any) -> str:
     # First generate the INSERT statement
     insert_stmt = compiler.visit_insert(insert, **kw)
 
@@ -49,12 +49,22 @@ def replace_into_databend(insert: Replace, compiler: Any, **kw: Any) -> str:
 
 
 @compiles(Replace, 'mysql')
-def _compile_replace(insert: Replace, compiler: Any, **kw: Any) -> str:
+def compile_upsert_mysql(insert: Replace, compiler: Any, **kw: Any) -> str:
     # First generate the INSERT statement
     insert_stmt = compiler.visit_insert(insert, **kw)
 
     # Replace 'INSERT INTO' with 'REPLACE INTO'
     replace_stmt = insert_stmt.replace('INSERT INTO', 'REPLACE INTO', 1)
+
+    return replace_stmt
+
+
+@compiles(Replace, 'duckdb')
+def compile_upsert_duckdb(insert: Replace, compiler: Any, **kw: Any) -> str:
+    # First generate the INSERT statement
+    insert_stmt = compiler.visit_insert(insert, **kw)
+
+    replace_stmt = insert_stmt.replace('INSERT INTO', 'INSERT OR REPLACE INTO', 1)
 
     return replace_stmt
 

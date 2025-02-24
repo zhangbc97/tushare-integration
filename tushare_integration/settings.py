@@ -2,6 +2,7 @@ import functools
 import logging
 import os
 import sys
+import time
 import uuid
 from pathlib import Path
 from typing import Annotated, Any, Dict, Literal
@@ -9,6 +10,7 @@ from typing import Annotated, Any, Dict, Literal
 import pandas as pd
 import requests
 import yaml
+from clickhouse_connect import driver_name
 from pydantic import BeforeValidator, Field, field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 from sqlalchemy import URL
@@ -52,6 +54,9 @@ class DatabaseConfig(BaseSettings):
     query: dict[str, Any] = Field(default={}, description='数据库连接参数')
 
     def get_uri(self):
+        if self.drivername.startswith('duckdb'):
+            return f'duckdb:///{self.host}'
+
         return URL.create(
             drivername=self.drivername,
             username=self.user,
@@ -99,6 +104,20 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
 
 
 # 使用pydantic定义数据模型
+class CacheConfig(BaseSettings):
+    enable: bool = Field(default=False, description='是否启用本地缓存')
+    type: Literal['MEMORY', 'FILE'] = Field(default='MEMORY', description='缓存类型')
+    file_path: str = Field(default='tushare-integration.db', description='本地缓存数据库文件路径')
+    batch_size: int = Field(default=100000, description='本地缓存数据量达到该值时，触发批量写入远程数据库')
+
+    model_config = SettingsConfigDict(extra='ignore')
+
+    def get_uri(self):
+        if self.type == 'FILE':
+            return f'duckdb:///{self.file_path}'
+        return 'duckdb:///:memory:'
+
+
 class TushareIntegrationSettings(BaseSettings):
     # Tushare相关的配置项
     tushare_token: Annotated[str, env_variable('TUSHARE_TOKEN')] = Field(..., description='Tushare token')
@@ -136,6 +155,9 @@ class TushareIntegrationSettings(BaseSettings):
     log_level: Annotated[Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'], env_variable('LOG_LEVEL')] = Field(
         default='INFO', description='日志级别(DEBUG/INFO/WARNING/ERROR)'
     )
+
+    # 添加本地缓存配置
+    cache: CacheConfig = Field(default_factory=CacheConfig, description='本地缓存配置')
 
     model_config = SettingsConfigDict(extra='ignore')
 
