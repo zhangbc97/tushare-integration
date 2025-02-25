@@ -28,7 +28,7 @@ class LimitStep(Base):
     __start_date__: ClassVar[str | None] = None
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
+        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期(格式：YYYYMMDD，下同)'},
         'ts_code': {'type': 'str', 'required': False, 'description': '股票代码'},
         'start_date': {'type': 'str', 'required': False, 'description': '开始日期'},
         'end_date': {'type': 'str', 'required': False, 'description': '结束日期'},
@@ -52,6 +52,7 @@ class LimitStep(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 

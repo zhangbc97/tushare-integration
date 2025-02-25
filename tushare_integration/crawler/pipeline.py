@@ -175,6 +175,8 @@ class TushareIntegrationLog(Base):
             'starrocks_order_by': ','.join(__primary_key__),
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
+            # DataBend
+            'databend_cluster_by': __primary_key__,
         },
     )
 

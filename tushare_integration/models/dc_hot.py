@@ -28,7 +28,7 @@ class DcHot(Base):
     __start_date__: ClassVar[str | None] = '2024-03-20'
     __end_date__: ClassVar[str | None] = None
     __api_params__: ClassVar[Dict[str, Any]] = {
-        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期'},
+        'trade_date': {'type': 'str', 'required': False, 'description': '交易日期(格式：YYYYMMDD，下同)'},
         'ts_code': {'type': 'str', 'required': False, 'description': 'TS代码'},
         'market': {'type': 'str', 'required': False, 'description': '热板类型(A股市场、ETF基金、港股市场、美股市场)'},
         'hot_type': {'type': 'str', 'required': False, 'description': '热点类型(人气榜、飙升榜)'},
@@ -52,6 +52,7 @@ class DcHot(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 

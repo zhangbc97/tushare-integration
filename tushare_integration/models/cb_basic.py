@@ -50,6 +50,7 @@ class CbBasic(Base):
             # Apache Doris引擎
             'doris_unique_key': __primary_key__,
             # Databend引擎
+            'databend_cluster_by': __primary_key__,
         },
     )
 
