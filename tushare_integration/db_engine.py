@@ -14,7 +14,7 @@ logger = get_logger()
 class DBEngine(object):
     def __init__(self, engine_uri: str | URL, **kwargs) -> None:
         self._db_lock = threading.RLock()  # 新增数据库操作锁
-        logger.info("Initializing database engine...")
+        logger.info("Initializing database engine with URI: %s", engine_uri)
         self.engine = create_engine(engine_uri, **kwargs)
         self.conn = self.engine.connect()
 

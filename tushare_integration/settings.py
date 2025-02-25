@@ -106,16 +106,9 @@ def get_tushare_point(token: str, url: str = "https://api.tushare.pro") -> int:
 # 使用pydantic定义数据模型
 class CacheConfig(BaseSettings):
     enable: bool = Field(default=False, description='是否启用本地缓存')
-    type: Literal['MEMORY', 'FILE'] = Field(default='MEMORY', description='缓存类型')
-    file_path: str = Field(default='tushare-integration.db', description='本地缓存数据库文件路径')
     batch_size: int = Field(default=100000, description='本地缓存数据量达到该值时，触发批量写入远程数据库')
 
     model_config = SettingsConfigDict(extra='ignore')
-
-    def get_uri(self):
-        if self.type == 'FILE':
-            return f'duckdb:///{self.file_path}'
-        return 'duckdb:///:memory:'
 
 
 class TushareIntegrationSettings(BaseSettings):

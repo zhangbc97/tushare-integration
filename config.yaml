@@ -37,7 +37,5 @@ retry_delay: 10 # 可选，重试延迟(秒)
 timeout: 30 # 可选，请求超时时间(秒)
 
 cache:
-  enable: false # 可选，是否开启缓存
-  type: "MEMORY" # 可选，缓存类型(MEMORY/FILE)
-  file_path: "tushare-integration.db" # 可选，缓存文件名
+  enable: true # 可选，是否开启缓存
   batch_size: 100000 # 可选，缓存批量大小，当超过该值时写入远程数据库
