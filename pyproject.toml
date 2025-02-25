@@ -45,7 +45,11 @@ dependencies = [
 tushare-integration = "tushare_integration:main"
 
 [project.optional-dependencies]
-clickhouse = ["clickhouse-connect>=0.8.15", "clickhouse-sqlalchemy>=0.3.2"]
+clickhouse = [
+"clickhouse-connect>=0.8.15",
+"clickhouse-sqlalchemy>=0.3.2",
+"zstd==1.5.6.1",
+]
 mysql = ["pymysql>=1.1.1"]
 doris = ["doris-alchemy>=0.2.8"]
 starrocks = ["starrocks>=1.2.0"]
@@ -54,11 +58,13 @@ duckdb = ["duckdb-engine>=0.15.0"]
 all = [
 "clickhouse-connect>=0.8.15",
 "clickhouse-sqlalchemy>=0.3.2",
+"zstd==1.5.6.1",
 "pymysql>=1.1.1",
 "doris-alchemy>=0.2.8",
 "starrocks>=1.2.0",
 "databend-sqlalchemy>=0.5.0",
-"duckdb-engine>=0.15.0"
+"duckdb-engine>=0.15.0",
+
 ]
 dev = ["pytest>=7.0", "black", "isort", "build", "twine"]
 
