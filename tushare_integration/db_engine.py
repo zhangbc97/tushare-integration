@@ -25,15 +25,17 @@ class DBEngine(object):
             self.conn.execute(text(str(create_stmt)))
             self.conn.commit()  # 目前DuckDB需要手动提交事务
 
-    def execute(self, stmt: str):
-        """执行SQL语句"""
+    def truncate_table(self, model) -> None:
+        """清空表"""
         with self._db_lock:
-            return self.conn.execute(text(stmt))
+            self.conn.execute(text(f"TRUNCATE TABLE {model.__tablename__}"))
+            self.conn.commit()
 
     def insert(self, model, data: pd.DataFrame) -> None:
         """插入数据"""
         with self._db_lock:
             self.conn.execute(insert(model).values(data.to_dict(orient='records')))
+            self.conn.commit()
 
     def upsert(self, model, data: pd.DataFrame) -> None:
         """插入或更新数据"""

@@ -114,34 +114,37 @@ class DataPipeline(Pipeline):
 
     def __init__(self, settings: TushareIntegrationSettings, spider: BaseSpider):
         super().__init__(settings, spider)
-        self.db_engine = DBEngine(settings.database.get_uri())
+        self.remote_db = DBEngine(settings.database.get_uri())
         self.table_name: str = spider.__model__.__tablename__
-        self.db_engine.create_table(spider.__model__)
+        self.remote_db.create_table(spider.__model__)
+        self._lock = threading.RLock()
         # 新增本地缓存支持：本地缓存即指cache_engine
         if self.settings.cache.enable:
-            self.cache_engine = DBEngine(self.settings.cache.get_uri())
-            self.cache_engine.create_table(spider.__model__)
+            logger.info("Initializing cache engine")
+            self.cache_db = DBEngine(self.settings.cache.get_uri())
+            self.cache_db.create_table(spider.__model__)
             self._cache_count = 0  # 初始化缓存计数
-
+    
     def process_item(self, item: pd.DataFrame) -> pd.DataFrame | None:
         if item.empty:
             return item
         model = self.spider.__model__
-        if self.settings.cache.enable:
-            # 直接写入cache_engine
-            self.cache_engine.insert(model, data=item)
-            self._cache_count += len(item)
-            # 当本地缓存达到批量大小时，写入远程数据库并清空cache_engine
-            if self._cache_count >= self.settings.cache.batch_size:
-                self.write_to_remote()
-            return item
-        else:
-            if model.__primary_key__:
-                item = item.drop_duplicates(subset=model.__primary_key__, keep="last")
-                self.db_engine.upsert(model, data=item)
+        with self._lock:
+            if self.settings.cache.enable:
+                # 直接写入cache_engine
+                self.cache_db.insert(model, data=item)
+                self._cache_count += len(item)
+                # 当本地缓存达到批量大小时，写入远程数据库并清空cache_engine
+                if self._cache_count >= self.settings.cache.batch_size:
+                    self.write_to_remote()
+                return item
             else:
-                self.db_engine.insert(model, data=item)
-            return item
+                if model.__primary_key__:
+                    item = item.drop_duplicates(subset=model.__primary_key__, keep="last")
+                    self.remote_db.upsert(model, data=item)
+                else:
+                    self.remote_db.insert(model, data=item)
+                return item
 
     def close(self):
         self.write_to_remote()
@@ -149,14 +152,17 @@ class DataPipeline(Pipeline):
     def write_to_remote(self):
         model = self.spider.__model__
         if self.settings.cache.enable and self._cache_count > 0:
-            cached_data = self.cache_engine.query_df(f"SELECT * FROM {model.__tablename__}")
-            if model.__primary_key__:
-                deduped = cached_data.drop_duplicates(subset=model.__primary_key__, keep="last")
-                self.db_engine.upsert(model, data=deduped)
-            else:
-                self.db_engine.insert(model, data=cached_data)
-            self.cache_engine.execute('TRUNCATE TABLE {}'.format(model.__tablename__))
-            self._cache_count = 0
+            with self._lock:
+                cached_data = self.cache_db.query_df(f"SELECT * FROM {model.__tablename__}")
+                logger.info(f"Writing {len(cached_data)} records to remote database...")
+                if model.__primary_key__:
+                    deduped = cached_data.drop_duplicates(subset=model.__primary_key__, keep="last")
+                    self.remote_db.upsert(model, data=deduped)
+                else:
+                    self.remote_db.insert(model, data=cached_data)
+                logger.debug("Truncating cache table...")
+                self.cache_db.truncate_table(model)
+                self._cache_count = 0
 
 
 class TushareIntegrationLog(Base):
