@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Type
 
 import typer
+import yaml
 from rich.console import Console
 from rich.table import Table
 
@@ -34,7 +35,7 @@ def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
     for p in api_path[1:-1]:  # 除了第一个和最后一个元素外的所有元素
         en_path = API_PATH_DICTIONARY.get(p, p)
         api_path_en.append(en_path)
-    
+
     # 添加最后一个元素，使用__api_name__
     if len(api_path) > 1:
         api_path_en.append(getattr(model, '__api_name__', api_path[-1]))
@@ -45,6 +46,7 @@ def _convert_spider_to_info(spider_cls: Type[Spider]) -> Dict[str, str]:
         'api_path': ' > '.join(api_path),
         'api_path_en': '/'.join(api_path_en),
     }
+
 
 def list_spiders_info(pattern: Optional[str] = None) -> List[Dict[str, str]]:
     """获取爬虫信息列表
@@ -65,7 +67,11 @@ def list_spiders_info(pattern: Optional[str] = None) -> List[Dict[str, str]]:
 
 
 @spider_app.command('list', help='列出所有可用爬虫')
-def cmd_list_spiders(verbose: bool = VerboseOption, pattern: Optional[str] = None) -> None:
+def cmd_list_spiders(
+    verbose: bool = VerboseOption,
+    pattern: Optional[str] = None,
+    no_table: Optional[bool] = False,
+) -> None:
     """列出所有可用的爬虫
 
     Args:
@@ -74,6 +80,27 @@ def cmd_list_spiders(verbose: bool = VerboseOption, pattern: Optional[str] = Non
             2. API路径匹配模式，如 "stock/basic"
     """
     spiders_info = list_spiders_info(pattern)
+
+    if no_table:
+        # 将spider按照api_path_en的分组，将最后一个/之前的路径作为分组的key
+        spider_group = {}
+        for spider in spiders_info:
+            api_path_en = spider['api_path_en']
+            key = '/'.join(api_path_en.split('/')[:-1])
+            if key not in spider_group:
+                spider_group[key] = []
+            spider_group[key].append(spider['api_path_en'])
+
+        # [
+        #     {'group':'group_name','spiders':['api_path_en']}
+        # ]
+        spider_group_list = []
+        for key, value in spider_group.items():
+            spider_group_list.append({'group': key, 'spiders': value})
+
+        console.print(yaml.dump(spider_group_list))
+
+        return
 
     # 创建表格
     table = Table(title="爬虫列表")
