@@ -17,7 +17,7 @@ from tushare_integration.models.ths_index import ThsIndex
 from tushare_integration.models.ths_member import ThsMember
 from tushare_integration.models.top_inst import TopInst
 from tushare_integration.models.top_list import TopList
-from tushare_integration.spiders.tushare import TimeSeriesSpider, TSCodeSpider, TushareSpider
+from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 
 class KplConceptSpider(TimeSeriesSpider):
@@ -56,7 +56,7 @@ class LimitCptListSpider(TimeSeriesSpider):
     __model__: type[LimitCptList] = LimitCptList
 
 
-class THSIndexSpider(TimeSeriesSpider):
+class THSIndexSpider(LimitOffsetSpider):
     __model__: type[ThsIndex] = ThsIndex
 
 

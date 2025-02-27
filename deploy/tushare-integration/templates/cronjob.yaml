@@ -41,6 +41,10 @@ spec:
               - name: {{ (splitList  "/" $spider.name) | last | replace "_" "-" }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
                 imagePullPolicy: {{ $.Values.image.pullPolicy }}
+                {{- with $.Values.resources }}
+                resources:
+                  {{- toYaml . | nindent 18 }}
+                {{- end }}
                 command:
                   - /bin/sh
                 args:
@@ -97,6 +101,10 @@ spec:
               - name: {{ .name }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
                 imagePullPolicy: "{{ $.Values.image.pullPolicy }}"
+                {{- with $.Values.resources }}
+                resources:
+                  {{- toYaml . | nindent 18 }}
+                {{- end }}
                 command:
                   - /bin/sh
                 args:

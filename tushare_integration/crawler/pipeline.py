@@ -156,6 +156,8 @@ class DataPipeline(Pipeline):
                 # 清空DataFrame缓存
                 self._cache_df = pd.DataFrame()
 
+    def close(self):
+        self.write_to_remote()
 
 class TushareIntegrationLog(Base):
     __tablename__ = 'tushare_integration_log'
