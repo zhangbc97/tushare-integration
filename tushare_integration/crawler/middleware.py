@@ -41,7 +41,7 @@ class Middleware(ABC):
         pass
 
     @abstractmethod
-    def process_response(self, response: httpx.Response) -> httpx.Response | None:
+    def process_response(self, response: httpx.Response) -> httpx.Response:
         """处理响应
 
         Args:

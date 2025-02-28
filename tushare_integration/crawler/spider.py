@@ -238,7 +238,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             logger.info("Request %s with params: %s", self.__spider_name__, json.loads(request.content)['params'])
             # 发送请求
             response: httpx.Response = self.client.send(request)
-
+            
             # 执行响应中间件
             for middleware in self.middlewares:
                 response = middleware.process_response(response)
