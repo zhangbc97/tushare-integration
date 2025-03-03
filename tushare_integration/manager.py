@@ -9,7 +9,7 @@ from sqlalchemy import select
 from tushare_integration.crawler.crawler import Crawler
 from tushare_integration.crawler.pipeline import TushareIntegrationLog
 from tushare_integration.db_engine import DBEngine
-from tushare_integration.logger import get_logger
+from tushare_integration.logger import get_level, get_logger, init_logger
 from tushare_integration.reporters import ReporterLoader
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -35,6 +35,8 @@ class TushareIntegrationManager(object):
         self.config_file = config_file
         self.batch_id = uuid.uuid1().hex
         self.settings: TushareIntegrationSettings = TushareIntegrationSettings.load_config(config_file)
+        init_logger(level=get_level(self.settings.log_level))
+
         self.db_engine: DBEngine = DBEngine(self.settings.database.get_uri())
         self.reporter_loader: ReporterLoader = ReporterLoader(self.settings)
         logger.info(f"Load reporters: {self.reporter_loader.get_reporters()}")

@@ -1,7 +1,6 @@
 import json
 import re
 import threading
-import time
 from abc import ABCMeta, abstractmethod
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -220,7 +219,7 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
         else:
             self._request_queue.append(request)
 
-    def _process_request(self, request: httpx.Request) -> httpx.Response | None:
+    def _process_request(self, request: httpx.Request, process_exception: bool = True) -> httpx.Response | None:
         """请求并获取响应
 
         Args:
@@ -238,14 +237,15 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             logger.info("Request %s with params: %s", self.__spider_name__, json.loads(request.content)['params'])
             # 发送请求
             response: httpx.Response = self.client.send(request)
-            
+
             # 执行响应中间件
             for middleware in self.middlewares:
                 response = middleware.process_response(response)
 
             return response
-
         except Exception as e:
+            if not process_exception:
+                raise
             for middleware in self.middlewares:
                 middleware.process_exception(request, e)
 
@@ -256,6 +256,9 @@ class Spider(BaseSpider, metaclass=SpiderMeta):
             # 解析响应并处理数据
             for item in self.parse(response):
                 if not isinstance(item, pd.DataFrame):
+                    logger.debug(
+                        "Spider %s parse() method returned %s, expected pandas.DataFrame", self.__spider_name__, item
+                    )
                     raise TypeError(
                         "Spider %s parse() method returned %s, expected pandas.DataFrame",
                         self.__spider_name__,

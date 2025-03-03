@@ -1,11 +1,12 @@
 import threading
 import time
 from abc import ABC, abstractmethod
-from typing import Set
+from typing import List, Set
 
 import httpx
 
 from tushare_integration.crawler.abc import BaseSpider
+from tushare_integration.crawler.exception import RetryException
 from tushare_integration.logger import get_logger
 from tushare_integration.settings import TushareIntegrationSettings
 
@@ -114,6 +115,12 @@ class RetryMiddleware(Middleware):
         504,  # Gateway Timeout
     }
 
+    # 可重试的API错误码
+    RETRY_API_CODES: List[int] = [
+        40201,  # API调用次数超限
+        # 可在此处添加其他需要重试的错误码
+    ]
+
     def __init__(self, settings: TushareIntegrationSettings, spider: BaseSpider):
         super().__init__(settings, spider)
         self.logger = get_logger()
@@ -124,7 +131,7 @@ class RetryMiddleware(Middleware):
         return request
 
     def process_response(self, response: httpx.Response) -> httpx.Response:
-        """处理响应，只对 402XX 错误码进行重试
+        """处理响应，对指定的API错误码进行重试
 
         Args:
             response: 响应对象
@@ -133,62 +140,40 @@ class RetryMiddleware(Middleware):
             处理后的响应对象
 
         """
-        try:
-            data = response.json()
-            code = data.get("code", 0)
+        data = response.json()
+        code = data.get("code", 0)
 
-            # 检查是否是 402XX 错误码
-            if 40200 <= code < 40300:
-                with self._lock:  # 使用锁保护重试逻辑
-                    request = response.request
-                    retry_count = request.extensions.get("retry_count", 0)
+        # 检查是否是可重试的API错误码
+        if code in self.RETRY_API_CODES:
+            with self._lock:  # 使用锁保护重试逻辑
+                request = response.request
+                retry_count = request.extensions.get("retry_count", 0)
 
-                    if retry_count < self.settings.retry_times:
-                        request.extensions["retry_count"] = retry_count + 1
-                        retry_msg = "API error code %d - %s" % (code, data.get('msg', 'Unknown error'))
+                if retry_count < self.settings.retry_times:
+                    request.extensions["retry_count"] = retry_count + 1
+                    retry_msg = "API error code %d - %s" % (code, data.get('msg', 'Unknown error'))
 
-                        self.logger.warning(
-                            "Request failed (attempt %d/%d): %s\n"
-                            "URL: %s\n"
-                            "Method: %s\n"
-                            "Will retry in %d seconds",
-                            retry_count + 1,
-                            self.settings.retry_times,
-                            retry_msg,
-                            request.url,
-                            request.method,
-                            self.settings.retry_delay,
-                        )
-
-                        time.sleep(self.settings.retry_delay)
-                        self.spider.schedule_request(request, first=True)
-                    else:
-                        self.logger.error(
-                            "Request failed after %d retries: %s\n" "URL: %s\n" "Method: %s\n" "Error Code: %d",
-                            retry_count,
-                            data.get('msg', 'Unknown error'),
-                            request.url,
-                            request.method,
-                            code,
-                        )
-            elif code != 0:
-                self.logger.error(
-                    "Request failed with non-retryable error code %d: %s\n" "URL: %s\n" "Method: %s",
-                    code,
-                    data.get('msg', 'Unknown error'),
-                    response.request.url,
-                    response.request.method,
-                )
-
-        except ValueError:
-            if response.status_code in self.RETRY_HTTP_STATUS_CODES:
-                with self._lock:  # 使用锁保护HTTP错误重试逻辑
                     self.logger.warning(
-                        "Request failed with HTTP status %d\n" "URL: %s\n" "Method: %s",
-                        response.status_code,
-                        response.request.url,
-                        response.request.method,
+                        "Request failed (attempt %d/%d): %s\n" "URL: %s\n" "Method: %s\n" "Will retry in %d seconds",
+                        retry_count + 1,
+                        self.settings.retry_times,
+                        retry_msg,
+                        request.url,
+                        request.method,
+                        self.settings.retry_delay,
                     )
+
+                    time.sleep(self.settings.retry_delay)
+                    
+                    raise RetryException(retry_msg)
+                else:
+                    raise Exception(
+                        "Request failed after %d retries: %s" % (retry_count, data.get('msg', 'Unknown error'))
+                    )
+        elif code != 0:
+            raise Exception(
+                "Request failed with non-retryable error code %d: %s" % (code, data.get('msg', 'Unknown error'))
+            )
 
         return response
 
@@ -199,7 +184,7 @@ class RetryMiddleware(Middleware):
             request: 请求对象
             exception: 异常对象
         """
-        if isinstance(exception, (httpx.NetworkError, httpx.TimeoutException)):
+        if isinstance(exception, (httpx.NetworkError, httpx.TimeoutException, RetryException)):
             with self._lock:  # 使用锁保护异常重试逻辑
                 retry_count = request.extensions.get("retry_count", 0)
                 if retry_count < self.settings.retry_times:

@@ -9,8 +9,6 @@ def verbose_callback(value: bool) -> bool:
     """verbose选项的回调函数，用于设置日志级别"""
     if value:
         init_logger(logging.DEBUG)
-    else:
-        init_logger(logging.INFO)
     return value
 
 

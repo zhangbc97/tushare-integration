@@ -263,7 +263,7 @@ class LimitOffsetSpider(TushareSpider):
     def parse(self, response: httpx.Response, **kwargs):
         first_page = self.parse_response(response, **kwargs)
         if first_page.empty:
-            return None
+            yield pd.DataFrame()
 
         all_data = [first_page]
         base_params = response.request.extensions.get("params", {})
@@ -276,7 +276,7 @@ class LimitOffsetSpider(TushareSpider):
             params.update({'offset': offset, 'limit': limit})
             next_request = self.get_httpx_request(params=params)
 
-            response = self._process_request(next_request)  # type: ignore
+            response = self._process_request(next_request, process_exception=False)  # type: ignore
 
             if response is None:
                 raise Exception("Request failed")
@@ -286,4 +286,4 @@ class LimitOffsetSpider(TushareSpider):
                 break
             all_data.append(next_page)
 
-        return pd.concat(all_data, ignore_index=True)
+        yield pd.concat(all_data, ignore_index=True)

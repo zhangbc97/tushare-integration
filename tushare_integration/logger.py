@@ -9,6 +9,18 @@ def _disable_httpx_logger() -> None:
     httpx_logger.setLevel(logging.WARNING)
 
 
+def get_level(level: str) -> int:
+    """获取日志级别
+
+    Args:
+        level: 日志级别名称
+
+    Returns:
+        int: 日志级别
+    """
+    return getattr(logging, level.upper(), logging.INFO)
+
+
 def init_logger(level: int = logging.INFO) -> None:
     """初始化日志配置
 

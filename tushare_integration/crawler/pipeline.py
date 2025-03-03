@@ -118,46 +118,56 @@ class DataPipeline(Pipeline):
         self.table_name: str = spider.__model__.__tablename__
         self.remote_db.create_table(spider.__model__)
         self._lock = threading.RLock()
-        # 新增本地缓存支持：使用DataFrame作为缓存
+        # 新增本地缓存支持：使用DataFrame列表作为缓存
         if self.settings.cache.enable:
-            logger.info("Cache enabled, using DataFrame as cache.")
-            self._cache_df = pd.DataFrame()  # 初始化空DataFrame作为缓存
+            logger.info("Cache enabled, using list of DataFrames as cache.")
+            self._cache = []  # 初始化空列表作为缓存
 
     def process_item(self, item: pd.DataFrame) -> pd.DataFrame | None:
         if item.empty:
             return item
         model = self.spider.__model__
-        with self._lock:
-            if self.settings.cache.enable:
-                # 将数据追加到DataFrame缓存
-                self._cache_df = pd.concat([self._cache_df, item], ignore_index=True)
+
+        if self.settings.cache.enable:
+            with self._lock:
+                # 将数据追加到缓存列表
+                self._cache.append(item)
+                # 计算当前缓存中的总记录数
+                total_records = sum(len(df) for df in self._cache)
                 # 当本地缓存达到批量大小时，写入远程数据库并清空缓存
-                if len(self._cache_df) >= self.settings.cache.batch_size:
+                if total_records >= self.settings.cache.batch_size:
                     self.write_to_remote()
-                return item
+            return item
+        else:
+            # 不需要缓存时直接写入数据库，不需要加锁
+            if model.__primary_key__:
+                item.drop_duplicates(subset=model.__primary_key__, keep="last", inplace=True)
+                self.remote_db.upsert(model, data=item)
             else:
-                if model.__primary_key__:
-                    item = item.drop_duplicates(subset=model.__primary_key__, keep="last")
-                    self.remote_db.upsert(model, data=item)
-                else:
-                    self.remote_db.insert(model, data=item)
-                return item
+                self.remote_db.insert(model, data=item)
+            return item
 
     def write_to_remote(self):
         model = self.spider.__model__
-        if self.settings.cache.enable and len(self._cache_df) > 0:
+        if self.settings.cache.enable and len(self._cache) > 0:
             with self._lock:
-                logger.info(f"Writing {len(self._cache_df)} records to remote database...")
+                # 将所有DataFrame合并为一个
+                total_records = sum(len(df) for df in self._cache)
+                logger.info(f"Writing {total_records} records to remote database...")
+                combined_df = pd.concat(self._cache, ignore_index=True)
+
                 if model.__primary_key__:
-                    deduped = self._cache_df.drop_duplicates(subset=model.__primary_key__, keep="last")
-                    self.remote_db.upsert(model, data=deduped)
+                    combined_df.drop_duplicates(subset=model.__primary_key__, keep="last", inplace=True)
+                    self.remote_db.upsert(model, data=combined_df)
                 else:
-                    self.remote_db.insert(model, data=self._cache_df)
-                # 清空DataFrame缓存
-                self._cache_df = pd.DataFrame()
+                    self.remote_db.insert(model, data=combined_df)
+                self._cache.clear()
+                # 清空缓存
+                self._cache = []
 
     def close(self):
         self.write_to_remote()
+
 
 class TushareIntegrationLog(Base):
     __tablename__ = 'tushare_integration_log'
@@ -217,7 +227,7 @@ class RecordLogPipeline(Pipeline):
                 start_time=self.start_time,
                 end_time=datetime.datetime.now(),
             )
-            self.db_engine.insert(
+            self.db_engine.upsert(
                 TushareIntegrationLog,
                 pd.DataFrame(
                     [
