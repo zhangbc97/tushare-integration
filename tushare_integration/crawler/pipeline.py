@@ -162,8 +162,6 @@ class DataPipeline(Pipeline):
                 else:
                     self.remote_db.insert(model, data=combined_df)
                 self._cache.clear()
-                # 清空缓存
-                self._cache = []
 
     def close(self):
         self.write_to_remote()
