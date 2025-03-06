@@ -41,6 +41,9 @@ spec:
               - name: {{ (splitList  "/" $spider.name) | last | replace "_" "-" }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
                 imagePullPolicy: {{ $.Values.image.pullPolicy }}
+                env:
+                  - name: TZ
+                    value: "Asia/Shanghai"
                 {{- with $.Values.resources }}
                 resources:
                   {{- toYaml . | nindent 18 }}
@@ -101,6 +104,9 @@ spec:
               - name: {{ .name }}
                 image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
                 imagePullPolicy: "{{ $.Values.image.pullPolicy }}"
+                env:
+                  - name: TZ
+                    value: "Asia/Shanghai"
                 {{- with $.Values.resources }}
                 resources:
                   {{- toYaml . | nindent 18 }}

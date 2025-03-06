@@ -22,26 +22,30 @@ class DBEngine(object):
         """从模型创建表"""
         with self._db_lock:
             create_stmt = CreateTable(model.__table__, if_not_exists=True).compile(dialect=self.engine.dialect)
-            self.conn.execute(text(str(create_stmt)))
-            self.conn.commit()  # 目前DuckDB需要手动提交事务
+            with Session(self.engine) as session:
+                session.execute(text(str(create_stmt)))
+                session.commit()
 
     def truncate_table(self, model) -> None:
         """清空表"""
         with self._db_lock:
-            self.conn.execute(text(f"TRUNCATE TABLE {model.__tablename__}"))
-            self.conn.commit()
+            with Session(self.engine) as session:
+                session.execute(text(f"TRUNCATE TABLE {model.__tablename__}"))
+                session.commit()
 
     def insert(self, model, data: pd.DataFrame) -> None:
         """插入数据"""
         with self._db_lock:
-            self.conn.execute(insert(model).values(data.to_dict(orient='records')))
-            self.conn.commit()
+            with Session(self.engine) as session:
+                session.execute(insert(model).values(data.to_dict(orient='records')))
+                session.commit()
 
     def upsert(self, model, data: pd.DataFrame) -> None:
         """插入或更新数据"""
         with self._db_lock:
-            self.conn.execute(upsert(model).values(data.to_dict(orient='records')))
-            self.conn.commit()  # 目前DuckDB需要手动提交事务
+            with Session(self.engine) as session:
+                session.execute(upsert(model).values(data.to_dict(orient='records')))
+                session.commit()
 
     def query_df(self, stmt: Select | str) -> pd.DataFrame:
         """执行查询并返回DataFrame
