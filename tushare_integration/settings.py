@@ -2,7 +2,6 @@ import functools
 import logging
 import os
 import sys
-import time
 import uuid
 from pathlib import Path
 from typing import Annotated, Any, Dict, Literal
@@ -10,7 +9,6 @@ from typing import Annotated, Any, Dict, Literal
 import pandas as pd
 import requests
 import yaml
-from clickhouse_connect import driver_name
 from pydantic import BeforeValidator, Field, field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 from sqlalchemy import URL
