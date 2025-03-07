@@ -225,10 +225,36 @@ class FinancialReportSpider(TushareSpider):
                 periods.append(end_date)
         return periods
 
+    def _is_period_older_than_four_years(self, period: str) -> bool:
+        """Check if a period is older than three years from the current date."""
+        try:
+            period_date = datetime.datetime.strptime(period, "%Y%m%d")
+            four_years_ago = datetime.datetime.now() - datetime.timedelta(days=4 * 365)
+            return period_date < four_years_ago
+        except ValueError:
+            # If the date format is incorrect, default to False to ensure data collection
+            return False
+
+    def _has_data_for_period(self, period: str) -> bool:
+        """Check if data already exists for the given period."""
+        conn = self.get_db_engine()
+        if not hasattr(self.__model__, 'end_date'):
+            # If the model doesn't have end_date field, we can't check
+            return False
+
+        query = select(getattr(self.__model__, 'end_date')).where(getattr(self.__model__, 'end_date') == period)
+        result = conn.query_df(query)
+        return not result.empty
+
     def request_with_vip(self):
         if self.__model__.__has_vip__ is True:
             self.api_name = self.api_name + "_vip"
         for period in self.get_all_period():
+            # Skip periods older than three years if data already exists
+            if self._is_period_older_than_four_years(period) and self._has_data_for_period(period):
+                logger.debug(f"Skipping period {period} as it's older than three years and data exists")
+                continue
+
             if self.api_name.startswith(("income", "balance", "cashflow")):
                 for report_type in range(1, 13):
                     params = {"period": period, "report_type": str(report_type)}
