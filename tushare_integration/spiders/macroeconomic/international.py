@@ -1,10 +1,11 @@
 from typing import Type
 
-from tushare_integration.models.us_tbr import UsTbr
-from tushare_integration.models.us_tltr import UsTltr
-from tushare_integration.models.us_trltr import UsTrltr
-from tushare_integration.models.us_trycr import UsTrycr
-from tushare_integration.models.us_tycr import UsTycr
+from tushare_models.us_tbr import UsTbr
+from tushare_models.us_tltr import UsTltr
+from tushare_models.us_trltr import UsTrltr
+from tushare_models.us_trycr import UsTrycr
+from tushare_models.us_tycr import UsTycr
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider
 
 

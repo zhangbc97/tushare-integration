@@ -2,23 +2,23 @@
 import itertools
 
 from sqlalchemy import select
-
-from tushare_integration.models.bc_bestotcqt import BcBestotcqt
-from tushare_integration.models.bc_otcqt import BcOtcqt
-from tushare_integration.models.bond_blk import BondBlk
-from tushare_integration.models.bond_blk_detail import BondBlkDetail
+from tushare_models.bc_bestotcqt import BcBestotcqt
+from tushare_models.bc_otcqt import BcOtcqt
+from tushare_models.bond_blk import BondBlk
+from tushare_models.bond_blk_detail import BondBlkDetail
 
 # 导入债券相关的数据模型
-from tushare_integration.models.cb_basic import CbBasic
-from tushare_integration.models.cb_call import CbCall
-from tushare_integration.models.cb_daily import CbDaily
-from tushare_integration.models.cb_issue import CbIssue
-from tushare_integration.models.cb_price_chg import CbPriceChg
-from tushare_integration.models.cb_rate import CbRate
-from tushare_integration.models.cb_share import CbShare
-from tushare_integration.models.eco_cal import EcoCal
-from tushare_integration.models.repo_daily import RepoDaily
-from tushare_integration.models.yc_cb import YcCb
+from tushare_models.cb_basic import CbBasic
+from tushare_models.cb_call import CbCall
+from tushare_models.cb_daily import CbDaily
+from tushare_models.cb_issue import CbIssue
+from tushare_models.cb_price_chg import CbPriceChg
+from tushare_models.cb_rate import CbRate
+from tushare_models.cb_share import CbShare
+from tushare_models.eco_cal import EcoCal
+from tushare_models.repo_daily import RepoDaily
+from tushare_models.yc_cb import YcCb
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 

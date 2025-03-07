@@ -4,10 +4,10 @@ import httpx
 import pandas as pd
 from sqlalchemy import and_, select
 from sqlalchemy.sql import func
+from tushare_models.opt_basic import OptBasic
+from tushare_models.opt_daily import OptDaily
+from tushare_models.opt_mins import OptMins
 
-from tushare_integration.models.opt_basic import OptBasic
-from tushare_integration.models.opt_daily import OptDaily
-from tushare_integration.models.opt_mins import OptMins
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider, get_logger
 
 logger = get_logger()

@@ -6,11 +6,11 @@ from typing import ClassVar, List
 import pandas as pd
 from clickhouse_sqlalchemy import engines
 from sqlalchemy import Column, DateTime, Integer, String, Text
+from tushare_models.core.base import Base
 
 from tushare_integration.crawler.abc import BaseSpider
 from tushare_integration.db_engine import DBEngine
 from tushare_integration.logger import get_logger
-from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()

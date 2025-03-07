@@ -8,8 +8,8 @@ from sqlalchemy.sql import insert
 
 # 将上一级目录添加到import目录
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from tushare_integration.models.core.dml import upsert
-from tushare_integration.models.limit_list_ths import LimitListThs
+from tushare_models.core.dml import upsert
+from tushare_models.limit_list_ths import LimitListThs
 
 database = 'default'
 engine = create_engine(f'duckdb://localhost/{database}', echo=False)

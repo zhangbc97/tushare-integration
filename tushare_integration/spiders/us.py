@@ -1,7 +1,8 @@
-from tushare_integration.models.us_basic import UsBasic
-from tushare_integration.models.us_daily import UsDaily
-from tushare_integration.models.us_daily_adj import UsDailyAdj
-from tushare_integration.models.us_tradecal import UsTradecal
+from tushare_models.us_basic import UsBasic
+from tushare_models.us_daily import UsDaily
+from tushare_models.us_daily_adj import UsDailyAdj
+from tushare_models.us_tradecal import UsTradecal
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider
 
 

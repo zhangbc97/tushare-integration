@@ -1,13 +1,14 @@
-from tushare_integration.models.balancesheet import Balancesheet
-from tushare_integration.models.cashflow import Cashflow
-from tushare_integration.models.disclosure_date import DisclosureDate
-from tushare_integration.models.dividend import Dividend
-from tushare_integration.models.express import Express
-from tushare_integration.models.fina_audit import FinaAudit
-from tushare_integration.models.fina_indicator import FinaIndicator
-from tushare_integration.models.fina_mainbz import FinaMainbz
-from tushare_integration.models.forecast import Forecast
-from tushare_integration.models.income import Income
+from tushare_models.balancesheet import Balancesheet
+from tushare_models.cashflow import Cashflow
+from tushare_models.disclosure_date import DisclosureDate
+from tushare_models.dividend import Dividend
+from tushare_models.express import Express
+from tushare_models.fina_audit import FinaAudit
+from tushare_models.fina_indicator import FinaIndicator
+from tushare_models.fina_mainbz import FinaMainbz
+from tushare_models.forecast import Forecast
+from tushare_models.income import Income
+
 from tushare_integration.spiders.tushare import FinancialReportSpider
 
 

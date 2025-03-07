@@ -4,9 +4,9 @@ import pandas as pd
 from sqlalchemy import URL, Select, create_engine, insert, text
 from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
+from tushare_models.core.dml import upsert
 
 from tushare_integration.logger import get_logger
-from tushare_integration.models.core.dml import upsert
 
 logger = get_logger()
 

@@ -1,7 +1,8 @@
 import datetime  # 新增：用于获取当前日期和计算季度
 
-from tushare_integration.models.fund_sales_ratio import FundSalesRatio
-from tushare_integration.models.fund_sales_vol import FundSalesVol
+from tushare_models.fund_sales_ratio import FundSalesRatio
+from tushare_models.fund_sales_vol import FundSalesVol
+
 from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 

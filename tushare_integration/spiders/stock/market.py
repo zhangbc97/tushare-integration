@@ -1,16 +1,16 @@
 from sqlalchemy import select
+from tushare_models.block_trade import BlockTrade
+from tushare_models.concept import Concept
+from tushare_models.concept_detail import ConceptDetail
+from tushare_models.pledge_detail import PledgeDetail
+from tushare_models.pledge_stat import PledgeStat
+from tushare_models.repurchase import Repurchase
+from tushare_models.share_float import ShareFloat
+from tushare_models.stk_holdernumber import StkHoldernumber
+from tushare_models.stk_holdertrade import StkHoldertrade
+from tushare_models.top10_floatholders import Top10Floatholders
+from tushare_models.top10_holders import Top10Holders
 
-from tushare_integration.models.block_trade import BlockTrade
-from tushare_integration.models.concept import Concept
-from tushare_integration.models.concept_detail import ConceptDetail
-from tushare_integration.models.pledge_detail import PledgeDetail
-from tushare_integration.models.pledge_stat import PledgeStat
-from tushare_integration.models.repurchase import Repurchase
-from tushare_integration.models.share_float import ShareFloat
-from tushare_integration.models.stk_holdernumber import StkHoldernumber
-from tushare_integration.models.stk_holdertrade import StkHoldertrade
-from tushare_integration.models.top10_floatholders import Top10Floatholders
-from tushare_integration.models.top10_holders import Top10Holders
 from tushare_integration.spiders.tushare import FinancialReportSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 

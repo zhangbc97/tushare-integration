@@ -1,5 +1,6 @@
-from tushare_integration.models.sge_basic import SgeBasic
-from tushare_integration.models.sge_daily import SgeDaily
+from tushare_models.sge_basic import SgeBasic
+from tushare_models.sge_daily import SgeDaily
+
 from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 

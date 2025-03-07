@@ -5,11 +5,11 @@ from typing import Dict, List, Type
 import typer
 from rich.console import Console
 from rich.table import Table
+from tushare_models.core import Base
 
 from tushare_integration.commands.base import VerboseOption, app_callback
 from tushare_integration.commands.spider import list_spiders_info
 from tushare_integration.crawler.spider import SpiderMeta
-from tushare_integration.models.core import Base
 
 console = Console()
 api_app = typer.Typer(
@@ -29,7 +29,7 @@ def load_all_models() -> List[Type[Base]]:
     # 遍历models目录下的所有.py文件
     for filename in os.listdir(models_dir):
         if filename.endswith('.py') and not filename.startswith('__'):
-            module_name = f"tushare_integration.models.{filename[:-3]}"
+            module_name = f"tushare_models.{filename[:-3]}"
             try:
                 module = importlib.import_module(module_name)
                 # 获取模块中的所有类

@@ -1,10 +1,11 @@
-from tushare_integration.models.moneyflow import Moneyflow
-from tushare_integration.models.moneyflow_dc import MoneyflowDc
-from tushare_integration.models.moneyflow_hsgt import MoneyflowHsgt
-from tushare_integration.models.moneyflow_ind_dc import MoneyflowIndDc
-from tushare_integration.models.moneyflow_ind_ths import MoneyflowIndThs
-from tushare_integration.models.moneyflow_mkt_dc import MoneyflowMktDc
-from tushare_integration.models.moneyflow_ths import MoneyflowThs
+from tushare_models.moneyflow import Moneyflow
+from tushare_models.moneyflow_dc import MoneyflowDc
+from tushare_models.moneyflow_hsgt import MoneyflowHsgt
+from tushare_models.moneyflow_ind_dc import MoneyflowIndDc
+from tushare_models.moneyflow_ind_ths import MoneyflowIndThs
+from tushare_models.moneyflow_mkt_dc import MoneyflowMktDc
+from tushare_models.moneyflow_ths import MoneyflowThs
+
 from tushare_integration.spiders.tushare import TimeSeriesSpider
 
 

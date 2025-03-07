@@ -1,15 +1,16 @@
 import datetime
 
-from tushare_integration.models.fund_adj import FundAdj
-from tushare_integration.models.fund_basic import FundBasic
-from tushare_integration.models.fund_company import FundCompany
-from tushare_integration.models.fund_daily import FundDaily
-from tushare_integration.models.fund_div import FundDiv
-from tushare_integration.models.fund_factor_pro import FundFactorPro
-from tushare_integration.models.fund_manager import FundManager
-from tushare_integration.models.fund_nav import FundNav
-from tushare_integration.models.fund_portfolio import FundPortfolio
-from tushare_integration.models.fund_share import FundShare
+from tushare_models.fund_adj import FundAdj
+from tushare_models.fund_basic import FundBasic
+from tushare_models.fund_company import FundCompany
+from tushare_models.fund_daily import FundDaily
+from tushare_models.fund_div import FundDiv
+from tushare_models.fund_factor_pro import FundFactorPro
+from tushare_models.fund_manager import FundManager
+from tushare_models.fund_nav import FundNav
+from tushare_models.fund_portfolio import FundPortfolio
+from tushare_models.fund_share import FundShare
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 

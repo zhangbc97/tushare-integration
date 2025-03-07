@@ -3,12 +3,12 @@ import datetime
 import httpx
 import pandas as pd
 from sqlalchemy import and_, func, select
+from tushare_models.hk_basic import HkBasic
+from tushare_models.hk_daily import HkDaily
+from tushare_models.hk_daily_adj import HkDailyAdj
+from tushare_models.hk_mins import HkMins
+from tushare_models.hk_tradecal import HkTradecal
 
-from tushare_integration.models.hk_basic import HkBasic
-from tushare_integration.models.hk_daily import HkDaily
-from tushare_integration.models.hk_daily_adj import HkDailyAdj
-from tushare_integration.models.hk_mins import HkMins
-from tushare_integration.models.hk_tradecal import HkTradecal
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider
 
 

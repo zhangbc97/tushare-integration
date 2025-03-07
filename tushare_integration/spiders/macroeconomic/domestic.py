@@ -1,17 +1,18 @@
 # 新增导入
-from tushare_integration.models.cn_cpi import CnCpi
-from tushare_integration.models.cn_gdp import CnGdp
-from tushare_integration.models.cn_m import CnM
-from tushare_integration.models.cn_pmi import CnPmi
-from tushare_integration.models.cn_ppi import CnPpi
-from tushare_integration.models.gz_index import GzIndex
-from tushare_integration.models.hibor import Hibor
-from tushare_integration.models.libor import Libor
-from tushare_integration.models.sf_month import SfMonth
-from tushare_integration.models.shibor import Shibor
-from tushare_integration.models.shibor_lpr import ShiborLpr
-from tushare_integration.models.shibor_quote import ShiborQuote
-from tushare_integration.models.wz_index import WzIndex
+from tushare_models.cn_cpi import CnCpi
+from tushare_models.cn_gdp import CnGdp
+from tushare_models.cn_m import CnM
+from tushare_models.cn_pmi import CnPmi
+from tushare_models.cn_ppi import CnPpi
+from tushare_models.gz_index import GzIndex
+from tushare_models.hibor import Hibor
+from tushare_models.libor import Libor
+from tushare_models.sf_month import SfMonth
+from tushare_models.shibor import Shibor
+from tushare_models.shibor_lpr import ShiborLpr
+from tushare_models.shibor_quote import ShiborQuote
+from tushare_models.wz_index import WzIndex
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TushareSpider
 
 
@@ -65,4 +66,3 @@ class SfMonthSpider(TushareSpider):
 
 class CnPmiSpider(TushareSpider):
     __model__ = CnPmi
-    

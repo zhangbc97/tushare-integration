@@ -1,15 +1,16 @@
 import datetime
 
-from tushare_integration.models.bak_basic import BakBasic
-from tushare_integration.models.hs_const import HsConst
-from tushare_integration.models.namechange import Namechange
-from tushare_integration.models.new_share import NewShare
-from tushare_integration.models.stk_managers import StkManagers
-from tushare_integration.models.stk_premarket import StkPremarket
-from tushare_integration.models.stk_rewards import StkRewards
-from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.models.stock_company import StockCompany
-from tushare_integration.models.trade_cal import TradeCal
+from tushare_models.bak_basic import BakBasic
+from tushare_models.hs_const import HsConst
+from tushare_models.namechange import Namechange
+from tushare_models.new_share import NewShare
+from tushare_models.stk_managers import StkManagers
+from tushare_models.stk_premarket import StkPremarket
+from tushare_models.stk_rewards import StkRewards
+from tushare_models.stock_basic import StockBasic
+from tushare_models.stock_company import StockCompany
+from tushare_models.trade_cal import TradeCal
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 

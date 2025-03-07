@@ -5,24 +5,24 @@ from typing import Literal
 import httpx
 import pandas as pd
 from sqlalchemy import and_, func, select
+from tushare_models.adj_factor import AdjFactor
+from tushare_models.bak_daily import BakDaily
+from tushare_models.daily import Daily
+from tushare_models.daily_basic import DailyBasic
+from tushare_models.ggt_daily import GgtDaily
+from tushare_models.ggt_top10 import GgtTop10
+from tushare_models.hsgt_top10 import HsgtTop10
+from tushare_models.monthly import Monthly
+from tushare_models.stk_limit import StkLimit
+from tushare_models.stk_mins import StkMins
+from tushare_models.stk_week_month_adj import StkWeekMonthAdj
+from tushare_models.stk_weekly_monthly import StkWeeklyMonthly
+from tushare_models.stock_basic import StockBasic
+from tushare_models.suspend_d import SuspendD
+from tushare_models.trade_cal import TradeCal
+from tushare_models.weekly import Weekly
 
 from tushare_integration.logger import get_logger
-from tushare_integration.models.adj_factor import AdjFactor
-from tushare_integration.models.bak_daily import BakDaily
-from tushare_integration.models.daily import Daily
-from tushare_integration.models.daily_basic import DailyBasic
-from tushare_integration.models.ggt_daily import GgtDaily
-from tushare_integration.models.ggt_top10 import GgtTop10
-from tushare_integration.models.hsgt_top10 import HsgtTop10
-from tushare_integration.models.monthly import Monthly
-from tushare_integration.models.stk_limit import StkLimit
-from tushare_integration.models.stk_mins import StkMins
-from tushare_integration.models.stk_week_month_adj import StkWeekMonthAdj
-from tushare_integration.models.stk_weekly_monthly import StkWeeklyMonthly
-from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.models.suspend_d import SuspendD
-from tushare_integration.models.trade_cal import TradeCal
-from tushare_integration.models.weekly import Weekly
 from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 logger = get_logger()
@@ -64,7 +64,7 @@ class StkWeeklyMonthlySpider(TimeSeriesSpider):
         weekday = today.weekday()
         if weekday == 6:
             return today
-        sunday = (today + datetime.timedelta(days=6 - weekday))
+        sunday = today + datetime.timedelta(days=6 - weekday)
 
         return self.get_latest_trade_date(sunday)
 

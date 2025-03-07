@@ -6,13 +6,13 @@ from typing import ClassVar, Generator, Literal
 import httpx
 import pandas as pd
 from sqlalchemy import and_, select
+from tushare_models.core.base import Base
+from tushare_models.stock_basic import StockBasic
+from tushare_models.trade_cal import TradeCal
 
 from tushare_integration.crawler.spider import Spider
 from tushare_integration.db_engine import DBEngine
 from tushare_integration.logger import get_logger
-from tushare_integration.models.core.base import Base
-from tushare_integration.models.stock_basic import StockBasic
-from tushare_integration.models.trade_cal import TradeCal
 from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()

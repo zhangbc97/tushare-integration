@@ -3,14 +3,14 @@ from typing import Any, Generator, Type
 
 import httpx
 from sqlalchemy import and_, func, select
+from tushare_models.anns_d import AnnsD
+from tushare_models.cctv_news import CctvNews
+from tushare_models.major_news import MajorNews
+from tushare_models.ncov_global import NcovGlobal
+from tushare_models.ncov_num import NcovNum
+from tushare_models.news import News
 
 from tushare_integration.logger import get_logger
-from tushare_integration.models.anns_d import AnnsD
-from tushare_integration.models.cctv_news import CctvNews
-from tushare_integration.models.major_news import MajorNews
-from tushare_integration.models.ncov_global import NcovGlobal
-from tushare_integration.models.ncov_num import NcovNum
-from tushare_integration.models.news import News
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider
 
 logger = get_logger()

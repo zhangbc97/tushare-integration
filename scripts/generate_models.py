@@ -18,7 +18,7 @@ from typing import Any, ClassVar, Dict, List
 from clickhouse_sqlalchemy import engines
 from sqlalchemy import Column, PrimaryKeyConstraint, text
 
-from tushare_integration.models.core import Base, Date, DateTime, Float, Integer, String
+from tushare_models.core import Base, Date, DateTime, Float, Integer, String
 
 
 class {{ table_name|to_camel_case }}(Base):

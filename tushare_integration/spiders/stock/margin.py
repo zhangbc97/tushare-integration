@@ -1,10 +1,11 @@
-from tushare_integration.models.margin import Margin
-from tushare_integration.models.margin_detail import MarginDetail
-from tushare_integration.models.margin_secs import MarginSecs
-from tushare_integration.models.slb_len import SlbLen
-from tushare_integration.models.slb_len_mm import SlbLenMm
-from tushare_integration.models.slb_sec import SlbSec
-from tushare_integration.models.slb_sec_detail import SlbSecDetail
+from tushare_models.margin import Margin
+from tushare_models.margin_detail import MarginDetail
+from tushare_models.margin_secs import MarginSecs
+from tushare_models.slb_len import SlbLen
+from tushare_models.slb_len_mm import SlbLenMm
+from tushare_models.slb_sec import SlbSec
+from tushare_models.slb_sec_detail import SlbSecDetail
+
 from tushare_integration.spiders.tushare import TimeSeriesSpider
 
 

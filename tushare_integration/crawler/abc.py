@@ -3,8 +3,7 @@ from typing import ClassVar, Generator, Iterator
 
 import httpx
 import pandas as pd
-
-from tushare_integration.models.core.base import Base
+from tushare_models.core.base import Base
 
 
 class BaseSpider(ABC):

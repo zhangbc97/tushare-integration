@@ -2,22 +2,22 @@ import datetime
 from typing import Literal
 
 from sqlalchemy import select
+from tushare_models.ci_daily import CiDaily
+from tushare_models.daily_info import DailyInfo
+from tushare_models.idx_factor_pro import IdxFactorPro
+from tushare_models.index_basic import IndexBasic
+from tushare_models.index_classify import IndexClassify
+from tushare_models.index_daily import IndexDaily
+from tushare_models.index_dailybasic import IndexDailybasic
+from tushare_models.index_global import IndexGlobal
+from tushare_models.index_member_all import IndexMemberAll
+from tushare_models.index_monthly import IndexMonthly
+from tushare_models.index_weekly import IndexWeekly
+from tushare_models.index_weight import IndexWeight
+from tushare_models.sw_daily import SwDaily
+from tushare_models.sz_daily_info import SzDailyInfo
+from tushare_models.ths_daily import ThsDaily
 
-from tushare_integration.models.ci_daily import CiDaily
-from tushare_integration.models.daily_info import DailyInfo
-from tushare_integration.models.idx_factor_pro import IdxFactorPro
-from tushare_integration.models.index_basic import IndexBasic
-from tushare_integration.models.index_classify import IndexClassify
-from tushare_integration.models.index_daily import IndexDaily
-from tushare_integration.models.index_dailybasic import IndexDailybasic
-from tushare_integration.models.index_global import IndexGlobal
-from tushare_integration.models.index_member_all import IndexMemberAll
-from tushare_integration.models.index_monthly import IndexMonthly
-from tushare_integration.models.index_weekly import IndexWeekly
-from tushare_integration.models.index_weight import IndexWeight
-from tushare_integration.models.sw_daily import SwDaily
-from tushare_integration.models.sz_daily_info import SzDailyInfo
-from tushare_integration.models.ths_daily import ThsDaily
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TushareSpider
 
 

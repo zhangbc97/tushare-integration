@@ -1,5 +1,6 @@
-from tushare_integration.models.fx_daily import FxDaily
-from tushare_integration.models.fx_obasic import FxObasic
+from tushare_models.fx_daily import FxDaily
+from tushare_models.fx_obasic import FxObasic
+
 from tushare_integration.spiders.tushare import TimeSeriesSpider, TushareSpider
 
 

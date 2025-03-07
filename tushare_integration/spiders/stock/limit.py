@@ -1,22 +1,23 @@
 import datetime
 
-from tushare_integration.models.dc_hot import DcHot
-from tushare_integration.models.dc_index import DcIndex
-from tushare_integration.models.dc_member import DcMember
-from tushare_integration.models.hm_detail import HmDetail
-from tushare_integration.models.hm_list import HmList
-from tushare_integration.models.kpl_concept import KplConcept
-from tushare_integration.models.kpl_concept_cons import KplConceptCons
-from tushare_integration.models.kpl_list import KplList
-from tushare_integration.models.limit_cpt_list import LimitCptList
-from tushare_integration.models.limit_list_d import LimitListD
-from tushare_integration.models.limit_list_ths import LimitListThs
-from tushare_integration.models.limit_step import LimitStep
-from tushare_integration.models.ths_hot import ThsHot
-from tushare_integration.models.ths_index import ThsIndex
-from tushare_integration.models.ths_member import ThsMember
-from tushare_integration.models.top_inst import TopInst
-from tushare_integration.models.top_list import TopList
+from tushare_models.dc_hot import DcHot
+from tushare_models.dc_index import DcIndex
+from tushare_models.dc_member import DcMember
+from tushare_models.hm_detail import HmDetail
+from tushare_models.hm_list import HmList
+from tushare_models.kpl_concept import KplConcept
+from tushare_models.kpl_concept_cons import KplConceptCons
+from tushare_models.kpl_list import KplList
+from tushare_models.limit_cpt_list import LimitCptList
+from tushare_models.limit_list_d import LimitListD
+from tushare_models.limit_list_ths import LimitListThs
+from tushare_models.limit_step import LimitStep
+from tushare_models.ths_hot import ThsHot
+from tushare_models.ths_index import ThsIndex
+from tushare_models.ths_member import ThsMember
+from tushare_models.top_inst import TopInst
+from tushare_models.top_list import TopList
+
 from tushare_integration.spiders.tushare import LimitOffsetSpider, TimeSeriesSpider, TSCodeSpider, TushareSpider
 
 

@@ -24,3 +24,4 @@ starrocks>=1.2.0
 httpx>=0.21.0
 databend-sqlalchemy>=0.5.0
 duckdb-engine>=0.15.0
+tushare-models>=0.0.1

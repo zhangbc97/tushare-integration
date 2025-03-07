@@ -8,6 +8,7 @@ from typing import ClassVar, Deque, Dict, Generator, Iterator, List, Type, cast
 
 import httpx
 import pandas as pd
+from tushare_models.core.base import Base
 
 from tushare_integration.crawler.abc import BaseSpider
 from tushare_integration.crawler.middleware import Middleware, RetryMiddleware, ThrottleMiddleware
@@ -20,7 +21,6 @@ from tushare_integration.crawler.pipeline import (
 )
 from tushare_integration.dictionary import API_PATH_DICTIONARY
 from tushare_integration.logger import get_logger
-from tushare_integration.models.core.base import Base
 from tushare_integration.settings import TushareIntegrationSettings
 
 logger = get_logger()
