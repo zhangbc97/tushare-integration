@@ -242,7 +242,10 @@ class FinancialReportSpider(TushareSpider):
             # If the model doesn't have end_date field, we can't check
             return False
 
-        query = select(getattr(self.__model__, 'end_date')).where(getattr(self.__model__, 'end_date') == period)
+        # Convert the period string to a datetime.date object
+        period_date = datetime.datetime.strptime(period, "%Y%m%d").date()
+
+        query = select(getattr(self.__model__, 'end_date')).where(getattr(self.__model__, 'end_date') == period_date)
         result = conn.query_df(query)
         return not result.empty
 
