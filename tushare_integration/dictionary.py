@@ -1,7 +1,7 @@
 API_PATH_DICTIONARY = {
     # Market 主要市场数据
     '数据接口': 'api',
-    '沪深股票': 'stock',
+    '股票数据': 'stock',
     '基础数据': 'basic',
     '行情数据': 'quotes',
     '财务数据': 'financial',
